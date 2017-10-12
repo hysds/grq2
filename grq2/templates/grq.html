@@ -1,0 +1,43 @@
+{% extends "base-fluid.html" %}
+
+{% block head %}
+  {{ super() }}
+
+    <script src="{{ url_for('static', filename='JSON-js/json2.js') }}"></script>
+
+    <style>
+      body .modal {
+        max-height: 80%;
+        overflow-y: auto;
+        width: 90%; /* desired relative width */
+        left: 5%; /* (100%-width)/2 */
+        /* place center */
+        margin-left:auto;
+        margin-right:auto; 
+      }
+
+      .modal-body {
+        max-height: none;
+      }
+
+      iframe.monitor_frame {
+        border-width: 0;
+        overflow-y: auto;
+        max-height: none;
+        height: 850px;
+        width: 99.6%;
+        zoom: 0.6;
+      }
+    </style>
+
+{% endblock head %}
+
+{% block content %}
+      <!-- Jumbotron -->
+      <div class="jumbotron">
+        <h1>GeoRegionQuery</h1>
+        <p class="lead">A REST service that provides geospatial and temporal search on scientific datasets.</p>
+        <!--<a class="btn btn-large btn-success" href="#">Get started today</a>-->
+      </div>
+
+{% endblock content %}

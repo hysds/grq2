@@ -1,0 +1,2236 @@
+commit 96f6d88e4eaaf50e978da375f550dde940c69d4e
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Thu Jul 13 00:11:20 2017 +0000
+
+    mstarch: allowing users with e-mails
+
+commit a3822e9a820322535d03dd0b1dbad6a8d7d9addc
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Tue Jun 13 21:40:32 2017 +0000
+
+    mstarch: making add/rm script allow globs
+
+commit 8584faeceb3dbb1d80f76f402fe62a6c1ddd60fe
+Merge: ea17aa7 0a6f134
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Tue Jun 13 21:09:32 2017 +0000
+
+    Merge branch 'master' of https://github.jpl.nasa.gov/hysds-org/grq2
+
+commit ea17aa785b6eaade4a9e7c972fbd14ebffdd9e72
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Tue Jun 13 21:07:38 2017 +0000
+
+    mstarch: initial pass add/rm hysds-io users scripts
+
+commit 0a6f13434edc29bdbb476b7ee712d421f407cebd
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Wed Jun 7 17:13:56 2017 -0700
+
+    mstarch: adding exception logging to help with grq index failed
+
+commit 1b5f2938b3e0a4dc3edf69dd50180b39d951e66c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jun 6 19:39:14 2017 +0000
+
+    calculate time_span correctly
+
+commit 8e8f0fea5cc1bef56f7e507eaa35d86612c0d24d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jun 5 16:17:59 2017 +0000
+
+    update to handle slcp and lar datasets
+
+commit 347a2de03df7c94747b4e08b2165775543fc3dfb
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jun 5 16:12:00 2017 +0000
+
+    add script to fix temporal_span bug
+
+commit 88381c2b3ae133d7099a04b64c91e2748f22278d
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Wed May 31 19:18:48 2017 +0000
+
+    mstarch: adding a clean script to remove hysds-io files. USE WITH CAUTION.
+
+commit 8d6ec67f215857129be9f19063990786a0e4c00e
+Merge: 12c85cd 53e6e91
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Mar 14 14:49:03 2017 +0000
+
+    Merge branch 'v2' into test-merge
+    
+    Conflicts:
+    	config/es_doctype_insar.json
+    	grq2/services/update.py
+    	settings.cfg
+
+commit 53e6e91063141153e2fcf81802ed32b50f326526
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Mar 13 15:15:28 2017 +0000
+
+    set in update_json
+
+commit a0d6f3a67ca8e4feb39f5ef23ec5a3b1055238ef
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Mar 13 15:13:16 2017 +0000
+
+    update to get absolute value of temporal span
+
+commit b276892e9985b8854e8f7632ddae0a7450a114d1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Feb 27 15:27:05 2017 +0000
+
+    use boolean for store parameter
+
+commit 7aea168abaa9db97328aaaf740349c824e918775
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Feb 21 21:14:26 2017 +0000
+
+    update for v2 which doesn't need explicit ES settings or mappings
+
+commit d50119d6da434af45eeefd009767fbfa567bb3bf
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Feb 21 17:19:34 2017 +0000
+
+    add type def for optional creation_timestamp field
+
+commit 289e1ab4f03415f88725371bf1597155681fe6a8
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Wed Jan 18 23:36:23 2017 +0000
+
+    mstarch: converting to use hysds_commons
+
+commit efcb5a5431dffe2ac8d6cf7ccfed5d2f7b6c166d
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Thu Jan 5 20:23:20 2017 +0000
+
+    mstarch: cleaning up hysds-io code
+
+commit dccc2d916aaf451726291c330ec22719259c7374
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Thu Jan 5 18:48:58 2017 +0000
+
+    mstarch: changing 'add' to 'post'
+
+commit 45463e705c2a123738eba8f24c58284f8e21afbe
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Wed Jan 4 22:02:57 2017 +0000
+
+    mstarch: adding logging to HySDS library calls
+
+commit 94808fa9adce875c663ec1dce93f1fc1fbb09208
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Wed Jan 4 21:05:06 2017 +0000
+
+    mstarch: adding hysds-io specs to GRQ to act as the REST for Tosca services
+
+commit a646ca55b11fde0ba1b4e56bc21da0fcefbefcfb
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Nov 17 17:18:34 2016 +0000
+
+    pull dataset info from form
+    
+    Update traceback message.
+
+commit fc2ea014f8e4507e763fa37ca187d0b9837b4251
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Nov 17 17:02:05 2016 +0000
+
+    update stub for api v0.2
+
+commit 22958e513345d079973ebf94296374dc6825a138
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Nov 17 16:14:35 2016 +0000
+
+    add link in top hat menu to API swagger doc
+
+commit 7441b622b3388e314614ea89a6597021b1c043cb
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Nov 17 15:48:34 2016 +0000
+
+    return objectid after dataset is indexed
+
+commit eda2f2898af69dd73b4bc0318946302b51a309e5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Nov 16 22:10:05 2016 +0000
+
+    initial swaggerization of grq2 REST services
+
+commit 758bed75799fe13245010fcba3b59568f4cbd3a3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Nov 8 15:54:17 2016 +0000
+
+    generalize templates for trinity
+
+commit 0ba28134fd5fbe9d9edf49e1a4238b40e6e9c0e1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Nov 7 19:31:57 2016 +0000
+
+    initial implementation of nomenclature change from "product" to "dataset"
+
+commit 12c85cdab1c6314a0c65f23c716f9e2a263e0f78
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Mon Oct 24 22:46:35 2016 +0000
+
+    mstarch: allowing pge_container
+
+commit 2c22c9c813c61158ac990cd78071b540db26cb86
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 18 13:53:06 2016 +0000
+
+    create index with mapping
+
+commit bee8348007923d33dba4aecd4dc5809cd9f70cb4
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 17 19:28:21 2016 +0000
+
+    replace usage of pyes module with elasticsearch module (official)
+
+commit 4bbcd793c5f8d31655493c88feb01984fef81a08
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Oct 13 15:31:36 2016 +0000
+
+    delete previous template if exists
+
+commit 5f0c2b493ab2605d6d994a06afaa0e32a72e74aa
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Oct 13 15:20:13 2016 +0000
+
+    initial implementation of generalizing grq2 product ingest
+    
+    Add center geolocation type and metadata object types to schema in ES template.
+    Removed custom code for specific handling of dataset types.
+
+commit a46e9ba47dbaa2becf587d477fdbf04fe09bc75f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 10 20:48:12 2016 +0000
+
+    fix indexing of RADARSAT-2 SGF datasets
+
+commit 5c031d61c4ea60ce4a6efce9ff32f97deecbfecb
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 10 20:31:44 2016 +0000
+
+    add RADARSAT-2
+
+commit 7a5f3257203ce302e959538e05da5cbe0b4e981e
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 10 20:27:59 2016 +0000
+
+    fix type for new ML fields
+
+commit 4b7b3f9296c7a0c19100db3143841715ff528fcf
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 10 20:27:16 2016 +0000
+
+    add support for RADARSAT-2
+
+commit 84715e2ded92733dbeae68818bd4071297823411
+Merge: d1adbb3 7bf2767
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Mon Oct 10 15:58:28 2016 +0000
+
+    Merge branch 'master' of https://github.jpl.nasa.gov/hysds-org/grq2
+
+commit d1adbb3ce0b1bae75f7bc53ab952bae1058c4a63
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Mon Oct 10 15:56:14 2016 +0000
+
+    mstarch: adding predicted phase unwrapping bucket to es doc type
+
+commit 7bf27675aa99bc179de5ff9c976a595c189cd1ac
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 10 15:01:57 2016 +0000
+
+    add tags for CSK-GEC_B products
+
+commit 47d4c2901bf23924a61cb1af2444026f881c360d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Sat Oct 8 05:07:14 2016 +0000
+
+    generalized ingest of Sentinel1 datasets
+
+commit 47b68f6fead9584e116e1daaa82e4279616754af
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Oct 6 17:45:02 2016 +0000
+
+    clean up configs using single ES template
+
+commit a6b86d2f36c52717f3f45cded3fc5af9bf4f4a71
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 15 14:25:19 2016 +0000
+
+    update time-series alias
+
+commit 950a1cf6a2a5c46a2a1ce0b6e2e25e04345ae284
+Merge: 7e33666 5d7b0a6
+Author: Michael Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Tue Sep 6 21:50:05 2016 +0000
+
+    Merge branch 'master' of https://github.jpl.nasa.gov/hysds-org/grq2 into mstarch-dev
+
+commit 5d7b0a6bf549aa0d27cefa53ee59469f66990c1c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 1 17:03:21 2016 +0000
+
+    handle time-series bbox correctly
+
+commit 860bae23644508851ccc06acccb6b04ffdc57cfd
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Aug 9 14:29:10 2016 +0000
+
+    add coherence product to reset scripts
+
+commit e95a84971527135f5f4f3446b45fcd9f3cdcfbd3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Aug 8 22:56:36 2016 +0000
+
+    add support S1A coherence product
+
+commit f40bb734abac827869b6ba38657c40bbc086828b
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Aug 8 19:39:21 2016 +0000
+
+    update products to v1.0
+
+commit 586d649504814f44d91c204d9eb92cf052d8375a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Jul 27 21:35:07 2016 +0000
+
+    detect aggregate datasets (ifgs) and set starttime/endtime accordingly
+
+commit f02ce097d210899f7202c1f49a2c0a0bb27a5835
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jul 18 14:20:51 2016 +0000
+
+    set versions of cartopy and shapely
+
+commit 7e33666677db48b7b5c75d37d9ffa37e49a327b1
+Merge: 4ad039a c3e2ec7
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Tue Jun 21 20:22:50 2016 +0000
+
+    Merge branch 'master' of https://github.jpl.nasa.gov/hysds-org/grq2 into mstarch-dev
+
+commit c3e2ec733bce8c8acf5f651bc9a52ed66d74e9de
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Jun 15 19:08:00 2016 +0000
+
+    handle missing tags from UNAVCO CSK metadata
+
+commit 54b85bdfb9adbddd9c005ee2923bef58aec7e86f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jun 13 21:44:22 2016 +0000
+
+    add incoming and area_of_interest; update to v0.9
+
+commit 574ee05844f2b55b985e9fb90e83e6698cc34738
+Merge: 4d022b3 e84b250
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jun 13 17:23:42 2016 +0000
+
+    Merge branch 'mcayanan-dev' into master-test-update
+
+commit e84b2504ce048b9e53261a93df8feb2318cadd70
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Mon Jun 13 17:22:59 2016 +0000
+
+    fixed typo
+
+commit a22ac74220bcc0a0859ee8f02bc0b0322ecbf7e8
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Mon Jun 13 17:21:34 2016 +0000
+
+    Update to v09
+
+commit 1ce8fe70846dd920a36a281fe5703bd258deed15
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Mon Jun 13 17:20:22 2016 +0000
+
+    Update update.py
+
+commit 85de24481bb3f3563d30ca39f955c0859f46a973
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Mon Jun 13 17:18:13 2016 +0000
+
+    Update to v09
+
+commit 1246d9b3e7ad6ba910eb09351453dae992bc54da
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Wed Jun 8 16:09:05 2016 +0000
+
+    Updated doctype for incoming datasets
+
+commit 4d022b34e25048d8dac90597e7fcf6129304fe3c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jun 2 16:08:05 2016 -0700
+
+    update WVCC merged_data ES index
+
+commit ad5fc29785b99085d277123391ae5ca9e7288406
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri May 27 02:09:51 2016 +0000
+
+    handle bbox extracted via gdal
+
+commit f9ac62b84dcfc8b6d1c74175dc57a71af43e4f0e
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed May 25 13:14:10 2016 +0000
+
+    increment to v0.9
+
+commit 4ad039a9deb713d88ef893165ad0ccc635d096e4
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Mon May 23 20:45:27 2016 +0000
+
+    mstarch: adding predictor unwrapping
+
+commit 0f93c703993653dfa89715d594ad216cd5be739c
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Fri May 20 22:26:59 2016 +0000
+
+    Updated to support incoming datasets
+
+commit 4d53b1205934ddc0c9720cb643b3e72ccd6524ad
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Wed May 18 01:46:15 2016 +0000
+
+    Added support for incoming dataset in update.py
+
+commit f24866177ba2db720e878106aae32b84017cf9dc
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Tue May 10 14:58:03 2016 +0000
+
+    Scripts to migrate the s3 datasets to have consistent naming convention
+
+commit 6caeebdc3add88c782b3283a76ab9b2b5ea2ca1d
+Author: mcayanan <michael.cayanan@jpl.nasa.gov>
+Date:   Tue May 10 14:48:50 2016 +0000
+
+    Added dumby product configuration to the settings.cfg
+
+commit 9d04f38ae5d2239b0a35e772f08b13d03eeeb6cb
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu May 5 17:23:09 2016 +0000
+
+    ensure starttime and endtime are strings for temporal span extraction
+
+commit f74ec77d4b4197098c366a4aa96407c441a567d2
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue May 3 20:47:43 2016 +0000
+
+    add script to fix temporal baseline
+
+commit 75431c34b98396cabde8daaad1ad1cc5cd85dacc
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Apr 28 18:29:44 2016 +0000
+
+    round temporal span to the nearest number of days
+
+commit 7f030fe8b9951f8c7678c6a5f2748fb0316195a0
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 26 22:25:02 2016 +0000
+
+    update reset scripts to v08
+
+commit e79774cf2906004243a97d50d1f89dfb5af05ac3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 26 22:09:02 2016 +0000
+
+    update to v08
+
+commit 582fbb5e7f870878ed5879db6984d5cbb228f442
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 26 19:22:52 2016 +0000
+
+    add temporal span metadata value
+
+commit 9776343a01135ec9d68dc9f96df95b8fde3a8e79
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 17 22:33:23 2016 +0000
+
+    add script to reset dumby indices
+
+commit 2d3450f023b2b6d26830d186dc5e9de92d5a5433
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Mar 14 16:58:19 2016 +0000
+
+    move location logic for predictor_model to PGE
+
+commit d05eba22088d95adb482517fc3ff404224bbd90f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Mar 14 16:40:14 2016 +0000
+
+    add geolocation info for predictor_model
+
+commit ec52ed078fee8a117509864617f862f89dcbdc34
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Mar 14 14:57:12 2016 +0000
+
+    generalize dataset type to predictor_model
+
+commit 3b3c6f5b9754d094530d7c4d5d9f5e749856b57c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Mar 11 23:12:05 2016 +0000
+
+    add reset of phunw_classifier products
+
+commit 05ace29f55e0ea34dba31bdc6a8840076ef7033d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Mar 11 23:02:20 2016 +0000
+
+    add support for classifier
+
+commit 9d9087213d75d4b605bbd5b9718e646a2dc08ba2
+Author: M Starch <lestarch@googlemail.com>
+Date:   Thu Mar 3 18:38:45 2016 +0000
+
+    mstarch: fixing datatype to uavsar-ifg
+
+commit 89813f6da547c9f70cbba46aee1069a8b4fc818d
+Author: M Starch <lestarch@googlemail.com>
+Date:   Thu Mar 3 17:33:06 2016 +0000
+
+    mstarch: replacing else if with elif
+
+commit 10ca7e3504718cb3e8d7cef22402ac985f3b0752
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Thu Mar 3 17:30:13 2016 +0000
+
+    mstarch: added uavsar-slc override for interferogram
+
+commit b34e379b159965b46290ffcff63e43b79b420fce
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Thu Mar 3 08:33:47 2016 +0000
+
+    mstarch: UAVSAR polarization
+
+commit e248d1353564ba8194c8b42ec982b165125395e1
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Thu Mar 3 08:08:19 2016 +0000
+
+    mstarch: UAVSAR 0.7 products
+
+commit 3f9e9a4e25478471ed9dbe2fab2a052ae42dfd89
+Author: M Starch <Michael.D.Starch@jpl.nasa.gov>
+Date:   Thu Feb 25 18:13:44 2016 +0000
+
+    mstarch: removing erroneous settings.cfg
+
+commit 7a20a41c653fa5e5dd63c7431ca94173cd76f638
+Merge: 0d24ba2 9f0e26d
+Author: M Starch <lestarch@googlemail.com>
+Date:   Wed Feb 24 22:11:06 2016 +0000
+
+    Merge branch 'master' of https://github.jpl.nasa.gov/hysds-org/grq2
+
+commit 0d24ba25fc2bc718d8a4dc41e35bdd9c7a0848f9
+Author: M Starch <lestarch@googlemail.com>
+Date:   Wed Feb 24 22:10:57 2016 +0000
+
+    mstarch: committing better settings
+
+commit 9f0e26d2d78fff607b89f3467408ed6a188886ae
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Feb 23 01:32:41 2016 +0000
+
+    increment version to v0.7
+
+commit f691d074bf8c3f074c71fcab88669103fa77a571
+Author: M Starch <lestarch@googlemail.com>
+Date:   Thu Feb 18 23:28:44 2016 +0000
+
+    mstarch: UAVSAR now does reverse geolocation
+
+commit c3f497c793075c0547af3f78cfa60e1d89d976a8
+Author: M Starch <lestarch@googlemail.com>
+Date:   Wed Feb 17 22:42:01 2016 +0000
+
+    mstarch: adding uavsar es doctype
+
+commit c8d82d0a1b8d0c27215400a126f8ba41d31d35fb
+Merge: 4a060f4 1cab152
+Author: M Starch <lestarch@googlemail.com>
+Date:   Wed Feb 17 22:38:47 2016 +0000
+
+    Merge branch 'master' of https://github.jpl.nasa.gov/hysds-org/grq2
+
+commit 4a060f4e09ee7154cb48f7aea2afe5dffc34b95a
+Author: M Starch <lestarch@googlemail.com>
+Date:   Wed Feb 17 22:38:35 2016 +0000
+
+    mstarch: adding dumby UAVSAR
+
+commit 1cab15282f5ec2bae29f674c4fc109ace336972f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Feb 9 18:22:00 2016 +0000
+
+    update platform value for Sentinel-1A
+
+commit 2051f47b68993a896089ef46e3003d4f7142d110
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Jan 29 19:51:29 2016 +0000
+
+    add AIRS-MODIS dataset
+
+commit 475bedc859529df269418253e2ed8d01766af88c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jan 19 18:04:23 2016 +0000
+
+    revert worker for grq to gevent for high concurrency performance; enable debug level logging on all gunicorn apps
+
+commit 477ae7de8042f114048585d99b966c01e1a725b0
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jan 19 16:38:39 2016 +0000
+
+    use gthread worker
+
+commit 7e388cca28556f1f055819a6726603f07168f08a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Jan 6 18:13:00 2016 +0000
+
+    use eventlet worker
+
+commit bc91204f220a5afb7adc6bfd04002a327e6e7374
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Dec 22 18:47:56 2015 +0000
+
+    added S1A-IFG product to reset scripts
+
+commit d027783c68473ab0bf9910017631dce5a7b1b4aa
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Dec 22 18:45:06 2015 +0000
+
+    fix coords for S1A-IFG
+
+commit da3603120e784d5fb5d2a2232176ead81ca25bc4
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Dec 21 17:43:30 2015 +0000
+
+    add s1a and s1a-swath products
+
+commit b9376e78b6e86287fb8a3541eb03998245c23abc
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Dec 18 19:46:54 2015 +0000
+
+    update ingest of features for recent ariamh updates to met.json
+
+commit aa9296430d35d20d78d16d152fb27936e296b970
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Dec 9 00:46:58 2015 +0000
+
+    add features product to reset scripts
+
+commit fee0f498f3159d5e694c714b8135e46d04206cb9
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Dec 9 00:26:29 2015 +0000
+
+    set correct index name for features
+
+commit 3d8f3cf5d7e135f7e10f0250ce98010da98ca053
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Dec 9 00:14:19 2015 +0000
+
+    use similar metadata as InSAR products
+
+commit 3fafb405e64c3f022a58eae7910a6751893d8396
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Dec 8 19:49:48 2015 +0000
+
+    disable dynamic mapping of context object
+
+commit 839417233c2266cbe4fd6baa38dae2bee6852466
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Dec 8 19:43:09 2015 +0000
+
+    don't analyze features context
+
+commit e4e51224419a17d9484c3009c7821eb100514116
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Dec 8 16:35:59 2015 +0000
+
+    populate sensing start and stop for features
+
+commit 843ee89a5ca0eadb6b5bb24132e615ab052749ec
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Dec 8 15:37:19 2015 +0000
+
+    add support for ARIA-ML features product
+
+commit 9d2f9c094cb635e7662f66fc9c3c142416d14c97
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Nov 10 18:59:13 2015 +0000
+
+    add .gitignore; add script to republish products published on s3 so that it can be re-indexed and published back to JPL
+
+commit dc70117492c5cfdf923b1b670e9ccbaacdabb0b2
+Author: Gerald Manipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Nov 6 18:53:47 2015 +0000
+
+    revert back to ES 1.x until there's more support for ES 2.0
+
+commit 06b23c5a72063e03db32c67495ba0d515c502206
+Author: Gerald Manipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Nov 6 17:36:51 2015 +0000
+
+    elasticsearch 2.0 compatibility
+
+commit eb1f3ec6e7f6e9af4ae7dd06d46113a270fe98ef
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 20 17:51:50 2015 +0000
+
+    add metadata for dataset priority and job priority from context
+
+commit 1e1f48f38b0b455066a055e48b715e862c7fc2c1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Oct 8 15:11:40 2015 +0000
+
+    update for OCO-2 and dumby products
+
+commit af692651affd68fe1f978419230329db432d8426
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Oct 8 14:35:40 2015 +0000
+
+    remove version specs for install_requires
+
+commit ed4dba0dcc8e3bafa5ae67b15ad2cbe8cf10bb8b
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 5 18:23:12 2015 +0000
+
+    add time series
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8754
+
+commit 81c3c08bd80072840e44c854cb6457dc2670a284
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 5 16:38:21 2015 +0000
+
+    add new rogue indices to delete
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8753
+
+commit ae1f4dd1eda2a7cb0a4455626bc6cc43c93db103
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 24 03:07:21 2015 +0000
+
+    add S1A-SWATH product
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8736
+
+commit 9cb458da4a294f635f3be4828ea919730f281cda
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 2 20:09:13 2015 +0000
+
+    Removed log message.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8717
+
+commit 1ebc6e00590013280168a45743af20b1a1e73c79
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 2 20:07:48 2015 +0000
+
+    Added dataset area_of_interest.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8716
+
+commit 9376e566904d2e6bad213235d81d90794af47067
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Aug 27 18:28:43 2015 +0000
+
+    Added S1A-IW_RAW support.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8712
+
+commit 3e0538bf9df1377f082456c735dfa7dab5085b77
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Aug 27 17:45:50 2015 +0000
+
+    Merged in updates from dev.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8711
+
+commit 35927c505e32e39bb86a14b85b969d30876c5603
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Aug 25 15:03:49 2015 +0000
+
+    Set platform field as a "not_analyzed" field; not multi-field.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8704
+
+commit ad5983512ec72f24335b3d4d97117179e44a2c27
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Aug 17 16:18:17 2015 +0000
+
+    Added.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8699
+
+commit 331fbc99a8ce2cc7a787122a948011d73cc31e05
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Aug 17 15:50:35 2015 +0000
+
+    Added location if not already in metadata dict.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8698
+
+commit b21f40f8fd6fa0bdcc3464acb71cbf2efe1464d1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Aug 13 15:21:14 2015 +0000
+
+    Added spatial_resolution.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8693
+
+commit 12783ab1b7395795d08fbc6b507afafd561d8a62
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Aug 12 23:37:02 2015 +0000
+
+    Added temporal_resolution field.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8692
+
+commit 6905401b36dbf1a108a774bb33dff9afa2e23fd7
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Aug 12 01:34:46 2015 +0000
+
+    Updated to v06.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8691
+
+commit 6900c3a5ca22e1a3417e0ba8f3d54de3e2e88a07
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Aug 6 15:53:37 2015 +0000
+
+    Merged updates from dev.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8682
+
+commit 1c8ba1bfc58648caa9242439b53e3496e373a6b3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Jul 29 01:46:17 2015 +0000
+
+    Added dataset type and level to schemas.
+    Replaced spacecraftName with platform.
+    Added tags for ARIA-MH products.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8674
+
+commit 41f99e1ae9f774e736677eb54c2d3d722260857c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jul 23 22:43:32 2015 +0000
+
+    Merged updates to doc template for InSAR.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8671
+
+commit f36f44f347221139b53fc2d94901ead6d9bce734
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jul 23 22:29:08 2015 +0000
+
+    Merged in branch changes.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8669
+
+commit e686fc49c8a1f2fc9f50acdc3d3166e50863e5da
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jul 23 22:24:55 2015 +0000
+
+    Updated.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8668
+
+commit b9902a85a9f267b2c07f1a18234d05c9e4cd2f2c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed May 6 22:05:07 2015 +0000
+
+    Fixed bowtie error.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8598
+
+commit c245302fcf25edab43bb350ac3f2281c360317ad
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue May 5 21:42:25 2015 +0000
+
+    Catch S1A interferograms.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8592
+
+commit ed41476cd150d525e145f45fa6141e523b0ec737
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue May 5 20:04:07 2015 +0000
+
+    Set dataset to "interferogram".
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8590
+
+commit e047ebfc753772c10f19e01aae714b766b9489c5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon May 4 00:30:37 2015 +0000
+
+    Fixed bug detecting S1A SLC scenes.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8574
+
+commit 1eb93f8ef15609aa8965e957b301c0fdf5cf1258
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Sat May 2 01:40:52 2015 +0000
+
+    Added S1A-IFG (sentinel interferograms).
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8563
+
+commit 56652089c2de559892034f9c2699295cf251ae58
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri May 1 03:41:56 2015 +0000
+
+    Don't fix bowtie issue if S1A since bbox is not from ISCE metadata extraction.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8549
+
+commit 60a4c2dc3cfd7c22e56a312f4d6430af1ed5665d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri May 1 01:24:37 2015 +0000
+
+    Detect Sentinel dataset.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8544
+
+commit db6f5bd8be1b8991b027dd9c7e765a0209420e52
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Apr 2 09:21:55 2015 +0000
+
+    Added frameID.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8384
+
+commit cd990bd233c3b6f5b2fb02d378e59259eb07b813
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Mar 3 00:40:51 2015 +0000
+
+    Remove webui.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8318
+
+commit 855a731967bde54cb4b40b706d07ca86a6ad0df7
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Feb 13 16:18:05 2015 +0000
+
+    Added configuration and ES mapping for user runs history.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8280
+
+commit 53bf9d75d437c09fdec2081a57197aae7cc4cd0d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Feb 10 15:01:27 2015 +0000
+
+    Added docs.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8248
+
+commit e19b84017adcd3dc0337e5899de590da2d2c27f5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jan 26 17:49:45 2015 +0000
+
+    Lower required cartopy version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8165
+
+commit 372d4154e311d4c4d91ebacef70c88d4f7225784
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jan 26 17:35:42 2015 +0000
+
+    Moved to config directory as an example.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8164
+
+commit 183288e9129d7a9aed56c186ab725a1a5a1fe5e1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jan 15 18:24:59 2015 +0000
+
+    Updated to recognize WVCC_MERGED_DATA products.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=8132
+
+commit 457d61808620f64efba35a12f892041f0ed6689f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 21 23:55:56 2014 +0000
+
+    Handle new dataset names for CSK: CSK-RAW_B, CSK-SCS_B, CSK-SCS_U.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7871
+
+commit c8459699b12977325dfd4ae41007d2697049875a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Oct 10 23:38:11 2014 +0000
+
+    Cleaned up to match product_ingest metadata.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7834
+
+commit 64925ac01f89788535475d7da02233116bebd5b5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Oct 10 23:32:14 2014 +0000
+
+    Stop munging dataset. Use temp var, index_suffix, to determine index name.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7833
+
+commit d42a4e59997274cab977424a208728015c832600
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Oct 10 22:54:12 2014 +0000
+
+    Track dataset name and ipath.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7831
+
+commit 0bdb6cf23ffceab59504a5b9efa841cc0f96676f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Oct 10 16:50:20 2014 +0000
+
+    Updated dev to v04.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7827
+
+commit a26d2e531f454b949a1d0051d6bf6467b45c25f9
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Oct 10 16:47:29 2014 +0000
+
+    Increment ARIA-MH versions.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7826
+
+commit 0b788f99af6646163cdb52ed63fd6531ecf92db1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 24 05:39:36 2014 +0000
+
+    Updated version for ARIA datasets.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7700
+
+commit 8714f10b6e50112b114114b471c42b2a9f91a76e
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 24 04:51:16 2014 +0000
+
+    Incremented ARIA datasets to v0.3.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7696
+
+commit 7da01485910a763642332bd2db261ffa07496a11
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 3 18:55:00 2014 +0000
+
+    Fixed bug where query json wasn't a dict.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7555
+
+commit bad2e763da23c67f8bb02537d24be261317c7074
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Aug 27 15:07:57 2014 +0000
+
+    Removed hard-coded hostname. Changed to localhost since this service will be running on the host running ElasticSearch.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7491
+
+commit 6e43420ee1d8ec7940fda910e4e9eb72fc228188
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Aug 21 21:28:02 2014 +0000
+
+    Updated requirements with specific versions.
+    Handle change to shapely API.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7448
+
+commit e883c0d1df4353e876c56c14665d3ab638affbbf
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Aug 21 21:08:54 2014 +0000
+
+    Updated reqs.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7446
+
+commit eac20bc561a626038458606255c90e061c7785d6
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Aug 4 22:44:05 2014 +0000
+
+    Increased scroll timeout to 60 minutes.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7384
+
+commit 0b1c172939bd933eeda40e2d7cd248cd3ae304e5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jul 17 15:36:52 2014 +0000
+
+    Added NVAP dataset.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7348
+
+commit 5e09cf16595f38d0ce5f859d8046422d7a4dec43
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jul 14 18:25:59 2014 +0000
+
+    Added variable groups facet and values to summary.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7331
+
+commit 73e63c29c3d9d6cec530a077102ad41e77ef8d68
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jun 12 23:33:55 2014 +0000
+
+    Platform overrides datasets for now.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7306
+
+commit 047c6e58a8f77cf8b1a48d3b4fea0607ac941f7a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jun 3 22:24:17 2014 +0000
+
+    Added.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7218
+
+commit c97e026e4c4e4640f763f58aef0d2f864178d5cc
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jun 3 22:23:09 2014 +0000
+
+    Updated version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7217
+
+commit 614aeed4f69f52891ed189eb338c53b78ccafeeb
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jun 3 18:16:06 2014 +0000
+
+    Added.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7210
+
+commit d29cf4d40743644ac0da1879bded9631d1502855
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jun 3 17:54:51 2014 +0000
+
+    Add support for version query.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7207
+
+commit b948b73b10f10eaa3ed91d690b893de72b4d98ac
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jun 2 21:31:43 2014 +0000
+
+    Query the latest version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7198
+
+commit 5688de7a2c73240653c3d47f91255c72c55acfaa
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri May 30 19:54:10 2014 +0000
+
+    Updated to v02.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7176
+
+commit 73eee5481e0f534e2efaa031ccccc602465e9398
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri May 30 14:18:01 2014 +0000
+
+    Added suspicious flag and code for insar type.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7160
+
+commit f6bf31d19eee7c52dce3060a1c843c31d5808216
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri May 30 05:20:40 2014 +0000
+
+    Added reference_checker service for checking if a reference frame exists.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=7159
+
+commit 703bab6d5fb567d4b8bb2d2c7fef7f857a6967de
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 30 21:24:09 2014 +0000
+
+    Fixed bug in adding commas to separate results.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6952
+
+commit fd3f98cfc2960e6cbdacbf5a5a015da8e4cdbd19
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 30 21:08:33 2014 +0000
+
+    Fixed bug in JSON streaming.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6951
+
+commit 2c23e327ec864ae2a50db815365ec539a7f19691
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 30 20:53:39 2014 +0000
+
+    Stream JSON instead of building it to save memory.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6950
+
+commit bffb18948af16f72599265030959f4b870357e40
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 30 16:49:32 2014 +0000
+
+    Set defaults to prevent errors accessing result parameters.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6945
+
+commit dd6ba0497eb8327a94ff58e0b32b16ffe9dbf94d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 30 16:34:50 2014 +0000
+
+    Added grq_es REST service to query index directly passing in ElasticSearch query_string.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6944
+
+commit b67a680f3c9af6ddf2b8714ab4e25af94f8edbca
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 22 15:23:11 2014 +0000
+
+    Default enabled parameter to true.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6908
+
+commit 02c29a7486ab4c9dccc8fda81b04959d4dc106ab
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 22 15:11:22 2014 +0000
+
+    Added enabled parameter to allow for enabling/disabling of action rule.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6907
+
+commit 0124573583fa11f041d80d9265b8bef0aa3a42d6
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Apr 17 19:31:26 2014 +0000
+
+    Added workflow and job_type.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6883
+
+commit 9dedf00e2097944ed3176c1ef49c41cb5ced8882
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 16 16:17:04 2014 +0000
+
+    Set kwargs as a non-analyzed string that contains the serialized JSON kwargs.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6870
+
+commit 30ec49eb3097d3068aa7d39e83b85a1589b56cf2
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 16 16:09:15 2014 +0000
+
+    Removed email_addresses and added kwargs as an object.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6869
+
+commit 5bab52b37970571cd40a5d9a2f063956379592da
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 15 17:41:37 2014 +0000
+
+    Added doctype and setting for user_rules.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6864
+
+commit f309709727f012e19441e7f2198894ff8f0e3981
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Apr 14 20:24:27 2014 +0000
+
+    Added script to reset dev indices.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6854
+
+commit e16f7f682c708f8932e461d1c04b129f356ec144
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Apr 9 03:57:13 2014 +0000
+
+    Return False if version is not defined.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6839
+
+commit 8f375240b72a517c02b39daa0d787af602f77873
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 8 19:06:10 2014 +0000
+
+    Skip over fields with missing version in metadata (initial update from datastager).
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6832
+
+commit bca2dfe6e0eaa00c2935f1ab1b96bdbfcf976eab
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 8 15:20:55 2014 +0000
+
+    Added redis as a requirement.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6820
+
+commit 9dfedcbafcf2b231066707c48f859ac74d9d2bd3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 8 15:20:34 2014 +0000
+
+    Added support for writing to Redis database.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6819
+
+commit e580ccfd899b28cd27e216561bba09c86971a0e8
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Apr 3 19:08:26 2014 +0000
+
+    Add Redis url config.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6795
+
+commit 95653bde39393b3f6d99c9e25151a96de0606b0d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Apr 1 23:29:53 2014 +0000
+
+    Added totalBaseline as double.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6782
+
+commit 3857fb3ac3af405e35b29f83c68a55fc01f2f54a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Mar 28 14:55:43 2014 +0000
+
+    Changed doctype of WVCC products from grid to track.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6768
+
+commit 537878d5ede507af0d6ad450efd9fa72b3e1bbd2
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Mar 28 14:51:53 2014 +0000
+
+    Add test for getting center.
+    Update track doctypes with reverse geolocation info.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6767
+
+commit ab33ef87e73653102e745d7308bcfb09a488e83b
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Mar 28 14:42:17 2014 +0000
+
+    Added test script for get_cities and get_continents functions.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6766
+
+commit 608ba8fd6a947fb779c11800ff40794de096f2d3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Mar 25 20:14:27 2014 +0000
+
+    Added WVCC matchup indices product.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6742
+
+commit 963d40f912219f76bc3659a3bccfd0e07f79b67f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 20 21:18:35 2014 +0000
+
+    Added script to copy user tags.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6702
+
+commit ecf4081cd6c3755db8b3824dae88201484c7f90b
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 20 19:58:31 2014 +0000
+
+    Set to system_version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6699
+
+commit e0974e0c51b8f7d5e68d9e88496e711db433fd0a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 20 19:06:30 2014 +0000
+
+    Check if version exists before moving it to system_version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6696
+
+commit eb306985e88489f17dc4eb4c0fd477c74bbbe59b
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 20 18:41:26 2014 +0000
+
+    Removed sort clause since scroll search doesn't do that.
+    Delete destination index if it exists.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6694
+
+commit f1f0d654fdbf3f763ce77d82c6d154ac1d52bd70
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 20 18:21:41 2014 +0000
+
+    Use system_version instead of version to make it unambiguous from metadata.version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6693
+
+commit 7cc3f9d9139bfe1abdf827f40c44421a29b25fa5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Mar 19 17:22:46 2014 +0000
+
+    Adjusted for API change in put_mapping call in pyes v0.90.*.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6688
+
+commit 505185fcb50bc18ef32a4c34c6c3ebc43328bfba
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Mar 19 17:08:50 2014 +0000
+
+    Increment version for CCMODS datasets for new resolution, coordinates, and dimensions parameters.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6687
+
+commit 9926b21c267f46458ff01adf0a94f8479ccbef8d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Mar 19 15:45:14 2014 +0000
+
+    Added resolution, coordinates, and dimensions metadata.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6686
+
+commit 08bbfea572999ed97a16454024717dfa3990ba9f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Mar 18 01:00:47 2014 +0000
+
+    Apply mapping only if creating index.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6680
+
+commit 0a1ebe251a561e45c5b573437cf746b81adfbc9f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Mar 12 15:17:12 2014 +0000
+
+    Added NICAM.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6660
+
+commit fc635128268fe02d1a6080637aaa4de3fed3098f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Mar 7 18:16:58 2014 +0000
+
+    Handle list of versions.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6650
+
+commit c1dc2d8b36caa3ea02d46dd4a900cb29d0811fb1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 6 22:25:54 2014 +0000
+
+    Added CAM5.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6646
+
+commit 1a0783a7a8e8a09c2566767052fd75697859f338
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Mar 6 17:11:09 2014 +0000
+
+    Added platform.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6644
+
+commit ac43edd9dee85a24d7ff96ad91eec6ec6af2e987
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Mar 5 17:43:35 2014 +0000
+
+    Add data system version and dataset name to results.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6640
+
+commit e63c2f823edc173d25fe3454a1cc05bf87354790
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Mar 5 06:22:33 2014 +0000
+
+    Fixed bug.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6639
+
+commit 80dfeb6b94c542d3fd0b704ad16161cbed0e98a3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Mar 5 06:04:03 2014 +0000
+
+    Added configuration for dataset index versions.
+    Build index name using this new configuration.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6638
+
+commit cc8b048313e11421d9c5b7b49bf3317fd1c0d88d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Mar 4 21:47:30 2014 +0000
+
+    Updated mappings for ElasticSearch v1.0.
+    Start fresh with v00 for dataset version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6637
+
+commit a5df71d531475bb3c30d0548365595e7f11cd289
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Feb 26 18:04:17 2014 +0000
+
+    Added new field beamID.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6625
+
+commit ec4d7b90567a7fac903cfd74530718dc840bb6b9
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Feb 26 18:03:28 2014 +0000
+
+    Apply mapping only if creating index.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6624
+
+commit 16564975a7ec385465595dd4209ab569fed4fad2
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Feb 26 16:25:18 2014 +0000
+
+    Updated to handle ElasticSearch 1.0 result format.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6621
+
+commit 8e614ab318352e9fd26b183637a57c79e7aa4b66
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Feb 26 15:38:35 2014 +0000
+
+    Added dataset version.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6620
+
+commit 82de751a1babd3bcb31c42fffb849c2567d280bd
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Feb 25 14:22:53 2014 +0000
+
+    Get unique refbboxes.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6602
+
+commit 43a04972a49b9d009d67ee91505c44a2a93c7071
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Feb 24 18:28:52 2014 +0000
+
+    Added service to provide unique track/frame/refbbox combinations.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6601
+
+commit b1e39575b49fbc183ea8810348f37e828347ed7e
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Feb 20 19:39:20 2014 +0000
+
+    Added AIRX3SPD dataset for CCMODS.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6597
+
+commit d60515b58de3d8f69bc849b6cd2698740be87805
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Feb 5 20:21:24 2014 +0000
+
+    Added corrections field for InSAR.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6541
+
+commit 5aebbfebeb04526ed52a36cdda43bc761bd98e44
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jan 30 16:46:58 2014 +0000
+
+    Add user_tags to mapping.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6501
+
+commit 2af56ca5fba5962d6a0f22003007c383ab1f2283
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Jan 28 22:51:57 2014 +0000
+
+    Added script to clean out rogue indexes.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6495
+
+commit 4a4126279cae7945310da8c698a201e283838ed2
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jan 27 21:19:23 2014 +0000
+
+    Fixed error in json.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6476
+
+commit 29c55c5901b8c52918eb61853a8301de7944c9b2
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Jan 27 21:13:43 2014 +0000
+
+    Added config for images.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6474
+
+commit 7ee103cd9eb42367a1e77269a78b95b861ae16af
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Jan 24 21:29:18 2014 +0000
+
+    Added user_tags.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6467
+
+commit 48e80d34eee8eeabad600d31a7bc5decf0d33cf1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Jan 2 16:37:15 2014 +0000
+
+    Updated to grq version 10.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6366
+
+commit 52ae98295cb4856be55d621fbc648b422379db98
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Dec 18 17:55:43 2013 +0000
+
+    Added refbbox.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6341
+
+commit 9c09054ca4f1179409b4248033ede1888c396044
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Dec 18 17:24:11 2013 +0000
+
+    Moved doctype mappings and settings out of settings.cfg.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6340
+
+commit 7d7c22c8b2cdd42709552a34f37939c6530c6680
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Dec 9 06:49:49 2013 +0000
+
+    Added WVCC_MATCHUPS.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6287
+
+commit 9419e4ec7fa24b334499f84994543a8dc2a5176f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Sun Dec 8 05:42:54 2013 +0000
+
+    Changed doctype pdf to grid.
+    Added variables field to metadata.
+    Added configuration for AIRX3RET.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6278
+
+commit e706c2f79565f1de5a37352bc4467fa8472bff4c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Dec 6 17:43:08 2013 +0000
+
+    Add PDF metadata.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6275
+
+commit a68214778baec85e49f5c59e919cc362cbf712bc
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Dec 6 17:42:33 2013 +0000
+
+    Don't add location and center to PDF metadata since it's global.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6274
+
+commit 9df818c3bafa036db0d58ec342c86e664e2db623
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Dec 6 00:10:41 2013 +0000
+
+    Reverted back to dataset name.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6271
+
+commit c7acb8350e64465f381d4103480601c9e48642be
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Dec 5 23:58:38 2013 +0000
+
+    Added CCMODS PDF product support.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6270
+
+commit 593d92047e142f529250814b9452222389309191
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Dec 5 23:58:02 2013 +0000
+
+    Added configuration for CCMODS PDF products.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6269
+
+commit 07f4948e8864527b7d09be2e40001d27a8430f8a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Nov 26 23:11:40 2013 +0000
+
+    Added script to create index with doctype mapping.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6237
+
+commit 71c983b1ed505c8ef6661341a15104617cceaa86
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Nov 26 17:33:49 2013 +0000
+
+    Added input_hash_id field for InSAR doctype mapping.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6233
+
+commit 8bdab516392e08f0268f34362d4dd54572d990ba
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Nov 19 16:06:30 2013 +0000
+
+    Added initial code for timeseries reference regions query for giant.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6219
+
+commit b97a450b4b92b2884d147589f1dd53498450465c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Nov 13 21:00:38 2013 +0000
+
+    Updated.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6195
+
+commit 6b892c9d6de065477ffa84183a1310a2b1480697
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Nov 13 15:06:32 2013 +0000
+
+    Just do query_string query on latitudeIndex(Min|Max) fields.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6191
+
+commit 3a36144d36e95a1410849fee5807631ec4ba358f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Nov 13 14:52:07 2013 +0000
+
+    Added ability to run query_string queries.
+    Detect range query for latitudeIndex(Min|Max).
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6190
+
+commit 0ea45e1db7f9a3e86174a2f59198b42e98c9d298
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Nov 7 21:03:14 2013 +0000
+
+    Added archive_filename, UserRequestId, and ProductFileName.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6173
+
+commit 713d46f488f3ffb03c56157005159928440bf92f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Nov 7 17:14:17 2013 +0000
+
+    Cleaning up so that GRQ is strictly REST service and no Tosca/FacetView specific services is intermingled.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6169
+
+commit ba3d621e388cb65e329379c304971e25d4725ca6
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Nov 7 17:09:11 2013 +0000
+
+    Added CloudSat product.
+    Added doctype "track" for CloudSat metadata.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6168
+
+commit 522e8d022dd80f1f314f0dc15fd771f2dfa1853d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Nov 1 16:57:53 2013 +0000
+
+    Fixed bug.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6129
+
+commit 35b911a315b39b19ea11047751e3724533e76f62
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Nov 1 16:09:13 2013 +0000
+
+    Query actual update index.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6126
+
+commit edb1de0333a29845e6c4059f47beea00dcefb8e8
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Nov 1 15:38:13 2013 +0000
+
+    Incremented grq version.
+    Set version for swaths to be a string also.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6125
+
+commit 6ef38330ff0dbd6fbf0e3d830928deb5b1083e90
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Nov 1 15:36:36 2013 +0000
+
+    Added version to metadata for InSAR doctype.
+    Compare InSAR versions through metadata.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6124
+
+commit 63352d1445bd239a309742f84629599701232b4d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Oct 31 23:34:51 2013 +0000
+
+    Added beamNumber to InSAR doctype.
+    Print out objectid being indexed.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6112
+
+commit a5c077c67f1060f31abf1131255649c35b9b3385
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 29 16:14:35 2013 +0000
+
+    Future proof mappings by using longs intead of integers.
+    Updated grq version.
+    Removed deprecated migrate script and updated README.txt.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6089
+
+commit 928c574239a5be5e6ab6ca424c0e20697511a5f3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 29 15:27:14 2013 +0000
+
+    Prevent username and password from appearing on terminal and in shell history.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6088
+
+commit 200b0f4ddaee72e591c7991e8e1a3ee7ef7d33da
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 28 15:47:33 2013 +0000
+
+    Added new fields to index.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6086
+
+commit 3482577a2f96ec75a352c2a034e849847c6e9a23
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Oct 24 21:55:54 2013 +0000
+
+    Implement spatial parameter for specifying within vs. intersects (default).
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6071
+
+commit 33de9989fc37bae2a4e07f33ca7dbc576b0256ae
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 22 15:32:29 2013 +0000
+
+    Added source query to wget script.
+    Added user and password arguments for authentication.
+    Ingore index.html*.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6041
+
+commit e6e0b88eb48f4a3bf01186a4a00f86348d299b4a
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 21 22:57:46 2013 +0000
+
+    Added service to retrieve wget script.
+    Added run_debug.py for dev.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6039
+
+commit 9302aa9af771f78f6662c9adcbeab4fea4f2bb35
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 21 17:17:54 2013 +0000
+
+    Add browse urls to results.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6036
+
+commit 1bea5681b58846e495889a56df83ce24b4cd6e1d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 21 16:52:33 2013 +0000
+
+    Added prioritized versioning of GRQ updates for CSK dataset.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6035
+
+commit 0d46c4977e8f406dc926294fa614340a364111f3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 21 16:33:24 2013 +0000
+
+    Better logging of errors.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=6034
+
+commit 2c05e95b890fa4e617f7e2a50c613d563515f6a5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 14 20:10:17 2013 +0000
+
+    Added support for updating interferogram metadata.
+    Added capability to determine center lon/lat.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5981
+
+commit 31edbd93b779198900723161651dee0dd8803b58
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Oct 14 15:21:20 2013 +0000
+
+    Handle querying all datasets.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5977
+
+commit 69702dd817e8ed6fee18e37ecd8ca3cd9d6351df
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Oct 4 21:39:42 2013 +0000
+
+    Handle getting cities from multipolygons.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5906
+
+commit 5a3cda77150c623234032055502c3da75df19742
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Oct 4 16:14:10 2013 +0000
+
+    Added support for MODIS.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5903
+
+commit 9c54fdff2a377b469644182cea2bb63c626ebe3b
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Oct 2 00:11:08 2013 +0000
+
+    Import re module.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5900
+
+commit bae7737935e749b48cc5f906a28077367a8fb39c
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Oct 2 00:03:37 2013 +0000
+
+    Pull dataset from path.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5899
+
+commit c08cfd2e33481900d354165656d002ad5ef44e02
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 1 23:43:42 2013 +0000
+
+    Modified so that different datasets have their own index.
+    Using alias to merge different indexes.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5898
+
+commit 7978cc3cda80858b1753a33976fd89277d97baa3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Oct 1 13:57:13 2013 +0000
+
+    Use settings to create index.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5897
+
+commit 1889def5b2e1da21656970a5af046c8fd207cac5
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 30 23:33:25 2013 +0000
+
+    Query for continent separately.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5896
+
+commit 514a1c440ade66af1a639812dc252e08adcfe18d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 30 22:41:28 2013 +0000
+
+    Added service to return closest continent to a geo_point.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5895
+
+commit 6e95627d16d0f450cbe2464d4eb7b166e9df591d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 30 22:30:10 2013 +0000
+
+    Modified default analyzer to tokenize using standard, lowercase, and word_delimiter filters.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5894
+
+commit 1a561ea025574e794cd39fe1cb24167ddc23255b
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 27 22:34:57 2013 +0000
+
+    Return only one city.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5893
+
+commit 2ab8eac8fc94135e0d31cf74cb855cb27cf7b71e
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 27 21:59:01 2013 +0000
+
+    Extraction of bounding box city metadata done by GRQ.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5892
+
+commit 480925e152758aef5ed886e9605b45f8d2914dec
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 27 20:30:37 2013 +0000
+
+    Added code for importing geonames data into elasticsearch.
+    Created service to query for top populated cities in a polygon.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5890
+
+commit f2e2c5f51b90c8081ed9486da9d2c7c2761220ce
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 26 20:31:45 2013 +0000
+
+    Handle error from ElasticSearch when index has been deleted and recreated without any mappings applied.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5889
+
+commit 6d56781e0c0ba50da5a0d01e98e74d9b0cba68a1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 25 23:05:09 2013 +0000
+
+    Use browse url from aria-dav-pub.jpl.nasa.gov.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5879
+
+commit c96d3bde4e509cc2e2757134d82f75cb87891712
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 25 21:10:17 2013 +0000
+
+    Changed name from small_browse_urls to browse_urls.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5877
+
+commit 0e4c49884670f2388f33b6ecc0b7764eaa97fc58
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 25 20:53:34 2013 +0000
+
+    Changed to browse_urls.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5874
+
+commit f0be47c68441a18a019eaac95109a526529fb8d3
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Sep 24 18:07:28 2013 +0000
+
+    Pass in aria-dav.jpl.nasa.gov url to small browse image.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5871
+
+commit e2c888f3365dcdb3915917fd5497db8ad398ee63
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Sep 24 17:57:45 2013 +0000
+
+    Index small browse urls as a field.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5870
+
+commit 0c75980e9c4558980d55df1ff9df6bbc5c21e8fa
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 23 22:31:18 2013 +0000
+
+    Changed from GRQ_REAL_INDEX to GRQ_UPDATE_INDEX.
+    Added more fields to mapping from met.json seed.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5865
+
+commit 4b05c131175ef868ecbda67686c4041b8ac7b4ef
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 20 14:57:18 2013 +0000
+
+    Added README.txt to provide instructions on migrating to a new index.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5857
+
+commit 1b724c95e78718bc42f353fc31091cbf5630a4ee
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 20 14:48:49 2013 +0000
+
+    Added script to do migration from one index to another.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5856
+
+commit 5a48e2d71e553a8592136dbb47506b5203b19f07
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 20 14:16:14 2013 +0000
+
+    Added GRQ_REAL_INDEX so that we can use aliases.
+    Updated GRQ_REAL_INDEX instead of GRQ_INDEX alias.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5855
+
+commit 646de6b456b72f72207d100448f2eaed1e4dbadf
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 18 23:49:00 2013 +0000
+
+    Added hack for CSK dataset query.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5848
+
+commit 2a6d2b232951d51014a862c813543172df341706
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Wed Sep 18 23:44:46 2013 +0000
+
+    Updated so that string fields in the metadata are not analyzed.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5847
+
+commit 373471b355824f524266eb9ae50172cf6f2848b1
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 23:04:00 2013 +0000
+
+    Catch errors during indexing into elasticsearch.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5837
+
+commit 73ef1d0c2afa5f0d4ebad6587aec60c60f5ce77f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 22:55:05 2013 +0000
+
+    Updated port.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5836
+
+commit 7f5eb90f87e1a392cfdae9d932c47c4ff533b6b9
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 20:13:11 2013 +0000
+
+    Remove host from url.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5831
+
+commit d5984c6bee5e02f943aaa92f1b628b6353b0f340
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 19:45:18 2013 +0000
+
+    Generalized grq to handle metadata fields using term filter.
+    Added text response format for grq.
+    Updated help template.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5829
+
+commit af2e3474247c3f663b9228981eb7688ff7668c3f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 18:32:28 2013 +0000
+
+    Added spatial filter.
+    Added example query DSL.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5828
+
+commit e8e75c6b2899d37a0c6e125796e275a15191b1e6
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 17:50:29 2013 +0000
+
+    Simplified date range intersection query.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5827
+
+commit 3c4788e3e1b53c6bc2894b2737e27e614cd6b2c9
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 17:28:07 2013 +0000
+
+    Log DSL queries.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5826
+
+commit 57ab727e1c8bd63a3ad62dc49c76ee8f5cbf409f
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 17:17:13 2013 +0000
+
+    Implemented starttime/endtime query in GRQ.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5825
+
+commit 4828a0a95b1f7586cd4e92475904a19fc7ae6280
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 15:30:24 2013 +0000
+
+    Implemented getByID.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5824
+
+commit cb5bc1095cc40498ffe3a4c3f1e7a17a6c39f7d8
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 13:47:28 2013 +0000
+
+    Implemented datsets query.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5823
+
+commit 883435d0cbccbdad62d92739c79820f482c5adcd
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Mon Sep 16 12:57:18 2013 +0000
+
+    Prevent analyzation of archive_path.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5822
+
+commit fcefdfe97710bb6d3c53bb15c5552a1eb472ac59
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 12 16:01:15 2013 +0000
+
+    Added mapping for location_info.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5811
+
+commit bfccb63f66b7b60e38116dd8e6aa8c7612fadb0e
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Tue Sep 10 23:24:44 2013 +0000
+
+    Adjust hack.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5807
+
+commit 5dc624fc85baf600416c22fa179fa5e883bf9177
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 6 21:00:06 2013 +0000
+
+    Return ES results as JSONP which is required by FacetView.
+    Show somethings.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5800
+
+commit 99e28aa4dad0f36bc1a7d3029b4eb5f81f04eafc
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 6 17:33:50 2013 +0000
+
+    Added initial code for query.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5799
+
+commit f68c309d42b67647dbbd49745f251d2a65d8c71d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 6 16:25:18 2013 +0000
+
+    Added clean service.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5798
+
+commit dd906f5f5feaec4451db9f4790e2ff4113219457
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Fri Sep 6 14:51:46 2013 +0000
+
+    Added update service.
+    Removed null_value setting in mapping.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5797
+
+commit 482e1ed27564ce4b35840eafa4a41813c28f132d
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 5 20:14:33 2013 +0000
+
+    Cleanup.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5796
+
+commit d1f298f8a5d99e4143c5451d38c801321e3218c6
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 5 20:08:30 2013 +0000
+
+    Added JS libs.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5795
+
+commit a6ad673dea767087acea2175e637544ccfbd1216
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 5 20:01:49 2013 +0000
+
+    Added base templates.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5794
+
+commit 3da4409906341d452dcc2b4e7d6414b58c1362a2
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 5 19:55:50 2013 +0000
+
+    Fixed.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5793
+
+commit b2738f143577f1355d40659594dfd16cb878c369
+Author: gmanipon <gmanipon@jpl.nasa.gov>
+Date:   Thu Sep 5 19:53:07 2013 +0000
+
+    Initial import.
+    
+    svn path=/trunk/SciFlo/grq2/; revision=5792

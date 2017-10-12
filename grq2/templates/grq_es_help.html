@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}geoRegionQuery{% endblock %}
+{% block content %}
+grq_es REST service parameters:
+<ul>
+<li><b>dataset</b>: aria or csk or alos [required]</li>
+<li><b>source</b>: FacetView source parameter (query string</li>
+</ul>
+For example:
+<ul>
+<li><a href='/grq_es?dataset=aria&source={"query":{"bool":{"must":[{"term":{"dataset":"interferogram"}},{"range":{"metadata.sensingStart":{"from":"2013-06-01T00:00:00Z","to":"2013-06-30T23:59:59Z"}}}]}},"sort":[{"_timestamp":{"order":"desc"}}],"fields":["_timestamp","_source"]}'>/grq_es?dataset=aria&source={"query":{"bool":{"must":[{"term":{"dataset":"interferogram"}},{"range":{"metadata.sensingStart":{"from":"2013-06-01T00:00:00Z","to":"2013-06-30T23:59:59Z"}}}]}},"sort":[{"_timestamp":{"order":"desc"}}],"fields":["_timestamp","_source"]}</a></li>
+<li><a href="/grq_es?dataset=CSK">/grq_es?dataset=aria</a></li>
+</ul>
+{% endblock %}

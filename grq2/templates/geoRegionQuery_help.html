@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}geoRegionQuery{% endblock %}
+{% block content %}
+geoRegionQuery REST service parameters:
+<ul>
+<li><b>dataset</b>: ALOS or CSK [required]</li>
+<li><b>starttime</b>: ISO8601 date format (e.g. 2009-01-01T00:00:00Z) [optional]</li>
+<li><b>endtime</b>: ISO8601 date format (e.g. 2009-01-01T00:00:00Z) [optional]</li>
+<li><b>lon_min</b>: -180 to 180 [optional; defaults to -180]</li>
+<li><b>lon_max</b>: -180 to 180 [optional; defaults to 180]</li>
+<li><b>lat_min</b>: -90 to 90 [optional; defaults to -90]</li>
+<li><b>lat_max</b>: -90 to 90 [optional; defaults to 90]</li>
+{% for param, type in param_info: %}
+<li><b>{{ param }}</b>: {{ type }} [optional]</li>
+{% endfor %}
+<li><b>responseGroups</b>: Url, Urls, Small, Medium, or Large [optional; defaults to Medium]</li>
+<li><b>format</b>: text [optional; Used in conjunction with responseGroups=Url]</li>
+<li><b>spatial</b>: text [optional; valid values: intersects or within; defaults to intersects]</li>
+</ul>
+For example:
+<ul>
+<li><a href="/grq?responseGroups=Medium&dataset=CSK&starttime=2013-05-24T00:00:00Z&endtime=2013-05-24T23:59:59Z&lat_min=23&lat_max=44&lon_min=-119&lon_max=-110&direction=asc&orbitNumber=32254">/grq?responseGroups=Medium&dataset=CSK&starttime=2013-05-24T00:00:00Z&endtime=2013-05-24T23:59:59Z&lat_min=23&lat_max=44&lon_min=-119&lon_max=-110&direction=asc&orbitNumber=32254</a></li>
+<li><a href="/grq?dataset=CSK">/grq?dataset=CSK</a></li>
+</ul>
+{% endblock %}
