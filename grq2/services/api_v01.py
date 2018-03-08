@@ -38,6 +38,7 @@ class IndexDataset(Resource):
         'message': fields.String(required=True, description="message describing " +
                                  "success or failure"),
         'objectid': fields.String(required=True, description="ID of indexed dataset"),
+        'index': fields.String(required=True, description="dataset index name"),
     })
 
     parser = api.parser()
