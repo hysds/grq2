@@ -90,4 +90,5 @@ def update(update_json):
         'success': True,
         'message': ret,
         'objectid': update_json['id'],
+        'index': index,
     })
