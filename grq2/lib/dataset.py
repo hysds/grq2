@@ -86,9 +86,9 @@ def update(update_json):
 
     app.logger.debug("%s" % json.dumps(ret, indent=2))
 
-    return jsonify({
+    return {
         'success': True,
         'message': ret,
         'objectid': update_json['id'],
         'index': index,
-    })
+    }
