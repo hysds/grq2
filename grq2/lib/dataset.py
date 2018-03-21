@@ -18,7 +18,7 @@ LINESTRING_RE = re.compile(r'^linestring$', re.I)
 def update(update_json):
     """Update GRQ metadata and urls for a product."""
 
-    #app.logger.debug(pformat(update_json, indent=2), {'id': None})
+    #app.logger.debug("update_json:\n%s" % json.dumps(update_json, indent=2))
 
     # get version
     version = update_json['version']
@@ -27,9 +27,18 @@ def update(update_json):
     dataset = update_json.get('dataset', None)
     index_suffix = dataset
 
-    # get index, doctype and mapping
+    # get default index and doctype
     doctype = dataset
     index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, index_suffix.lower())
+
+    # get custom index and aliases
+    aliases = []
+    if 'index' in update_json:
+        if 'suffix' in update_json['index']:
+            index = '%s_%s' % (app.config['GRQ_INDEX'],
+                               update_json['index']['suffix'].lower())
+        aliases.extend(update_json['index'].get('aliases', []))
+        del update_json['index']
 
     # add reverse geolocation data
     if 'location' in update_json:
@@ -85,6 +94,19 @@ def update(update_json):
         }), 500
 
     app.logger.debug("%s" % json.dumps(ret, indent=2))
+
+    # update custom aliases
+    if len(aliases) > 0:
+        try:
+            alias_ret = es.indices.update_aliases({
+                "actions" : [
+                    { "add" : { "index" : index, "alias" : aliases } }
+                ]
+            })
+            #app.logger.debug("alias_ret: %s" % json.dumps(alias_ret, indent=2))
+        except Exception, e:
+            app.logger.debug("Got exception trying to add aliases to index: %s\n%s\nContinuing on." %
+                             (str(e), traceback.format_exc()))
 
     return {
         'success': True,
