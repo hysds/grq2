@@ -29,16 +29,19 @@ def update(update_json):
 
     # get default index and doctype
     doctype = dataset
-    index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, index_suffix.lower())
+    index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, index_suffix)
 
     # get custom index and aliases
     aliases = []
     if 'index' in update_json:
         if 'suffix' in update_json['index']:
             index = '%s_%s' % (app.config['GRQ_INDEX'],
-                               update_json['index']['suffix'].lower())
+                               update_json['index']['suffix'])
         aliases.extend(update_json['index'].get('aliases', []))
         del update_json['index']
+
+    # ensure compatible index name
+    index = index.lower()
 
     # add reverse geolocation data
     if 'location' in update_json:
