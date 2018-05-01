@@ -1,8 +1,8 @@
 import os, sys, json, requests, types, re, traceback
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
-from flask.ext.restplus import Api, apidoc, Resource, fields
-from flask.ext.login import login_required
+from flask_restplus import Api, apidoc, Resource, fields
+from flask_login import login_required
 
 from grq2 import app
 from grq2.lib.dataset import update as updateDataset
