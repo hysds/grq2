@@ -14,7 +14,7 @@ def get_center(bbox):
     """
 
     poly = Polygon(bbox)
-    src_proj = ccrs.PlateCarree()
+    src_proj = ccrs.TransverseMercator()
     tgt_proj = src_proj
     for point in bbox:
         if point[0] == -180. or point[0] == 180.:
