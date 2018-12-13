@@ -99,12 +99,14 @@ def update(update_json):
     app.logger.debug("%s" % json.dumps(ret, indent=2))
 
     # update custom aliases
+    # Fixing HC-23
     if len(aliases) > 0:
         try:
+            actions = list()
+            for index_alias in aliases:
+                actions.append({"add": {"index": index, "alias": index_alias}})
             alias_ret = es.indices.update_aliases({
-                "actions" : [
-                    { "add" : { "index" : index, "alias" : aliases } }
-                ]
+                "actions": actions
             })
             #app.logger.debug("alias_ret: %s" % json.dumps(alias_ret, indent=2))
         except Exception, e:
