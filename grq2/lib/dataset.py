@@ -77,8 +77,8 @@ def update(update_json):
     if update_json.get('starttime', None) is not None and \
        update_json.get('endtime', None) is not None:
 
-        if isinstance(update_json['starttime'], types.StringTypes) and \
-           isinstance(update_json['endtime'], types.StringTypes):
+        if isinstance(update_json['starttime'], (str,)) and \
+           isinstance(update_json['endtime'], (str,)):
             update_json['temporal_span'] = get_ts(update_json['starttime'], update_json['endtime'])
         
     #app.logger.debug("update_json:\n%s" % json.dumps(update_json, indent=2))
@@ -87,7 +87,7 @@ def update(update_json):
     try:
         es = Elasticsearch(hosts=[app.config['ES_URL']])
         ret = es.index(index=index, doc_type=doctype, id=update_json['id'], body=update_json)
-    except Exception, e:
+    except Exception as e:
         message = "Got exception trying to index dataset: %s\n%s" % (str(e), traceback.format_exc())
         app.logger.debug(message)
         return jsonify({
@@ -109,7 +109,7 @@ def update(update_json):
                 "actions": actions
             })
             #app.logger.debug("alias_ret: %s" % json.dumps(alias_ret, indent=2))
-        except Exception, e:
+        except Exception as e:
             app.logger.debug("Got exception trying to add aliases to index: %s\n%s\nContinuing on." %
                              (str(e), traceback.format_exc()))
 

@@ -29,13 +29,13 @@ def getTemporalSpanInDays(dt1, dt2):
 
 def getTimeElementsFromString(dtStr):
     match = re.match(r'^(\d{4})[/-](\d{2})[/-](\d{2})[\s*T](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z?$',dtStr)
-    if match: (year,month,day,hour,minute,second) = map(int,match.groups())
+    if match: (year,month,day,hour,minute,second) = list(map(int,match.groups()))
     else:
         match = re.match(r'^(\d{4})[/-](\d{2})[/-](\d{2})$',dtStr)
         if match:
-            (year,month,day) = map(int,match.groups())
+            (year,month,day) = list(map(int,match.groups()))
             (hour,minute,second) = (0,0,0)
-        else: raise(RuntimeError("Failed to recognize date format: %s" % dtStr))
+        else: raise RuntimeError
     return (year,month,day,hour,minute,second)
 
 
@@ -81,18 +81,18 @@ def main():
         scroll_id = res['_scroll_id']
         if len(res['hits']['hits']) == 0: break
         for hit in res['hits']['hits']:
-            print(json.dumps(hit, indent=2))
+            print((json.dumps(hit, indent=2)))
             id = hit['_id']
             old_span = hit['fields']['temporal_span'][0]
-            print("old temporal span: %d" % old_span)
+            print(("old temporal span: %d" % old_span))
             match = SENSING_RE.search(hit['_id'])
             sensing_start, sensing_stop = sorted(["%s-%s-%sT%s:%s:%s" % match.groups()[1:7],
                                                   "%s-%s-%sT%s:%s:%s" % match.groups()[7:]])
             new_span = getTemporalSpanInDays(sensing_stop, sensing_start)
-            print("new temporal span: %d" % new_span)
+            print(("new temporal span: %d" % new_span))
 
             if new_span == old_span:
-                print("%s already fixed." % hit['_id'])
+                print(("%s already fixed." % hit['_id']))
                 continue
 
             # upsert new document

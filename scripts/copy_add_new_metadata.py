@@ -44,4 +44,4 @@ while True:
         ]
         doc['metadata']['dimensions'] = 4
         ret = es.index(index=dest, doc_type=hit['_type'], id=hit['_id'], body=doc)
-        print "indexed %s" % hit['_id']
+        print("indexed %s" % hit['_id'])

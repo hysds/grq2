@@ -46,7 +46,7 @@ def cities():
     # get results
     try:
         cities = get_cities(polygon, pop_th, size)
-    except Exception, e:
+    except Exception as e:
         return jsonify({
             'success': False,
             'message': str(e),
@@ -88,7 +88,7 @@ def continents():
     # get results
     try:
         continents = get_continents(float(lon), float(lat))
-    except Exception, e:
+    except Exception as e:
         return jsonify({
             'success': False,
             'message': str(e),

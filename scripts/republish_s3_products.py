@@ -47,7 +47,7 @@ while True:
     for hit in res['hits']['hits']:
         doc = hit['fields']
         prefix = "%s/" % doc['urls'][0].replace('http://%s.s3-website-%s.amazonaws.com/' % (bucket_name, region), '')
-        print doc['_id'], prefix
+        print(doc['_id'], prefix)
         localize_urls = []
         for i in bucket.list(prefix):
             #localize_urls.append({ 'url': 's3://%s/%s' % (bucket_name, i.name), 'local_path': '%s/' % os.path.basename(prefix[0:-1]) })

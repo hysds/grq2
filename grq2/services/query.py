@@ -18,7 +18,7 @@ def datasets():
     return jsonify({
         'success': True,
         'message': "",
-        'datasets': app.config['GRQ_DATASET_DOCTYPES'].keys()
+        'datasets': list(app.config['GRQ_DATASET_DOCTYPES'].keys())
     })
 
 
@@ -59,7 +59,7 @@ def grqByID():
 
     # get dataset
     dataset = None
-    for ds, regex in app.config['OBJECTID_DATASET_MAP'].items():
+    for ds, regex in list(app.config['OBJECTID_DATASET_MAP'].items()):
         match = re.search(regex, objectid)
         if match:
             dataset = ds
@@ -245,7 +245,7 @@ def grq():
 
     # loop through for non-standard query params
     other_params = {}
-    for k in request.args.keys():
+    for k in list(request.args.keys()):
         if k in ('dataset', 'level', 'version', 'starttime', 'endtime',
                  'lat_min', 'lat_max', 'lon_min', 'lon_max', 'responseGroups',
                  'format', 'sensingStart', 'sensingStop', 'latMin', 'latMax',
@@ -302,7 +302,7 @@ def grq():
                 }
             }
         }
-        loc_filter_box = box(*map(float, [lon_min, lat_min, lon_max, lat_max]))
+        loc_filter_box = box(*list(map(float, [lon_min, lat_min, lon_max, lat_max])))
 
     # build query
     query = {
@@ -413,7 +413,7 @@ def grq():
     if response_format == 'text':
         urls = []
         for m in results:
-            if isinstance(m['url'], types.ListType) and len(m['url']) > 0:
+            if isinstance(m['url'], list) and len(m['url']) > 0:
                 urls.append(m['url'][0])
             else: urls.append(m['url'])
         if response_groups not in ['Url', 'Urls']:

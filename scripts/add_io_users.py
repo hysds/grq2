@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import print_function
+
 import json, requests, sys, traceback
 import re
 import fnmatch
@@ -39,8 +39,8 @@ def get_matching_hysdsios():
     print("-----------")
     hysdsios = []
     while len(hysdsios) == 0:
-        pattern = raw_input("Enter in hysds-io id glob pattern (from above):")
-        hysdsios = fnmatch.filter(users.keys(),pattern)
+        pattern = input("Enter in hysds-io id glob pattern (from above):")
+        hysdsios = fnmatch.filter(list(users.keys()),pattern)
         if len(hysdsios) == 0:
             print("No matching hysds-ios for '{0}'".format(pattern))
     print()
@@ -54,7 +54,7 @@ def get_add_users():
     while not USER_RE.match(user):
         if user != "":
             print("Invalid username(s): '{0}'".format(user))
-        user = raw_input("Enter in space-separated user(s) to add:")
+        user = input("Enter in space-separated user(s) to add:")
     user = user.split()
     return user
 def add_to_ios(users, hysdsio, existing):
@@ -69,7 +69,7 @@ def add_to_ios(users, hysdsio, existing):
     print("------------")
     sure = ""
     while sure == "":
-        sure = raw_input("Are you sure you want to add {0} to allowed users for '{1}' for a final user set of {2}?" .format(users,hysdsio,json.dumps(existing[hysdsio])))
+        sure = input("Are you sure you want to add {0} to allowed users for '{1}' for a final user set of {2}?" .format(users,hysdsio,json.dumps(existing[hysdsio])))
         if not sure.startswith("y") and sure != "":
             print("User showed weakness, skipping")
             return

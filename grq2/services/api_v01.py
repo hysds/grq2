@@ -53,7 +53,7 @@ class IndexDataset(Resource):
         info = request.form.get('dataset_info', request.args.get('dataset_info', None))
         if info is not None:
             try: info = json.loads(info)
-            except Exception, e:
+            except Exception as e:
                 message = "Failed to parse dataset info JSON."
                 app.logger.debug(message)
                 return { 'success': False,
@@ -63,7 +63,7 @@ class IndexDataset(Resource):
         # update
         try:
             return updateDataset(info)
-        except Exception, e:
+        except Exception as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e),e,traceback.format_exc())
             app.logger.debug(message)
             return { 'success': False,

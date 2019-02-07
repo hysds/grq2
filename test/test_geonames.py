@@ -19,8 +19,8 @@ def main():
     else:
         continent = None
     pprint(cities)
-    print continent
-    print get_center(coords)
+    print(continent)
+    print(get_center(coords))
 
 
 if __name__ == "__main__":

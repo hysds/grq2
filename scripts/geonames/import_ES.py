@@ -179,7 +179,7 @@ def parse(csv_file):
     try:
         with open(csv_file) as f:
             for line in f:
-                row = dict(zip(FIELD_NAMES, line.strip().split('\t'))) 
+                row = dict(list(zip(FIELD_NAMES, line.strip().split('\t')))) 
                 line_number += 1
                 for k in row:
                     if row[k] == '':
@@ -187,7 +187,7 @@ def parse(csv_file):
                         else: row[k] = None
                     else:
                         if k in ('alternatename', 'cc2'):
-                            row[k] = map(string.strip, row[k].split(','))
+                            row[k] = list(map(string.strip, row[k].split(',')))
                     if k in ('latitude', 'longitude'):
                         row[k] = float(row[k])
                     if k in ('population', 'elevation'):
@@ -219,9 +219,9 @@ def parse(csv_file):
 
                 # index 
                 ret = es.index(index=INDEX, doc_type=DOCTYPE, id=row['geonameid'], body=row)
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
-        print "line_number: %d" % line_number
+        print("line_number: %d" % line_number)
         raise
 
 

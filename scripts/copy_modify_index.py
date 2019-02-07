@@ -38,4 +38,4 @@ while True:
             doc['system_version'] = doc['version']
             del doc['version']
         ret = es.index(index=dest, doc_type=hit['_type'], id=hit['_id'], body=doc)
-        print "indexed %s" % hit['_id']
+        print("indexed %s" % hit['_id'])
