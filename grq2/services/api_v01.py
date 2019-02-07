@@ -1,4 +1,10 @@
-import os, sys, json, requests, types, re, traceback
+import os
+import sys
+import json
+import requests
+import types
+import re
+import traceback
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from flask_restplus import Api, apidoc, Resource, fields
@@ -17,7 +23,8 @@ api = Api(services, ui=False, version="0.1", title="Mozart API",
 ns = api.namespace(NAMESPACE, description="GRQ operations")
 
 HYSDS_IO_NS = "hysds_io"
-hysds_io_ns = api.namespace(HYSDS_IO_NS, description="HySDS IO operations") 
+hysds_io_ns = api.namespace(HYSDS_IO_NS, description="HySDS IO operations")
+
 
 @services.route('/doc/', endpoint='api_doc')
 def swagger_ui():
@@ -25,8 +32,8 @@ def swagger_ui():
 
 
 @ns.route('/dataset/index', endpoint='dataset_index')
-@api.doc(responses={ 200: "Success",
-                     500: "Execution failed" },
+@api.doc(responses={200: "Success",
+                    500: "Execution failed"},
          description="Dataset index.")
 class IndexDataset(Resource):
     """Dataset indexing API."""
@@ -50,27 +57,32 @@ class IndexDataset(Resource):
     def post(self):
 
         # get info
-        info = request.form.get('dataset_info', request.args.get('dataset_info', None))
+        info = request.form.get(
+            'dataset_info', request.args.get('dataset_info', None))
         if info is not None:
-            try: info = json.loads(info)
+            try:
+                info = json.loads(info)
             except Exception as e:
                 message = "Failed to parse dataset info JSON."
                 app.logger.debug(message)
-                return { 'success': False,
-                         'message': message,
-                         'job_id': None }, 500
+                return {'success': False,
+                        'message': message,
+                        'job_id': None}, 500
 
         # update
         try:
             return updateDataset(info)
         except Exception as e:
-            message = "Failed index dataset. {0}:{1}\n{2}".format(type(e),e,traceback.format_exc())
+            message = "Failed index dataset. {0}:{1}\n{2}".format(
+                type(e), e, traceback.format_exc())
             app.logger.debug(message)
-            return { 'success': False,
-                     'message': message }, 500
+            return {'success': False,
+                    'message': message}, 500
+
+
 @hysds_io_ns.route('/list', endpoint='hysds_io-list')
-@api.doc(responses={ 200: "Success",
-                     500: "Query execution failed" },
+@api.doc(responses={200: "Success",
+                    500: "Query execution failed"},
          description="Gets list of registered hysds-io specifications and return as JSON.")
 class GetHySDSIOTypes(Resource):
     """Get list of registered hysds-io and return as JSON."""
@@ -89,19 +101,22 @@ class GetHySDSIOTypes(Resource):
         List HySDS IO specifications
         '''
         try:
-            ids = hysds_commons.hysds_io_utils.get_hysds_io_types(app.config["ES_URL"],logger=app.logger)
+            ids = hysds_commons.hysds_io_utils.get_hysds_io_types(
+                app.config["ES_URL"], logger=app.logger)
         except Exception as e:
-            message = "Failed to query ES for HySDS IO types. {0}:{1}".format(type(e),str(e))
+            message = "Failed to query ES for HySDS IO types. {0}:{1}".format(
+                type(e), str(e))
             app.logger.warning(message)
             app.logger.warning(traceback.format_exc(e))
             return {'success': False, 'message': message}, 500
-        return { 'success': True,
-                 'message': "",
-                 'result': ids }
+        return {'success': True,
+                'message': "",
+                'result': ids}
+
 
 @hysds_io_ns.route('/type', endpoint='hysds_io-type')
-@api.doc(responses={ 200: "Success",
-                     500: "Queue listing failed" },
+@api.doc(responses={200: "Success",
+                    500: "Queue listing failed"},
          description="Gets info on a hysds-io specification.")
 class GetHySDSIOType(Resource):
     """Get list of job queues and return as JSON."""
@@ -113,7 +128,7 @@ class GetHySDSIOType(Resource):
         'message': fields.String(required=True, description="message describing " +
                                  "success or failure"),
         'result':  fields.Raw(required=True, description="HySDS IO Object")
-        })
+    })
     parser = api.parser()
     parser.add_argument('id', required=True, type=str, help="HySDS IO Type ID")
 
@@ -124,20 +139,23 @@ class GetHySDSIOType(Resource):
         Gets a HySDS-IO specification by ID
         '''
         try:
-            ident = request.form.get('id',request.args.get('id', None))
-            spec = hysds_commons.hysds_io_utils.get_hysds_io(app.config["ES_URL"],ident,logger=app.logger)
+            ident = request.form.get('id', request.args.get('id', None))
+            spec = hysds_commons.hysds_io_utils.get_hysds_io(
+                app.config["ES_URL"], ident, logger=app.logger)
         except Exception as e:
-            message = "Failed to query ES for HySDS IO object. {0}:{1}".format(type(e),str(e))
+            message = "Failed to query ES for HySDS IO object. {0}:{1}".format(
+                type(e), str(e))
             app.logger.warning(message)
             app.logger.warning(traceback.format_exc(e))
             return {'success': False, 'message': message}, 500
-        return { 'success': True,
-                 'message': "",
-                 'result': spec }
+        return {'success': True,
+                'message': "",
+                'result': spec}
+
 
 @hysds_io_ns.route('/add', endpoint='hysds_io-add')
-@api.doc(responses={ 200: "Success",
-                     500: "Adding JSON failed" },
+@api.doc(responses={200: "Success",
+                    500: "Adding JSON failed"},
          description="Adds a hysds-io specification")
 class AddHySDSIOType(Resource):
     """Add job spec"""
@@ -149,9 +167,10 @@ class AddHySDSIOType(Resource):
         'message': fields.String(required=True, description="message describing " +
                                  "success or failure"),
         'result':  fields.String(required=True, description="HySDS IO ID")
-        })
+    })
     parser = api.parser()
-    parser.add_argument('spec', required=True, type=str, help="HySDS IO JSON Object")
+    parser.add_argument('spec', required=True, type=str,
+                        help="HySDS IO JSON Object")
 
     @api.expect(parser)
     @api.marshal_with(resp_model)
@@ -160,23 +179,26 @@ class AddHySDSIOType(Resource):
         Add a HySDS IO specification
         '''
         try:
-            spec = request.form.get('spec',request.args.get('spec', None))
+            spec = request.form.get('spec', request.args.get('spec', None))
             if spec is None:
                 raise Exception("'spec' must be supplied")
             obj = json.loads(spec)
-            ident = hysds_commons.hysds_io_utils.add_hysds_io(app.config["ES_URL"],obj,logger=app.logger)
+            ident = hysds_commons.hysds_io_utils.add_hysds_io(
+                app.config["ES_URL"], obj, logger=app.logger)
         except Exception as e:
-            message = "Failed to add ES for HySDS IO. {0}:{1}".format(type(e),str(e))
+            message = "Failed to add ES for HySDS IO. {0}:{1}".format(
+                type(e), str(e))
             app.logger.warning(message)
             app.logger.warning(traceback.format_exc(e))
             return {'success': False, 'message': message}, 500
-        return { 'success': True,
-                 'message': "",
-                 'result': ident }
+        return {'success': True,
+                'message': "",
+                'result': ident}
+
 
 @hysds_io_ns.route('/remove', endpoint='hysds_io-remove')
-@api.doc(responses={ 200: "Success",
-                     500: "Remove JSON failed" },
+@api.doc(responses={200: "Success",
+                    500: "Remove JSON failed"},
          description="Removes a hysds-io specification.")
 class RemoveHySDSIOType(Resource):
     """Remove job spec"""
@@ -187,7 +209,7 @@ class RemoveHySDSIOType(Resource):
                                   "occurred"),
         'message': fields.String(required=True, description="message describing " +
                                  "success or failure"),
-        })
+    })
     parser = api.parser()
     parser.add_argument('id', required=True, type=str, help="HySDS IO ID")
 
@@ -198,13 +220,14 @@ class RemoveHySDSIOType(Resource):
         Remove HySDS IO for the given ID
         '''
         try:
-            ident = request.form.get('id',request.args.get('id', None))
-            hysds_commons.hysds_io_utils.remove_hysds_io(app.config["ES_URL"],ident,logger=app.logger)
+            ident = request.form.get('id', request.args.get('id', None))
+            hysds_commons.hysds_io_utils.remove_hysds_io(
+                app.config["ES_URL"], ident, logger=app.logger)
         except Exception as e:
-            message = "Failed to add ES for HySDS IO. {0}:{1}".format(type(e),str(e))
+            message = "Failed to add ES for HySDS IO. {0}:{1}".format(
+                type(e), str(e))
             app.logger.warning(message)
             app.logger.warning(traceback.format_exc(e))
             return {'success': False, 'message': message}, 500
-        return { 'success': True,
-                 'message': ""}
-
+        return {'success': True,
+                'message': ""}

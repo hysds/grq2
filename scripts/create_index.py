@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import json, requests, sys
+import json
+import requests
+import sys
 from elasticsearch import Elasticsearch
 
 from grq2 import app

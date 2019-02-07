@@ -1,4 +1,6 @@
-import json, requests, types
+import json
+import requests
+import types
 from pprint import pformat
 from shapely.geometry import Polygon, MultiPolygon
 import shapely.wkt
@@ -18,8 +20,10 @@ def get_center(bbox):
     tgt_proj = src_proj
     for point in bbox:
         if point[0] == -180. or point[0] == 180.:
-            if point[1] > 0: tgt_proj = ccrs.RotatedPole(0., 90.)
-            else: tgt_proj = ccrs.RotatedPole(0., -90.)
+            if point[1] > 0:
+                tgt_proj = ccrs.RotatedPole(0., 90.)
+            else:
+                tgt_proj = ccrs.RotatedPole(0., -90.)
             break
     multipolygons = tgt_proj.project_geometry(poly, src_proj)
     multipolygons = multipolygons.simplify(10.)

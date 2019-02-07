@@ -1,4 +1,6 @@
-import json, requests, types
+import json
+import requests
+import types
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from pprint import pformat
 

@@ -1,4 +1,9 @@
-import os, sys, json, requests, types, re
+import os
+import sys
+import json
+import requests
+import types
+import re
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from flask_restplus import Api, apidoc, Resource, fields

@@ -1,4 +1,8 @@
-import json, traceback, re, requests, types
+import json
+import traceback
+import re
+import requests
+import types
 from flask import jsonify, Blueprint, request
 from pprint import pformat
 from elasticsearch import Elasticsearch
@@ -65,13 +69,14 @@ def update(update_json):
             center_lon, center_lat = get_center(coords)
             update_json['center'] = {
                 'type': 'point',
-                'coordinates': [ center_lon, center_lat ]
+                'coordinates': [center_lon, center_lat]
             }
 
         # add closest continent
         lon, lat = update_json['center']['coordinates']
         continents = get_continents(lon, lat)
-        update_json['continent'] = continents[0]['name'] if len(continents) > 0 else None
+        update_json['continent'] = continents[0]['name'] if len(
+            continents) > 0 else None
 
     # set temporal_span
     if update_json.get('starttime', None) is not None and \
@@ -79,16 +84,19 @@ def update(update_json):
 
         if isinstance(update_json['starttime'], (str,)) and \
            isinstance(update_json['endtime'], (str,)):
-            update_json['temporal_span'] = get_ts(update_json['starttime'], update_json['endtime'])
-        
+            update_json['temporal_span'] = get_ts(
+                update_json['starttime'], update_json['endtime'])
+
     #app.logger.debug("update_json:\n%s" % json.dumps(update_json, indent=2))
 
     # update in elasticsearch
     try:
         es = Elasticsearch(hosts=[app.config['ES_URL']])
-        ret = es.index(index=index, doc_type=doctype, id=update_json['id'], body=update_json)
+        ret = es.index(index=index, doc_type=doctype,
+                       id=update_json['id'], body=update_json)
     except Exception as e:
-        message = "Got exception trying to index dataset: %s\n%s" % (str(e), traceback.format_exc())
+        message = "Got exception trying to index dataset: %s\n%s" % (
+            str(e), traceback.format_exc())
         app.logger.debug(message)
         return jsonify({
             'success': False,

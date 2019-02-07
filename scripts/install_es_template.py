@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-import os, sys, json, requests
+import os
+import sys
+import json
+import requests
 from jinja2 import Template
 
 from grq2 import app
