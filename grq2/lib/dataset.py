@@ -82,8 +82,8 @@ def update(update_json):
     if update_json.get('starttime', None) is not None and \
        update_json.get('endtime', None) is not None:
 
-        if isinstance(update_json['starttime'], (str,)) and \
-           isinstance(update_json['endtime'], (str,)):
+        if isinstance(update_json['starttime'], str) and \
+           isinstance(update_json['endtime'], str):
             update_json['temporal_span'] = get_ts(
                 update_json['starttime'], update_json['endtime'])
 

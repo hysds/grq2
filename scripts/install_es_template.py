@@ -17,8 +17,8 @@ def write_template(es_url, prefix, alias, tmpl_file):
     r = requests.delete(tmpl_url)
     r = requests.put(tmpl_url, data=tmpl)
     r.raise_for_status()
-    print(r.json())
-    print("Successfully installed template %s at %s." % (alias, tmpl_url))
+    print((r.json()))
+    print(("Successfully installed template %s at %s." % (alias, tmpl_url)))
 
 
 if __name__ == "__main__":

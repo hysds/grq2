@@ -15,8 +15,8 @@ def migrate(index_name):
     dest_count = r.json()['count']
 
     if src_count != dest_count:
-        print('ERROR: index %s (%d) does not appear to match index %s (%d)' %
-              (src, src_count, dest, dest_count))
+        print(('ERROR: index %s (%d) does not appear to match index %s (%d)' %
+              (src, src_count, dest, dest_count)))
         sys.exit(1)
 
     # index all docs from source index to destination index
@@ -46,10 +46,10 @@ def migrate(index_name):
                 dest, hit['_type'], hit['_id'])
             r = requests.post(post_request, data=json.dumps(hit['_source']))
             if r.status_code == 200:
-                print("INFO: indexed \"%s\" on \"%s\"" % (hit['_id'], dest))
+                print(("INFO: indexed \"%s\" on \"%s\"" % (hit['_id'], dest)))
             else:
-                print('ERROR: post request returned status code %d: %s' %
-                      (r.status_code, post_request))
+                print(('ERROR: post request returned status code %d: %s' %
+                      (r.status_code, post_request)))
                 print((r.json()))
                 sys.exit(1)
 

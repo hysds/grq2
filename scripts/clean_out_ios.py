@@ -31,12 +31,12 @@ while True:
         break
     for hit in res['hits']['hits']:
         ident = hit["_id"]
-        yn = input("Do you want to delete: %s " % ident)
+        yn = eval(input("Do you want to delete: %s " % ident))
         if yn == "y":
-            sure = input("Are you sure? ID: %s " % ident)
+            sure = eval(input("Are you sure? ID: %s " % ident))
             if not sure.startswith("y") and sure != "":
-                print("Skipping: %s" % ident)
+                print(("Skipping: %s" % ident))
                 continue
             r = requests.delete("%s/hysds_ios/hysds_io/%s" % (es_url, ident))
             r.raise_for_status()
-            print("Deleted: %s" % ident)
+            print(("Deleted: %s" % ident))

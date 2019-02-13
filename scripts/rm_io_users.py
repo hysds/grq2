@@ -47,7 +47,7 @@ def get_matching_hysdsios():
     print("-----------")
     hysdsios = []
     while len(hysdsios) == 0:
-        pattern = input("Enter in hysds-io id glob pattern (from above):")
+        pattern = eval(input("Enter in hysds-io id glob pattern (from above):"))
         hysdsios = fnmatch.filter(list(users.keys()), pattern)
         if len(hysdsios) == 0:
             print("No matching hysds-ios for '{0}'".format(pattern))
@@ -64,7 +64,7 @@ def get_rm_users():
     while not USER_RE.match(user):
         if user != "":
             print("Invalid username(s): '{0}'".format(user))
-        user = input("Enter in space-separated user(s) to remove:")
+        user = eval(input("Enter in space-separated user(s) to remove:"))
     user = user.split()
     return user
 
@@ -82,8 +82,8 @@ def rm_to_ios(users, hysdsio, existing):
     print("------------")
     sure = ""
     while sure == "":
-        sure = input("Are you sure you want to remove {0} to allowed users for '{1}' for a final user set of {2}?" .format(
-            users, hysdsio, json.dumps(existing[hysdsio])))
+        sure = eval(input("Are you sure you want to remove {0} to allowed users for '{1}' for a final user set of {2}?" .format(
+            users, hysdsio, json.dumps(existing[hysdsio]))))
         if not sure.startswith("y") and sure != "":
             print("User showed weakness, skipping")
             return

@@ -57,7 +57,7 @@ while True:
                           (es_url, dest), data=json.dumps(doc))
         result = r.json()
         if r.status_code != 201:
-            print("Failed to insert rule: %s" % json.dumps(doc, indent=2))
+            print(("Failed to insert rule: %s" % json.dumps(doc, indent=2)))
             continue
 
-        print("indexed %s" % hit['_id'])
+        print(("indexed %s" % hit['_id']))

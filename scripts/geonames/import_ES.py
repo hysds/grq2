@@ -229,7 +229,7 @@ def parse(csv_file):
                                id=row['geonameid'], body=row)
     except Exception as e:
         traceback.print_exc()
-        print("line_number: %d" % line_number)
+        print(("line_number: %d" % line_number))
         raise
 
 
