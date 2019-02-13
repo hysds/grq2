@@ -1,4 +1,15 @@
-import json, traceback, re, requests, types
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from future import standard_library
+standard_library.install_aliases()
+import json
+import traceback
+import re
+import requests
+import types
 from flask import jsonify, Blueprint, request
 from pprint import pformat
 from elasticsearch import Elasticsearch
@@ -65,30 +76,34 @@ def update(update_json):
             center_lon, center_lat = get_center(coords)
             update_json['center'] = {
                 'type': 'point',
-                'coordinates': [ center_lon, center_lat ]
+                'coordinates': [center_lon, center_lat]
             }
 
         # add closest continent
         lon, lat = update_json['center']['coordinates']
         continents = get_continents(lon, lat)
-        update_json['continent'] = continents[0]['name'] if len(continents) > 0 else None
+        update_json['continent'] = continents[0]['name'] if len(
+            continents) > 0 else None
 
     # set temporal_span
     if update_json.get('starttime', None) is not None and \
        update_json.get('endtime', None) is not None:
 
-        if isinstance(update_json['starttime'], types.StringTypes) and \
-           isinstance(update_json['endtime'], types.StringTypes):
-            update_json['temporal_span'] = get_ts(update_json['starttime'], update_json['endtime'])
-        
+        if isinstance(update_json['starttime'], str) and \
+           isinstance(update_json['endtime'], str):
+            update_json['temporal_span'] = get_ts(
+                update_json['starttime'], update_json['endtime'])
+
     #app.logger.debug("update_json:\n%s" % json.dumps(update_json, indent=2))
 
     # update in elasticsearch
     try:
         es = Elasticsearch(hosts=[app.config['ES_URL']])
-        ret = es.index(index=index, doc_type=doctype, id=update_json['id'], body=update_json)
-    except Exception, e:
-        message = "Got exception trying to index dataset: %s\n%s" % (str(e), traceback.format_exc())
+        ret = es.index(index=index, doc_type=doctype,
+                       id=update_json['id'], body=update_json)
+    except Exception as e:
+        message = "Got exception trying to index dataset: %s\n%s" % (
+            str(e), traceback.format_exc())
         app.logger.debug(message)
         return jsonify({
             'success': False,
@@ -109,7 +124,7 @@ def update(update_json):
                 "actions": actions
             })
             #app.logger.debug("alias_ret: %s" % json.dumps(alias_ret, indent=2))
-        except Exception, e:
+        except Exception as e:
             app.logger.debug("Got exception trying to add aliases to index: %s\n%s\nContinuing on." %
                              (str(e), traceback.format_exc()))
 
