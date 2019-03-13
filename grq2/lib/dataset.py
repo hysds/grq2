@@ -73,11 +73,18 @@ def update(update_json):
 
         # add center if missing
         if 'center' not in update_json:
-            center_lon, center_lat = get_center(coords)
-            update_json['center'] = {
-                'type': 'point',
-                'coordinates': [center_lon, center_lat]
-            }
+            if mp:
+                center_lon, center_lat = get_center(coords[0])
+                update_json['center'] = {
+                    'type': 'point',
+                    'coordinates': [ center_lon, center_lat ]
+                }
+            else:
+                center_lon, center_lat = get_center(coords)
+                update_json['center'] = {
+                    'type': 'point',
+                    'coordinates': [ center_lon, center_lat ]
+                }
 
         # add closest continent
         lon, lat = update_json['center']['coordinates']
