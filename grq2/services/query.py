@@ -1,4 +1,14 @@
-import json, requests, types, re
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import map
+from future import standard_library
+standard_library.install_aliases()
+import json
+import requests
+import types
+import re
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from pprint import pformat
 from shapely.geometry import box
@@ -18,7 +28,7 @@ def datasets():
     return jsonify({
         'success': True,
         'message': "",
-        'datasets': app.config['GRQ_DATASET_DOCTYPES'].keys()
+        'datasets': list(app.config['GRQ_DATASET_DOCTYPES'].keys())
     })
 
 
@@ -59,7 +69,7 @@ def grqByID():
 
     # get dataset
     dataset = None
-    for ds, regex in app.config['OBJECTID_DATASET_MAP'].items():
+    for ds, regex in list(app.config['OBJECTID_DATASET_MAP'].items()):
         match = re.search(regex, objectid)
         if match:
             dataset = ds
@@ -78,10 +88,11 @@ def grqByID():
     if version is not None:
         if version == 'latest':
             version = app.config['GRQ_UPDATE_INDEX_VERSION'][dataset]
-        index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version.replace('.', ''), dataset.lower())
+        index = '%s_%s_%s' % (
+            app.config['GRQ_INDEX'], version.replace('.', ''), dataset.lower())
     else:
         index = '%s_%s' % (app.config['GRQ_INDEX'], dataset.lower())
-    
+
     # query
     es_url = app.config['ES_URL']
     query = {
@@ -91,18 +102,20 @@ def grqByID():
         ],
         "query": {
             "ids": {
-                "values": [ objectid ]
+                "values": [objectid]
             }
         }
     }
     #app.logger.debug("ES query for grqByID(): %s" % json.dumps(query, indent=2))
-    r = requests.post('%s/%s/_search' % (es_url, index), data=json.dumps(query))
+    r = requests.post('%s/%s/_search' %
+                      (es_url, index), data=json.dumps(query))
     res = r.json()
     result = []
     if res['hits']['total'] > 0:
         # emulate result format from ElasticSearch <1.0
         if '_source' in res['hits']['hits'][0]:
-            res['hits']['hits'][0]['fields'].update(res['hits']['hits'][0]['_source'])
+            res['hits']['hits'][0]['fields'].update(
+                res['hits']['hits'][0]['_source'])
 
         # get urls and metadata
         urls = res['hits']['hits'][0]['fields']['urls']
@@ -112,11 +125,13 @@ def grqByID():
         metadata['id'] = res['hits']['hits'][0]['fields']['id']
 
         # add data system version
-        metadata['data_system_version'] = res['hits']['hits'][0]['fields'].get('system_version', None)
-    
+        metadata['data_system_version'] = res['hits']['hits'][0]['fields'].get(
+            'system_version', None)
+
         # add dataset
-        metadata['dataset'] = res['hits']['hits'][0]['fields'].get('dataset', None)
-    
+        metadata['dataset'] = res['hits']['hits'][0]['fields'].get(
+            'dataset', None)
+
         # return plain list of urls
         if response_format == 'text':
             if response_groups not in ['Url', 'Urls']:
@@ -131,11 +146,13 @@ def grqByID():
             return response
 
         # return metadata with appropriate urls
-        if response_groups == 'Large': metadata['url'] = urls
+        if response_groups == 'Large':
+            metadata['url'] = urls
         else:
-            if len(urls) > 0: metadata['url'] = urls[0]
+            if len(urls) > 0:
+                metadata['url'] = urls[0]
 
-        result.append(metadata) 
+        result.append(metadata)
 
     return jsonify({
         'success': success,
@@ -217,8 +234,10 @@ def grq():
     dataset = request.args.get('dataset', None)
     level = request.args.get('level', None)
     version = request.args.get('version', None)
-    starttime = request.args.get('starttime', request.args.get('sensingStart', None))
-    endtime = request.args.get('endtime', request.args.get('sensingStop', None))
+    starttime = request.args.get(
+        'starttime', request.args.get('sensingStart', None))
+    endtime = request.args.get(
+        'endtime', request.args.get('sensingStop', None))
     lat_min = request.args.get('lat_min', request.args.get('latMin', -90.))
     lat_max = request.args.get('lat_max', request.args.get('latMax', 90.))
     lon_min = request.args.get('lon_min', request.args.get('lonMin', -180.))
@@ -245,13 +264,14 @@ def grq():
 
     # loop through for non-standard query params
     other_params = {}
-    for k in request.args.keys():
+    for k in list(request.args.keys()):
         if k in ('dataset', 'level', 'version', 'starttime', 'endtime',
                  'lat_min', 'lat_max', 'lon_min', 'lon_max', 'responseGroups',
                  'format', 'sensingStart', 'sensingStop', 'latMin', 'latMax',
-                 'lonMin', 'lonMax', 'spatial'): continue
+                 'lonMin', 'lonMax', 'spatial'):
+                     continue
         other_params[k] = request.args.get(k)
-    #app.logger.debug(pformat(other_params))
+    # app.logger.debug(pformat(other_params))
 
     # if no dataset passed, show help
     if dataset is None:
@@ -290,19 +310,20 @@ def grq():
         loc_filter_box = None
     else:
         loc_filter = {
-            "geo_shape" : {
-                "location" : {
+            "geo_shape": {
+                "location": {
                     "shape": {
                         "type": "envelope",
                         "coordinates": [
-                            [ lon_min, lat_max ],
-                            [ lon_max, lat_min ]
+                            [lon_min, lat_max],
+                            [lon_max, lat_min]
                         ]
                     }
                 }
             }
         }
-        loc_filter_box = box(*map(float, [lon_min, lat_min, lon_max, lat_max]))
+        loc_filter_box = box(
+            *list(map(float, [lon_min, lat_min, lon_max, lat_max])))
 
     # build query
     query = {
@@ -316,44 +337,50 @@ def grq():
             "_source"
         ],
         "query": {
-            "term": { "dataset": dataset }
+            "term": {"dataset": dataset}
         }
     }
 
     # add filters or query_string queries
     qs_queries = []
     filters = []
-    if date_filter is not None: filters.append(date_filter)
-    if loc_filter is not None: filters.append(loc_filter)
+    if date_filter is not None:
+        filters.append(date_filter)
+    if loc_filter is not None:
+        filters.append(loc_filter)
     for k in other_params:
         # fields to run query_string on (exact values and ranges)
         if k in ('latitudeIndexMin', 'latitudeIndexMax'):
             qs_query = {
                 'query_string': {
-                    'fields': [ k ],
+                    'fields': [k],
                     'query': other_params[k]
                 }
             }
             qs_queries.append(qs_query)
         else:
-            term_filter = { 'term': {} }
+            term_filter = {'term': {}}
             term_filter['term']['metadata.%s' % k] = other_params[k]
             filters.append(term_filter)
-    if len(filters) > 0: query['filter'] = { "and": filters }
-    if len(qs_queries) > 0: query['query'] = { "bool": { "must": qs_queries } }
+    if len(filters) > 0:
+        query['filter'] = {"and": filters}
+    if len(qs_queries) > 0:
+        query['query'] = {"bool": {"must": qs_queries}}
 
     # get index
     if version is not None:
         if version == 'latest':
             version = app.config['GRQ_UPDATE_INDEX_VERSION'][es_index]
-        index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version.replace('.', ''), es_index.lower())
+        index = '%s_%s_%s' % (
+            app.config['GRQ_INDEX'], version.replace('.', ''), es_index.lower())
     else:
         index = '%s_%s' % (app.config['GRQ_INDEX'], es_index.lower())
-    
+
     # query for results
     es_url = app.config['ES_URL']
     #app.logger.debug("ES query for grq(): %s" % json.dumps(query, indent=2))
-    r = requests.post('%s/%s/_search?search_type=scan&scroll=10m&size=100' % (es_url, index), data=json.dumps(query))
+    r = requests.post('%s/%s/_search?search_type=scan&scroll=10m&size=100' %
+                      (es_url, index), data=json.dumps(query))
     if r.status_code != 200:
         return jsonify({
             'success': False,
@@ -366,20 +393,24 @@ def grq():
     scroll_id = scan_result['_scroll_id']
     results = []
     while True:
-        r = requests.post('%s/_search/scroll?scroll=10m' % es_url, data=scroll_id)
+        r = requests.post('%s/_search/scroll?scroll=10m' %
+                          es_url, data=scroll_id)
         res = r.json()
         scroll_id = res['_scroll_id']
-        if len(res['hits']['hits']) == 0: break
+        if len(res['hits']['hits']) == 0:
+            break
         for hit in res['hits']['hits']:
             # emulate result format from ElasticSearch <1.0
-            if '_source' in hit: hit['fields'].update(hit['_source'])
+            if '_source' in hit:
+                hit['fields'].update(hit['_source'])
 
             # spatial filter within vs. intersects (default)
             if spatial == 'within' and loc_filter_box is not None:
-                #print hit['fields']['location']
+                # print hit['fields']['location']
                 lr = LinearRing(hit['fields']['location']['coordinates'][0])
-                #print loc_filter_box, lr
-                if not lr.within(loc_filter_box): continue
+                # print loc_filter_box, lr
+                if not lr.within(loc_filter_box):
+                    continue
 
             # get browse_urls, urls and metadata
             browse_urls = hit['fields']['browse_urls']
@@ -388,24 +419,27 @@ def grq():
 
             # add objectid as id
             metadata['id'] = hit['fields']['id']
-    
+
             # add location
             if 'location' not in metadata:
                 metadata['location'] = hit['fields']['location']
 
             # add data system version
-            metadata['data_system_version'] = hit['fields'].get('system_version', None)
-    
+            metadata['data_system_version'] = hit['fields'].get(
+                'system_version', None)
+
             # add dataset
             metadata['dataset'] = hit['fields'].get('dataset', None)
-    
+
             # return metadata with appropriate urls
             if response_groups == 'Large':
                 metadata['browse_url'] = browse_urls
                 metadata['url'] = urls
             else:
-                if len(urls) > 0: metadata['url'] = urls[0]
-                if len(browse_urls) > 0: metadata['browse_url'] = browse_urls[0]
+                if len(urls) > 0:
+                    metadata['url'] = urls[0]
+                if len(browse_urls) > 0:
+                    metadata['browse_url'] = browse_urls[0]
 
             results.append(metadata)
 
@@ -413,9 +447,10 @@ def grq():
     if response_format == 'text':
         urls = []
         for m in results:
-            if isinstance(m['url'], types.ListType) and len(m['url']) > 0:
+            if isinstance(m['url'], list) and len(m['url']) > 0:
                 urls.append(m['url'][0])
-            else: urls.append(m['url'])
+            else:
+                urls.append(m['url'])
         if response_groups not in ['Url', 'Urls']:
             return jsonify({
                 'success': False,
@@ -450,8 +485,8 @@ def grq_es():
         "query": {
             "match_all": {}
         },
-        "sort":[{"_timestamp":{"order":"desc"}}],
-        "fields":["_timestamp","_source"]
+        "sort": [{"_timestamp": {"order": "desc"}}],
+        "fields": ["_timestamp", "_source"]
     }
 
     # get query
@@ -466,7 +501,8 @@ def grq_es():
     es_url = app.config['ES_URL']
     index = '%s_%s' % (app.config['GRQ_INDEX'], dataset.lower())
     #app.logger.debug("ES query for grq(): %s" % json.dumps(query, indent=2))
-    r = requests.post('%s/%s/_search?search_type=scan&scroll=60m&size=100' % (es_url, index), data=source)
+    r = requests.post('%s/%s/_search?search_type=scan&scroll=60m&size=100' %
+                      (es_url, index), data=source)
     if r.status_code != 200:
         return jsonify({
             'success': False,
@@ -483,34 +519,40 @@ def grq_es():
         yield '{\n  "count": %d,\n  "message": "",\n  "result": [' % count
         res_count = 0
         while True:
-            r = requests.post('%s/_search/scroll?scroll=60m' % es_url, data=scroll_id)
+            r = requests.post('%s/_search/scroll?scroll=60m' %
+                              es_url, data=scroll_id)
             res = r.json()
             scroll_id = res['_scroll_id']
-            if len(res['hits']['hits']) == 0: break
+            if len(res['hits']['hits']) == 0:
+                break
             for hit in res['hits']['hits']:
                 res_count += 1
                 # emulate result format from ElasticSearch <1.0
-                if '_source' in hit: hit['fields'].update(hit['_source'])
+                if '_source' in hit:
+                    hit['fields'].update(hit['_source'])
                 metadata = hit['fields']['metadata']
-    
+
                 # get browse_urls, urls and metadata
                 metadata['browse_url'] = hit['fields'].get('browse_urls', [])
                 metadata['url'] = hit['fields'].get('urls', [])
-    
+
                 # add objectid as id
                 metadata['id'] = hit['fields']['id']
-        
+
                 # add location
                 metadata['location'] = hit['fields'].get('location', None)
-    
+
                 # add data system version
-                metadata['data_system_version'] = hit['fields'].get('system_version', None)
-        
+                metadata['data_system_version'] = hit['fields'].get(
+                    'system_version', None)
+
                 # add dataset
                 metadata['dataset'] = hit['fields'].get('dataset', None)
-        
-                if res_count == 1: yield '\n%s' % json.dumps(metadata, indent=2)
-                else: yield ',\n%s' % json.dumps(metadata, indent=2)
+
+                if res_count == 1:
+                    yield '\n%s' % json.dumps(metadata, indent=2)
+                else:
+                    yield ',\n%s' % json.dumps(metadata, indent=2)
         yield '\n  ],\n  "success": true\n}'
 
     return Response(stream_json(scroll_id), mimetype="application/json")

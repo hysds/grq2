@@ -1,4 +1,12 @@
-import json, requests, types
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+import json
+import requests
+import types
 from pprint import pformat
 
 from grq2 import app
@@ -113,7 +121,8 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
     # query for results
     es_url = app.config['ES_URL']
     index = app.config['GEONAMES_INDEX']
-    r = requests.post('%s/%s/_search' % (es_url, index), data=json.dumps(query))
+    r = requests.post('%s/%s/_search' %
+                      (es_url, index), data=json.dumps(query))
     app.logger.debug("get_cities(): %s" % json.dumps(query, indent=2))
     if r.status_code != 200:
         raise RuntimeError("Failed to get cities: %s" % pformat(r.json()))
@@ -181,7 +190,7 @@ def get_continents(lon, lat):
         "sort": [
             {
                 "_geo_distance": {
-                    "location": [ lon, lat ],
+                    "location": [lon, lat],
                     "order": "asc",
                     "unit": "km"
                 }
@@ -195,7 +204,8 @@ def get_continents(lon, lat):
     # query for results
     es_url = app.config['ES_URL']
     index = app.config['GEONAMES_INDEX']
-    r = requests.post('%s/%s/_search' % (es_url, index), data=json.dumps(query))
+    r = requests.post('%s/%s/_search' %
+                      (es_url, index), data=json.dumps(query))
     app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
     if r.status_code != 200:
         raise RuntimeError("Failed to get cities: %s" % pformat(r.json()))

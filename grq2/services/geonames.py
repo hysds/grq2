@@ -1,4 +1,14 @@
-import json, requests, types
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import int
+from builtins import str
+from future import standard_library
+standard_library.install_aliases()
+import json
+import requests
+import types
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from pprint import pformat
 
@@ -46,7 +56,7 @@ def cities():
     # get results
     try:
         cities = get_cities(polygon, pop_th, size)
-    except Exception, e:
+    except Exception as e:
         return jsonify({
             'success': False,
             'message': str(e),
@@ -88,7 +98,7 @@ def continents():
     # get results
     try:
         continents = get_continents(float(lon), float(lat))
-    except Exception, e:
+    except Exception as e:
         return jsonify({
             'success': False,
             'message': str(e),
