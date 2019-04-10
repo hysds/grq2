@@ -49,7 +49,7 @@ def getTimeElementsFromString(dtStr):
             (year, month, day) = list(map(int, match.groups()))
             (hour, minute, second) = (0, 0, 0)
         else:
-            raise RuntimeError
+            raise RuntimeError("Failed to recognize date format: %s" % dtStr)
     return (year, month, day, hour, minute, second)
 
 
