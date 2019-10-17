@@ -202,7 +202,7 @@ def parse(csv_file):
                             row[k] = None
                     else:
                         if k in ('alternatename', 'cc2'):
-                            row[k] = list(map(string.strip, row[k].split(',')))
+                            row[k] = list(map(str.strip, row[k].split(',')))
                     if k in ('latitude', 'longitude'):
                         row[k] = float(row[k])
                     if k in ('population', 'elevation'):
