@@ -147,8 +147,8 @@ class GetHySDSIOType(Resource):
         '''
         try:
             ident = request.form.get('id', request.args.get('id', None))
-            spec = hysds_commons.hysds_io_utils.get_hysds_io(
-                app.config["ES_URL"], ident, logger=app.logger)
+            spec = hysds_commons.hysds_io_utils.get_hysds_io(app.config["ES_URL"], ident, logger=app.logger,
+                                                             hysds_io_type='_doc')
         except Exception as e:
             message = "Failed to query ES for HySDS IO object. {0}:{1}".format(
                 type(e), str(e))
@@ -190,8 +190,8 @@ class AddHySDSIOType(Resource):
             if spec is None:
                 raise Exception("'spec' must be supplied")
             obj = json.loads(spec)
-            ident = hysds_commons.hysds_io_utils.add_hysds_io(
-                app.config["ES_URL"], obj, logger=app.logger)
+            ident = hysds_commons.hysds_io_utils.add_hysds_io(app.config["ES_URL"], obj, logger=app.logger,
+                                                              hysds_io_type='_doc')
         except Exception as e:
             message = "Failed to add ES for HySDS IO. {0}:{1}".format(
                 type(e), str(e))
@@ -228,8 +228,8 @@ class RemoveHySDSIOType(Resource):
         '''
         try:
             ident = request.form.get('id', request.args.get('id', None))
-            hysds_commons.hysds_io_utils.remove_hysds_io(
-                app.config["ES_URL"], ident, logger=app.logger)
+            hysds_commons.hysds_io_utils.remove_hysds_io(app.config["ES_URL"], ident, logger=app.logger,
+                                                         hysds_io_type='_doc')
         except Exception as e:
             message = "Failed to add ES for HySDS IO. {0}:{1}".format(
                 type(e), str(e))
