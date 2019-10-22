@@ -1,108 +1,101 @@
 {
-  "order" : 0,
-  "template" : "{{ prefix }}_*",
-  "settings" : {
-    "index.refresh_interval" : "5s",
+  "order": 0,
+  "index_patterns": [
+    "{{ prefix }}_*"
+  ],
+  "settings": {
+    "index.refresh_interval": "5s",
     "analysis": {
       "analyzer": {
         "default": {
           "filter": [
-            "standard", 
-            "lowercase", 
+            "standard",
+            "lowercase",
             "word_delimiter"
-          ], 
+          ],
           "tokenizer": "keyword"
         }
       }
     }
   },
-  "mappings" : {
-    "_default_" : {
-      "dynamic_templates" : [ {
-        "string_fields" : {
-          "mapping" : {
-            "index" : "analyzed",
-            "omit_norms" : true,
-            "type" : "string",
-            "fields" : {
-              "raw" : {
-                "index" : "not_analyzed",
-                "ignore_above" : 256,
-                "type" : "string"
+  "mappings": {
+    "dynamic_templates": [
+      {
+        "integers": {
+          "match_mapping_type": "long",
+          "mapping": {
+            "type": "integer"
+          }
+        }
+      },
+      {
+        "strings": {
+          "match_mapping_type": "string",
+          "mapping": {
+            "norms": false,
+            "type": "text",
+            "copy_to": "text_fields",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
               }
             }
           },
-          "match_mapping_type" : "string",
-          "match" : "*"
+          "match": "*"
         }
-      } ],
-      "_id": {
-        "type": "string",
-        "store": true,
-        "index": "not_analyzed"
+      }
+    ],
+    "properties": {
+      "browse_urls": {
+        "type": "text",
+        "copy_to": "text_fields"
       },
-      "_timestamp": {
-        "enabled": true,
-        "store": true
+      "urls": {
+        "type": "text",
+        "copy_to": "text_fields"
       },
-      "_all" : {
-        "enabled" : true
+      "location": {
+        "tree": "quadtree",
+        "type": "geo_shape"
       },
-      "properties" : {
-        "browse_urls": {
-          "index_name": "browse_url",
-          "type": "string"
-        },
-        "urls": {
-          "index_name": "url",
-          "type": "string"
-        },
-        "location": {
-          "tree": "quadtree",
-          "type": "geo_shape",
-          "precision": "1m"
-        },
-        "center": {
-          "tree": "quadtree",
-          "type": "geo_shape",
-          "precision": "1m"
-        },
-        "starttime": {
-          "type": "date",
-          "format": "dateOptionalTime"
-        },
-        "endtime": {
-          "type": "date",
-          "format": "dateOptionalTime"
-        },
-        "creation_timestamp": {
-          "type": "date",
-          "format": "dateOptionalTime"
-        },
-        "metadata": {
-          "properties": {
-            "context": {
-              "type": "object",
-              "enabled": false
-            }
-          }
-        },
-        "prov": {
-          "properties": {
-            "wasDerivedFrom": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "wasGeneratedBy": {
-              "index": "not_analyzed",
-              "type": "string"
-            }
+      "center": {
+        "tree": "quadtree",
+        "type": "geo_shape"
+      },
+      "starttime": {
+        "type": "date"
+      },
+      "endtime": {
+        "type": "date"
+      },
+      "creation_timestamp": {
+        "type": "date"
+      },
+      "metadata": {
+        "properties": {
+          "context": {
+            "type": "object",
+            "enabled": false
           }
         }
+      },
+      "prov": {
+        "properties": {
+          "wasDerivedFrom": {
+            "type": "keyword"
+          },
+          "wasGeneratedBy": {
+            "type": "keyword"
+          }
+        }
+      },
+      "text_fields": {
+        "type": "text"
       }
     }
   },
-  "aliases" : {
-    "{{ alias }}" : {}
+  "aliases": {
+    "{{ alias }}": {}
   }
 }
