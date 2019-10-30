@@ -38,8 +38,7 @@ def update(update_json):
     dataset = update_json.get('dataset', None)
     index_suffix = dataset
 
-    # get default index and doctype
-    doctype = dataset
+    # get default index
     index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, index_suffix)
 
     # get custom index and aliases
@@ -106,8 +105,7 @@ def update(update_json):
     # update in elasticsearch
     try:
         es = Elasticsearch(hosts=[app.config['ES_URL']])
-        ret = es.index(index=index, doc_type=doctype,
-                       id=update_json['id'], body=update_json)
+        ret = es.index(index=index, id=update_json['id'], body=update_json)
     except Exception as e:
         message = "Got exception trying to index dataset: %s\n%s" % (
             str(e), traceback.format_exc())
