@@ -12,7 +12,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=['Flask', 'gunicorn', 'eventlet', 'pymongo',
-                      'elasticsearch>=1.0.0,<2.0.0', 'requests', 'pyshp',
-                      'shapely>=1.5.15', 'Cython>=0.15.1', 'Cartopy>=0.13.1',
+                      'elasticsearch>=7.0.0,<8.0.0', 'elasticsearch-dsl>=7.0.0,<8.0.0',
+                      'requests', 'pyshp', 'shapely>=1.5.15', 'Cython>=0.15.1', 'Cartopy>=0.13.1',
                       'redis', 'flask-restplus>=0.9.2', 'future>=0.17.1']
 )
