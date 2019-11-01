@@ -74,54 +74,52 @@ FIELD_NAMES = [
 
 INDEX = 'geonames'
 MAPPING = {
-    'geoname': {
-        'properties': {
-            'geonameid': {'type': 'keyword'},
-            'name': {
-                'type': 'text',
-                'fields': {'keyword': {'type': 'keyword'}}
-            },
-            'asciiname': {
-                'type': 'text',
-                'fields': {'keyword': {'type': 'keyword'}}
-            },
-            'alternatename': {
-                'type': 'text',
-                'fields': {'keyword': {'type': 'keyword'}}
-            },
-            'latitude': {'type': 'double'},
-            'longitude': {'type': 'double'},
-            'feature_class': {'type': 'keyword'},
-            'feature_code': {'type': 'keyword'},
-            'country_code': {'type': 'keyword'},
-            'cc2': {'type': 'keyword'},
-            'admin1_code': {'type': 'keyword'},
-            'admin2_code': {'type': 'keyword'},
-            'admin3_code': {'type': 'keyword'},
-            'admin4_code': {'type': 'keyword'},
-            'population': {'type': 'long'},
-            'elevation': {'type': 'long'},
-            'dem': {'type': 'text'},
-            'timezone': {'type': 'text'},
-            'modification_date': {'type': 'date'},
-            'location': {'type': 'geo_point'},
-            'continent_code': {'type': 'keyword'},
-            'continent_name': {
-                'type': 'text',
-                'fields': {'keyword': {'type': 'keyword'}}
-            },
-            'country_name': {
-                'type': 'text',
-                'fields': {'keyword': {'type': 'keyword'}}
-            },
-            'admin1_name': {
-                'type': 'text',
-                'fields': {'keyword': {'type': 'keyword'}}
-            },
-            'admin2_name': {
-                'type': 'text',
-                'fields': {'keyword': {'type': 'keyword'}}
-            }
+    'properties': {
+        'geonameid': {'type': 'keyword'},
+        'name': {
+            'type': 'text',
+            'fields': {'keyword': {'type': 'keyword'}}
+        },
+        'asciiname': {
+            'type': 'text',
+            'fields': {'keyword': {'type': 'keyword'}}
+        },
+        'alternatename': {
+            'type': 'text',
+            'fields': {'keyword': {'type': 'keyword'}}
+        },
+        'latitude': {'type': 'double'},
+        'longitude': {'type': 'double'},
+        'feature_class': {'type': 'keyword'},
+        'feature_code': {'type': 'keyword'},
+        'country_code': {'type': 'keyword'},
+        'cc2': {'type': 'keyword'},
+        'admin1_code': {'type': 'keyword'},
+        'admin2_code': {'type': 'keyword'},
+        'admin3_code': {'type': 'keyword'},
+        'admin4_code': {'type': 'keyword'},
+        'population': {'type': 'long'},
+        'elevation': {'type': 'long'},
+        'dem': {'type': 'text'},
+        'timezone': {'type': 'text'},
+        'modification_date': {'type': 'date'},
+        'location': {'type': 'geo_point'},
+        'continent_code': {'type': 'keyword'},
+        'continent_name': {
+            'type': 'text',
+            'fields': {'keyword': {'type': 'keyword'}}
+        },
+        'country_name': {
+            'type': 'text',
+            'fields': {'keyword': {'type': 'keyword'}}
+        },
+        'admin1_name': {
+            'type': 'text',
+            'fields': {'keyword': {'type': 'keyword'}}
+        },
+        'admin2_name': {
+            'type': 'text',
+            'fields': {'keyword': {'type': 'keyword'}}
         }
     }
 }
@@ -162,6 +160,7 @@ def parse(csv_file):
     # get ElasticSearch connection
     es = Elasticsearch(hosts=[ES_URL])
     es.indices.create(INDEX, {'mappings': MAPPING}, ignore=400)
+    print('%s index created!!' % INDEX)
 
     # iterate and index
     line_number = 0
@@ -212,7 +211,9 @@ def parse(csv_file):
                             row['admin2_name'] = adm2.get(adm2_code, [None])[0]
 
                 # index
-                ret = es.index(index=INDEX, id=row['geonameid'], body=row)
+                es.index(index=INDEX, id=row['geonameid'], body=row)
+                if line_number % 10000 == 0:
+                    print('%d documents ingested into %s' % (line_number, INDEX))
     except Exception as e:
         traceback.print_exc()
         print(("line_number: %d" % line_number))
