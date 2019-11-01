@@ -73,78 +73,54 @@ FIELD_NAMES = [
 
 
 INDEX = 'geonames'
-DOCTYPE = 'geoname'
 MAPPING = {
     'geoname': {
-        '_id': {'type': 'string', 'path': 'geonameid', 'index': 'not_analyzed', 'store': 'yes'},
-        '_timestamp': {'enabled': True, 'store': 'yes'},
         'properties': {
-            'geonameid': {'type': 'string', 'index': 'not_analyzed'},
+            'geonameid': {'type': 'keyword'},
             'name': {
-                'type': 'multi_field',
-                'fields': {
-                    'name': {'type': 'string', 'index': 'analyzed'},
-                    'untouched': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'type': 'text',
+                'fields': {'keyword': {'type': 'keyword'}}
             },
             'asciiname': {
-                'type': 'multi_field',
-                'fields': {
-                    'asciiname': {'type': 'string', 'index': 'analyzed'},
-                    'untouched': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'type': 'text',
+                'fields': {'keyword': {'type': 'keyword'}}
             },
             'alternatename': {
-                'type': 'multi_field',
-                'fields': {
-                    'alternatename': {'type': 'string', 'index': 'analyzed'},
-                    'untouched': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'type': 'text',
+                'fields': {'keyword': {'type': 'keyword'}}
             },
             'latitude': {'type': 'double'},
             'longitude': {'type': 'double'},
-            'feature_class': {'type': 'string', 'index': 'not_analyzed'},
-            'feature_code': {'type': 'string', 'index': 'not_analyzed'},
-            'country_code': {'type': 'string', 'index': 'not_analyzed'},
-            'cc2': {'type': 'string', 'index': 'not_analyzed'},
-            'admin1_code': {'type': 'string', 'index': 'not_analyzed'},
-            'admin2_code': {'type': 'string', 'index': 'not_analyzed'},
-            'admin3_code': {'type': 'string', 'index': 'not_analyzed'},
-            'admin4_code': {'type': 'string', 'index': 'not_analyzed'},
+            'feature_class': {'type': 'keyword'},
+            'feature_code': {'type': 'keyword'},
+            'country_code': {'type': 'keyword'},
+            'cc2': {'type': 'keyword'},
+            'admin1_code': {'type': 'keyword'},
+            'admin2_code': {'type': 'keyword'},
+            'admin3_code': {'type': 'keyword'},
+            'admin4_code': {'type': 'keyword'},
             'population': {'type': 'long'},
             'elevation': {'type': 'long'},
-            'dem': {'type': 'string'},
-            'timezone': {'type': 'string'},
-            'modification_date': {'type': 'date', 'format': 'dateOptionalTime'},
+            'dem': {'type': 'text'},
+            'timezone': {'type': 'text'},
+            'modification_date': {'type': 'date'},
             'location': {'type': 'geo_point'},
-            'continent_code': {'type': 'string', 'index': 'not_analyzed'},
+            'continent_code': {'type': 'keyword'},
             'continent_name': {
-                'type': 'multi_field',
-                'fields': {
-                    'continent_name': {'type': 'string', 'index': 'analyzed'},
-                    'untouched': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'type': 'text',
+                'fields': {'keyword': {'type': 'keyword'}}
             },
             'country_name': {
-                'type': 'multi_field',
-                'fields': {
-                    'country_name': {'type': 'string', 'index': 'analyzed'},
-                    'untouched': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'type': 'text',
+                'fields': {'keyword': {'type': 'keyword'}}
             },
             'admin1_name': {
-                'type': 'multi_field',
-                'fields': {
-                    'admin1_name': {'type': 'string', 'index': 'analyzed'},
-                    'untouched': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'type': 'text',
+                'fields': {'keyword': {'type': 'keyword'}}
             },
             'admin2_name': {
-                'type': 'multi_field',
-                'fields': {
-                    'admin2_name': {'type': 'string', 'index': 'analyzed'},
-                    'untouched': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'type': 'text',
+                'fields': {'keyword': {'type': 'keyword'}}
             }
         }
     }
@@ -236,8 +212,7 @@ def parse(csv_file):
                             row['admin2_name'] = adm2.get(adm2_code, [None])[0]
 
                 # index
-                ret = es.index(index=INDEX, doc_type=DOCTYPE,
-                               id=row['geonameid'], body=row)
+                ret = es.index(index=INDEX, id=row['geonameid'], body=row)
     except Exception as e:
         traceback.print_exc()
         print(("line_number: %d" % line_number))
