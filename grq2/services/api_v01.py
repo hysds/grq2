@@ -270,7 +270,7 @@ class OnDemandJobs(Resource):
         es = Elasticsearch()
 
         query_body = {
-            "_source": ["id", "label"],
+            "_source": ["id", "job-specification", "label"],
             "query": {
                 "exists": {
                     "field": "job-specification"
@@ -298,7 +298,7 @@ class OnDemandJobs(Resource):
             documents.extend(scroll_document)
 
         documents = [{
-            'id': row['_source']['id'],
+            'job': row['_source']['job-specification'],
             'label': row['_source']['label']
         } for row in documents]
 
