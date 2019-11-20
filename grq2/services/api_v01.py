@@ -17,9 +17,12 @@ from flask import jsonify, Blueprint, request, Response, render_template, make_r
 from flask_restplus import Api, apidoc, Resource, fields
 from flask_login import login_required
 
+from elasticsearch import Elasticsearch
+
 from grq2 import app
 from grq2.lib.dataset import update as updateDataset
 import hysds_commons.hysds_io_utils
+import hysds_commons.mozart_utils
 
 
 NAMESPACE = "grq"
@@ -238,3 +241,69 @@ class RemoveHySDSIOType(Resource):
             return {'success': False, 'message': message}, 500
         return {'success': True,
                 'message': ""}
+
+
+@ns.route('/on-demand', endpoint='on-demand')
+@api.doc(responses={200: "Success",
+                    500: "Execution failed"},
+         description="Retrieve on demand jobs")
+class OnDemandJobs(Resource):
+    """Dataset indexing API."""
+
+    resp_model = api.model('JsonResponse', {
+        'success': fields.Boolean(required=True, description="if 'false', " +
+                                  "encountered exception; otherwise no errors " +
+                                  "occurred"),
+        'message': fields.String(required=True, description="message describing " +
+                                 "success or failure"),
+        'objectid': fields.String(required=True, description="ID of indexed dataset"),
+        'index': fields.String(required=True, description="dataset index name"),
+    })
+
+    parser = api.parser()
+    # parser.add_argument('dataset_info', required=True, type=str,
+    #                     location='form',  help="HySDS dataset info JSON")
+
+    # @api.marshal_with(resp_model)
+    def get(self):
+        """List available on demand jobs"""
+        es = Elasticsearch()
+
+        query_body = {
+            "_source": ["id", "label"],
+            "query": {
+                "exists": {
+                    "field": "job-specification"
+                }
+            }
+        }
+        page = es.search(index='hysds_ios', scroll='2m', size=100, body=query_body)
+
+        sid = page['_scroll_id']
+        documents = page['hits']['hits']
+        page_size = page['hits']['total']['value']
+
+        # Start scrolling
+        while page_size > 0:
+            page = es.scroll(scroll_id=sid, scroll='2m')
+
+            # Update the scroll ID
+            sid = page['_scroll_id']
+
+            scroll_document = page['hits']['hits']
+
+            # Get the number of results that we returned in the last scroll
+            page_size = len(scroll_document)
+
+            documents.extend(scroll_document)
+
+        documents = [{
+            'id': row['_source']['id'],
+            'label': row['_source']['label']
+        } for row in documents]
+
+        return {
+            'success': True,
+            # 'message': "hello world!!!!!",
+            'result': documents
+        }
