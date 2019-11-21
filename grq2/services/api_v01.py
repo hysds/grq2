@@ -271,6 +271,7 @@ class OnDemandJobs(Resource):
 
         query_body = {
             "_source": ["id", "job-specification", "label"],
+            "sort": [{"label.keyword": {"order": "asc"}}],
             "query": {
                 "exists": {
                     "field": "job-specification"
@@ -298,7 +299,7 @@ class OnDemandJobs(Resource):
             documents.extend(scroll_document)
 
         documents = [{
-            'job': row['_source']['job-specification'],
+            'value': row['_source']['job-specification'],
             'label': row['_source']['label']
         } for row in documents]
 
