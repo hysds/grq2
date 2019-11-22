@@ -248,7 +248,7 @@ class RemoveHySDSIOType(Resource):
                     500: "Execution failed"},
          description="Retrieve on demand jobs")
 class OnDemandJobs(Resource):
-    """Dataset indexing API."""
+    """On Demand Jobs API."""
 
     resp_model = api.model('JsonResponse', {
         'success': fields.Boolean(required=True, description="if 'false', " +
@@ -269,7 +269,7 @@ class OnDemandJobs(Resource):
         """List available on demand jobs"""
         es = Elasticsearch()
 
-        query_body = {
+        query = {
             "_source": ["id", "job-specification", "label"],
             "sort": [{"label.keyword": {"order": "asc"}}],
             "query": {
@@ -278,7 +278,7 @@ class OnDemandJobs(Resource):
                 }
             }
         }
-        page = es.search(index='hysds_ios', scroll='2m', size=100, body=query_body)
+        page = es.search(index='hysds_ios', scroll='2m', size=100, body=query)
 
         sid = page['_scroll_id']
         documents = page['hits']['hits']
@@ -305,6 +305,57 @@ class OnDemandJobs(Resource):
 
         return {
             'success': True,
-            # 'message': "hello world!!!!!",
             'result': documents
+        }
+
+
+@ns.route('/job-params', endpoint='job-params')
+@api.doc(responses={200: "Success",
+                    500: "Execution failed"},
+         description="Retrieve on job params for specific jobs")
+class JobParams(Resource):
+    """Job Params API."""
+
+    resp_model = api.model('JsonResponse', {
+        'success': fields.Boolean(required=True, description="if 'false', " +
+                                  "encountered exception; otherwise no errors " +
+                                  "occurred"),
+        'message': fields.String(required=True, description="message describing " +
+                                 "success or failure"),
+        'objectid': fields.String(required=True, description="ID of indexed dataset"),
+        'index': fields.String(required=True, description="dataset index name"),
+    })
+
+    parser = api.parser()
+    # parser.add_argument('dataset_info', required=True, type=str,
+    #                     location='form',  help="HySDS dataset info JSON")
+
+    # @api.marshal_with(resp_model)
+    def get(self):
+        from pprint import pprint
+        es = Elasticsearch()
+
+        job_type = request.args.get('job_type')
+        if not job_type:
+            return {'success': False, 'message': 'job_type not provided'}, 400
+
+        query = {
+            "query": {
+                "term": {"job-specification.keyword": job_type}
+            }
+        }
+        pprint(query)
+        documents = es.search(index='hysds_ios', body=query)
+        pprint(documents)
+
+        if documents['hits']['total']['value'] == 0:
+            error_message = '%s not found' % job_type
+            return {'success': False, 'message': error_message}, 404
+
+        job_params = documents['hits']['hits'][0]['_source']['params']
+        job_params = list(filter(lambda x: x['from'] == 'submitter', job_params))
+
+        return {
+            'success': True,
+            'result': job_params
         }
