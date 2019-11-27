@@ -19,12 +19,17 @@ from flask_login import login_required
 
 from elasticsearch import Elasticsearch
 
+from hysds.celery import app as celery_app
+from hysds.task_worker import do_submit_task
+
 from grq2 import app
 from grq2.lib.dataset import update as updateDataset
 import hysds_commons.hysds_io_utils
 import hysds_commons.mozart_utils
+from hysds_commons.action_utils import check_passthrough_query
 
 
+ES_URL = app.config['ES_URL']
 NAMESPACE = "grq"
 
 services = Blueprint('api_v0-1', __name__, url_prefix='/api/v0.1')
@@ -267,10 +272,11 @@ class OnDemandJobs(Resource):
     # @api.marshal_with(resp_model)
     def get(self):
         """List available on demand jobs"""
-        es = Elasticsearch()
+        # TODO: add elastticsearch host
+        es = Elasticsearch([ES_URL])
 
         query = {
-            "_source": ["id", "job-specification", "label"],
+            "_source": ["id", "job-specification", "label", "job-version"],
             "sort": [{"label.keyword": {"order": "asc"}}],
             "query": {
                 "exists": {
@@ -300,12 +306,71 @@ class OnDemandJobs(Resource):
 
         documents = [{
             'value': row['_source']['job-specification'],
+            'version': row['_source']['job-version'],
             'label': row['_source']['label']
         } for row in documents]
 
         return {
             'success': True,
             'result': documents
+        }
+
+    def post(self):
+        """
+        submits on demand job
+        :return: submit job id?
+        """
+        post_data = request.json
+        if not post_data:
+            post_data = request.form
+
+        tag = post_data.get('tags', None)
+        job_type = post_data.get('job_type', None)
+        hysds_io = post_data.get('hysds_io', None)
+        queue = post_data.get('queue', None)
+        priority = int(post_data.get('priority', 0))
+        query_string = post_data.get('query', None)
+        kwargs = post_data.get('kwargs', None)
+
+        query = json.loads(query_string)
+        query_string = json.dumps(query)
+
+        # TODO: add elasticsearch host
+        es = Elasticsearch([ES_URL])
+        try:
+            doc = es.get(index='hysds_ios', id=hysds_io)
+        except Exception as e:
+            return {'success': False, 'message': '%s not found' % hysds_io}, 500
+
+        params = doc['_source']['params']
+        is_passthrough_query = check_passthrough_query(params)
+
+        rule = {
+            'username': 'example_user',
+            'workflow': hysds_io,
+            'priority': priority,
+            'enabled': True,
+            'job_type': job_type,
+            'rule_name': tag,
+            'kwargs': kwargs,
+            'query_string': query_string,
+            'query': query,
+            'passthru_query': is_passthrough_query ,
+            'query_all': False,
+            'queue': queue
+        }
+
+        payload = {
+            'type': 'job_iterator',
+            'function': 'hysds_commons.job_iterator.iterate',
+            'args': ["tosca", rule],
+        }
+
+        celery_task = do_submit_task(payload, celery_app.conf['ON_DEMAND_DATASET_QUEUE'])
+
+        return {
+            'success': True,
+            'result': celery_task.id
         }
 
 
@@ -332,8 +397,8 @@ class JobParams(Resource):
 
     # @api.marshal_with(resp_model)
     def get(self):
-        from pprint import pprint
-        es = Elasticsearch()
+        # TODO: add elastticsearch host
+        es = Elasticsearch([ES_URL])
 
         job_type = request.args.get('job_type')
         if not job_type:
@@ -344,18 +409,19 @@ class JobParams(Resource):
                 "term": {"job-specification.keyword": job_type}
             }
         }
-        pprint(query)
         documents = es.search(index='hysds_ios', body=query)
-        pprint(documents)
 
         if documents['hits']['total']['value'] == 0:
             error_message = '%s not found' % job_type
             return {'success': False, 'message': error_message}, 404
 
-        job_params = documents['hits']['hits'][0]['_source']['params']
+        job_type = documents['hits']['hits'][0]
+        job_params = job_type['_source']['params']
         job_params = list(filter(lambda x: x['from'] == 'submitter', job_params))
 
         return {
             'success': True,
-            'result': job_params
+            'submission_type': job_type['_source'].get('submission_type'),
+            'hysds_io': job_type['_source']['id'],
+            'params': job_params
         }
