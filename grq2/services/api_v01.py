@@ -272,7 +272,6 @@ class OnDemandJobs(Resource):
     # @api.marshal_with(resp_model)
     def get(self):
         """List available on demand jobs"""
-        # TODO: add elastticsearch host
         es = Elasticsearch([ES_URL])
 
         query = {
