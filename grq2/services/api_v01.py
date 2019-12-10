@@ -27,6 +27,7 @@ from grq2.lib.dataset import update as updateDataset
 import hysds_commons.hysds_io_utils
 import hysds_commons.mozart_utils
 from hysds_commons.action_utils import check_passthrough_query
+from hysds_commons.elasticsearch_utils import get_es_scrolled_data
 
 
 ES_URL = app.config['ES_URL']
@@ -396,7 +397,6 @@ class JobParams(Resource):
 
     # @api.marshal_with(resp_model)
     def get(self):
-        # TODO: add elastticsearch host
         es = Elasticsearch([ES_URL])
 
         job_type = request.args.get('job_type')
@@ -423,4 +423,52 @@ class JobParams(Resource):
             'submission_type': job_type['_source'].get('submission_type'),
             'hysds_io': job_type['_source']['id'],
             'params': job_params
+        }
+
+
+@ns.route('/user-rules', endpoint='user-rules')
+@api.doc(responses={200: "Success",
+                    500: "Execution failed"},
+         description="Retrieve on job params for specific jobs")
+class UserRules(Resource):
+    """User Rules API"""
+
+    def get(self):
+        user_rules_index = app.config['USER_RULES_INDEX']
+
+        query = {"query": {"match_all": {}}}
+        user_rules = get_es_scrolled_data(ES_URL, user_rules_index, query)
+
+        return {
+            'success': True,
+            'rules': user_rules
+        }
+
+    def post(self):
+        post_data = request.json
+        if not post_data:
+            post_data = request.form
+
+        rule_name = post_data.get('rule_name')
+        workflow = post_data.get('workflow')
+        priority = int(post_data.get('priority', 0))
+        query_string = post_data.get('query_string')
+        kwargs = post_data.get('kwargs')
+        queue = post_data.get('queue')
+
+        if not workflow:
+            return {
+                'success': False,
+                'message': "Workflow not specified.",
+                'result': None,
+            }, 400
+
+        return {
+            'success': True,
+            'rule_name': rule_name,
+            'workflow': workflow,
+            'priority': priority,
+            'query_string': query_string,
+            'kwargs': kwargs,
+            'queue': queue,
         }
