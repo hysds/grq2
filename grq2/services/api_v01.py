@@ -17,11 +17,19 @@ from flask import jsonify, Blueprint, request, Response, render_template, make_r
 from flask_restplus import Api, apidoc, Resource, fields
 from flask_login import login_required
 
+from elasticsearch import Elasticsearch
+
+from hysds.celery import app as celery_app
+from hysds.task_worker import do_submit_task
+
 from grq2 import app
 from grq2.lib.dataset import update as updateDataset
 import hysds_commons.hysds_io_utils
+import hysds_commons.mozart_utils
+from hysds_commons.action_utils import check_passthrough_query
 
 
+ES_URL = app.config['ES_URL']
 NAMESPACE = "grq"
 
 services = Blueprint('api_v0-1', __name__, url_prefix='/api/v0.1')
@@ -238,3 +246,181 @@ class RemoveHySDSIOType(Resource):
             return {'success': False, 'message': message}, 500
         return {'success': True,
                 'message': ""}
+
+
+@ns.route('/on-demand', endpoint='on-demand')
+@api.doc(responses={200: "Success",
+                    500: "Execution failed"},
+         description="Retrieve on demand jobs")
+class OnDemandJobs(Resource):
+    """On Demand Jobs API."""
+
+    resp_model = api.model('JsonResponse', {
+        'success': fields.Boolean(required=True, description="if 'false', " +
+                                  "encountered exception; otherwise no errors " +
+                                  "occurred"),
+        'message': fields.String(required=True, description="message describing " +
+                                 "success or failure"),
+        'objectid': fields.String(required=True, description="ID of indexed dataset"),
+        'index': fields.String(required=True, description="dataset index name"),
+    })
+
+    parser = api.parser()
+    # parser.add_argument('dataset_info', required=True, type=str,
+    #                     location='form',  help="HySDS dataset info JSON")
+
+    # @api.marshal_with(resp_model)
+    def get(self):
+        """List available on demand jobs"""
+        es = Elasticsearch([ES_URL])
+
+        query = {
+            "_source": ["id", "job-specification", "label", "job-version"],
+            "sort": [{"label.keyword": {"order": "asc"}}],
+            "query": {
+                "exists": {
+                    "field": "job-specification"
+                }
+            }
+        }
+        page = es.search(index='hysds_ios', scroll='2m', size=100, body=query)
+
+        sid = page['_scroll_id']
+        documents = page['hits']['hits']
+        page_size = page['hits']['total']['value']
+
+        # Start scrolling
+        while page_size > 0:
+            page = es.scroll(scroll_id=sid, scroll='2m')
+
+            # Update the scroll ID
+            sid = page['_scroll_id']
+
+            scroll_document = page['hits']['hits']
+
+            # Get the number of results that we returned in the last scroll
+            page_size = len(scroll_document)
+
+            documents.extend(scroll_document)
+
+        documents = [{
+            'value': row['_source']['job-specification'],
+            'version': row['_source']['job-version'],
+            'label': row['_source']['label']
+        } for row in documents]
+
+        return {
+            'success': True,
+            'result': documents
+        }
+
+    def post(self):
+        """
+        submits on demand job
+        :return: submit job id?
+        """
+        post_data = request.json
+        if not post_data:
+            post_data = request.form
+
+        tag = post_data.get('tags', None)
+        job_type = post_data.get('job_type', None)
+        hysds_io = post_data.get('hysds_io', None)
+        queue = post_data.get('queue', None)
+        priority = int(post_data.get('priority', 0))
+        query_string = post_data.get('query', None)
+        kwargs = post_data.get('kwargs', None)
+
+        query = json.loads(query_string)
+        query_string = json.dumps(query)
+
+        # TODO: add elasticsearch host
+        es = Elasticsearch([ES_URL])
+        try:
+            doc = es.get(index='hysds_ios', id=hysds_io)
+        except Exception as e:
+            return {'success': False, 'message': '%s not found' % hysds_io}, 500
+
+        params = doc['_source']['params']
+        is_passthrough_query = check_passthrough_query(params)
+
+        rule = {
+            'username': 'example_user',
+            'workflow': hysds_io,
+            'priority': priority,
+            'enabled': True,
+            'job_type': job_type,
+            'rule_name': tag,
+            'kwargs': kwargs,
+            'query_string': query_string,
+            'query': query,
+            'passthru_query': is_passthrough_query ,
+            'query_all': False,
+            'queue': queue
+        }
+
+        payload = {
+            'type': 'job_iterator',
+            'function': 'hysds_commons.job_iterator.iterate',
+            'args': ["tosca", rule],
+        }
+
+        celery_task = do_submit_task(payload, celery_app.conf['ON_DEMAND_DATASET_QUEUE'])
+
+        return {
+            'success': True,
+            'result': celery_task.id
+        }
+
+
+@ns.route('/job-params', endpoint='job-params')
+@api.doc(responses={200: "Success",
+                    500: "Execution failed"},
+         description="Retrieve on job params for specific jobs")
+class JobParams(Resource):
+    """Job Params API."""
+
+    resp_model = api.model('JsonResponse', {
+        'success': fields.Boolean(required=True, description="if 'false', " +
+                                  "encountered exception; otherwise no errors " +
+                                  "occurred"),
+        'message': fields.String(required=True, description="message describing " +
+                                 "success or failure"),
+        'objectid': fields.String(required=True, description="ID of indexed dataset"),
+        'index': fields.String(required=True, description="dataset index name"),
+    })
+
+    parser = api.parser()
+    # parser.add_argument('dataset_info', required=True, type=str,
+    #                     location='form',  help="HySDS dataset info JSON")
+
+    # @api.marshal_with(resp_model)
+    def get(self):
+        # TODO: add elastticsearch host
+        es = Elasticsearch([ES_URL])
+
+        job_type = request.args.get('job_type')
+        if not job_type:
+            return {'success': False, 'message': 'job_type not provided'}, 400
+
+        query = {
+            "query": {
+                "term": {"job-specification.keyword": job_type}
+            }
+        }
+        documents = es.search(index='hysds_ios', body=query)
+
+        if documents['hits']['total']['value'] == 0:
+            error_message = '%s not found' % job_type
+            return {'success': False, 'message': error_message}, 404
+
+        job_type = documents['hits']['hits'][0]
+        job_params = job_type['_source']['params']
+        job_params = list(filter(lambda x: x['from'] == 'submitter', job_params))
+
+        return {
+            'success': True,
+            'submission_type': job_type['_source'].get('submission_type'),
+            'hysds_io': job_type['_source']['id'],
+            'params': job_params
+        }
