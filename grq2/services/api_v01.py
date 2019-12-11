@@ -487,7 +487,7 @@ class UserRules(Resource):
             }, 409
 
         # check if job_type (hysds_io) exists in elasticsearch
-        job_type = get_by_id_safe(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
+        job_type = get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
         if not job_type:
             return {
                 'success': False,
