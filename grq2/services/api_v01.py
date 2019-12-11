@@ -27,7 +27,7 @@ from grq2 import app
 from grq2.lib.dataset import update as updateDataset
 import hysds_commons.hysds_io_utils
 import hysds_commons.mozart_utils
-from hysds_commons.metadata_rest_utils import get_by_id_safe
+from hysds_commons.metadata_rest_utils import get_by_id
 from hysds_commons.action_utils import check_passthrough_query
 from hysds_commons.elasticsearch_utils import get_es_scrolled_data
 
