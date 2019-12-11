@@ -12,6 +12,7 @@ import requests
 import types
 import re
 import traceback
+from datetime import datetime
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from flask_restplus import Api, apidoc, Resource, fields
@@ -26,6 +27,7 @@ from grq2 import app
 from grq2.lib.dataset import update as updateDataset
 import hysds_commons.hysds_io_utils
 import hysds_commons.mozart_utils
+from hysds_commons.metadata_rest_utils import get_by_id
 from hysds_commons.action_utils import check_passthrough_query
 from hysds_commons.elasticsearch_utils import get_es_scrolled_data
 
@@ -320,6 +322,7 @@ class OnDemandJobs(Resource):
         submits on demand job
         :return: submit job id?
         """
+        # TODO: add user auth and permissions
         post_data = request.json
         if not post_data:
             post_data = request.form
@@ -335,12 +338,13 @@ class OnDemandJobs(Resource):
         query = json.loads(query_string)
         query_string = json.dumps(query)
 
-        # TODO: add elasticsearch host
         es = Elasticsearch([ES_URL])
         try:
             doc = es.get(index='hysds_ios', id=hysds_io)
         except Exception as e:
-            return {'success': False, 'message': '%s not found' % hysds_io}, 500
+            app.logger.error('failed to fetch %s' % hysds_io)
+            app.logger.error(e)
+            return {'success': False, 'message': '%s not found' % hysds_io}, 404
 
         params = doc['_source']['params']
         is_passthrough_query = check_passthrough_query(params)
@@ -355,7 +359,7 @@ class OnDemandJobs(Resource):
             'kwargs': kwargs,
             'query_string': query_string,
             'query': query,
-            'passthru_query': is_passthrough_query ,
+            'passthru_query': is_passthrough_query,
             'query_all': False,
             'queue': queue
         }
@@ -450,8 +454,10 @@ class UserRules(Resource):
         if not post_data:
             post_data = request.form
 
+        user_rules_index = app.config['USER_RULES_INDEX']
+
         rule_name = post_data.get('rule_name')
-        workflow = post_data.get('workflow')
+        hysds_io = post_data.get('workflow')
         priority = int(post_data.get('priority', 0))
         query_string = post_data.get('query_string')
         kwargs = post_data.get('kwargs')
@@ -460,37 +466,81 @@ class UserRules(Resource):
         # TODO: add user role and permissions, hard coded to "ops" for now
         username = "ops"
 
-        if not workflow:
+        if not hysds_io:
             return {
                 'success': False,
                 'message': "Workflow not specified.",
                 'result': None,
             }, 400
 
-        # TODO: check ES if rule name already exists, if so return error code 409 (conflict)
-        # TODO: validate if job_type (hysds_io) name exists in jobs, return 400 if not
+        es = Elasticsearch([ES_URL])
 
-        # TODO: morph new ES document into this form
+        # TODO: check ES if rule name already exists, if so return error code 409 (conflict) (done)
+        rule_exists_query = {
+            "query": {
+                "term": {
+                    "rule_name": rule_name
+                }
+            }
+        }
+        existing_rules = es.search(index=user_rules_index, body=rule_exists_query)
+        if existing_rules['hits']['total']['value'] > 0:
+            return {
+                'success': False,
+                'message': 'user rule already exists: %s' % rule_name
+            }, 409
+        # TODO: validate if job_type (hysds_io) name exists in jobs, return 400 if job_type doesnt exist
+        # TODO: fix hysds_commons get_by_id to not raise if _id is not found
+        get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, logger=None)
         """
+        if not found:
+            return 400
+        """
+
+        # TODO: morph new ES document into this form (done)
+        try:
+            doc = es.get(index='hysds_ios', id=hysds_io)
+        except Exception as e:
+            app.logger.error('failed to fetch %s' % hysds_io)
+            app.logger.error(e)
+            return {
+                'success': False,
+                'message': '%s not found' % hysds_io
+            }, 404
+
+        params = doc['_source']['params']
+        is_passthrough_query = check_passthrough_query(params)
+
+        now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
         new_doc = {
-            "workflow": workflow,
+            "workflow": hysds_io,
             "priority": priority,
             "rule_name": rule_name,
-            "username": g.user.id,
+            "username": username,
             "query_string": query_string,
             "kwargs": kwargs,
-            "job_type": job_type,
+            "job_type": hysds_io,
             "enabled": True,
             "query": json.loads(query_string),
-            "passthru_query": passthru_query,
-            "query_all": query_all,
+            "passthru_query": is_passthrough_query,
+            "query_all": False,
             "queue": queue,
-            "modified_time": mtime,
-            "creation_time": mtime,
+            "modified_time": now,
+            "creation_time": now,
         }
-        """
+
+        try:
+            result = es.index(index=user_rules_index, doc_type='_doc', body=new_doc)
+        except Exception as e:
+            app.logger.error('failed to index document %s' % rule_name)
+            app.logger.error(e)
+            return {
+                'success': False,
+                'message': '%s failed to add user rule' % rule_name
+            }, 500
 
         return {
             'success': True,
-            'message': 'rule created'
+            'message': 'rule created',
+            'result': result
         }
