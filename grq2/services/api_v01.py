@@ -27,7 +27,7 @@ from grq2 import app
 from grq2.lib.dataset import update as updateDataset
 import hysds_commons.hysds_io_utils
 import hysds_commons.mozart_utils
-from hysds_commons.metadata_rest_utils import get_by_id
+from hysds_commons.metadata_rest_utils import get_by_id_safe
 from hysds_commons.action_utils import check_passthrough_query
 from hysds_commons.elasticsearch_utils import get_es_scrolled_data
 
@@ -450,10 +450,9 @@ class UserRules(Resource):
         }
 
     def post(self):
-        post_data = request.json
-        if not post_data:
-            post_data = request.form
+        post_data = request.json or request.form
 
+        es = Elasticsearch([ES_URL])
         user_rules_index = app.config['USER_RULES_INDEX']
 
         rule_name = post_data.get('rule_name')
@@ -463,8 +462,7 @@ class UserRules(Resource):
         kwargs = post_data.get('kwargs')
         queue = post_data.get('queue')
 
-        # TODO: add user role and permissions, hard coded to "ops" for now
-        username = "ops"
+        username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
         if not hysds_io:
             return {
@@ -473,9 +471,7 @@ class UserRules(Resource):
                 'result': None,
             }, 400
 
-        es = Elasticsearch([ES_URL])
-
-        # TODO: check ES if rule name already exists, if so return error code 409 (conflict) (done)
+        # check if rule name already exists
         rule_exists_query = {
             "query": {
                 "term": {
@@ -489,26 +485,16 @@ class UserRules(Resource):
                 'success': False,
                 'message': 'user rule already exists: %s' % rule_name
             }, 409
-        # TODO: validate if job_type (hysds_io) name exists in jobs, return 400 if job_type doesnt exist
-        # TODO: fix hysds_commons get_by_id to not raise if _id is not found
-        get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, logger=None)
-        """
-        if not found:
-            return 400
-        """
 
-        # TODO: morph new ES document into this form (done)
-        try:
-            doc = es.get(index='hysds_ios', id=hysds_io)
-        except Exception as e:
-            app.logger.error('failed to fetch %s' % hysds_io)
-            app.logger.error(e)
+        # check if job_type (hysds_io) exists in elasticsearch
+        job_type = get_by_id_safe(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
+        if not job_type:
             return {
                 'success': False,
                 'message': '%s not found' % hysds_io
-            }, 404
+            }, 400
 
-        params = doc['_source']['params']
+        params = job_type['_source']['params']
         is_passthrough_query = check_passthrough_query(params)
 
         now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
