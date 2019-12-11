@@ -445,9 +445,16 @@ class UserRules(Resource):
         query = {"query": {"match_all": {}}}
         user_rules = get_es_scrolled_data(ES_URL, user_rules_index, query)
 
+        parsed_user_rules = []
+        for rule in user_rules:
+            rule_copy = rule.copy()
+            rule_temp = {**rule_copy, **rule['_source']}
+            rule_temp.pop('_source')
+            parsed_user_rules.append(rule_temp)
+
         return {
             'success': True,
-            'rules': user_rules
+            'rules': parsed_user_rules
         }
 
     def post(self):
@@ -466,18 +473,18 @@ class UserRules(Resource):
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
         if not rule_name or not hysds_io or not query_string or not queue:
-            missing_params = ''
+            missing_params = []
             if not rule_name:
-                missing_params = missing_params + ' rule_name'
+                missing_params.append('rule_name')
             if not hysds_io:
-                missing_params = missing_params + ' workflow'
+                missing_params.append('workflow')
             if not query_string:
-                missing_params = missing_params + ' query_string'
+                missing_params.append('query_string')
             if not queue:
-                missing_params = missing_params + ' queue'
+                missing_params.append('queue')
             return {
                 'success': False,
-                'message': 'Params not specified:%s' % missing_params,
+                'message': 'Params not specified: %s' % ', '.join(missing_params),
                 'result': None,
             }, 400
 
