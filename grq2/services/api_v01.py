@@ -436,6 +436,7 @@ class UserRules(Resource):
     def get(self):
         user_rules_index = app.config['USER_RULES_INDEX']
 
+        # TODO: add user role and permissions
         query = {"query": {"match_all": {}}}
         user_rules = get_es_scrolled_data(ES_URL, user_rules_index, query)
 
@@ -456,6 +457,9 @@ class UserRules(Resource):
         kwargs = post_data.get('kwargs')
         queue = post_data.get('queue')
 
+        # TODO: add user role and permissions, hard coded to "ops" for now
+        username = "ops"
+
         if not workflow:
             return {
                 'success': False,
@@ -463,12 +467,30 @@ class UserRules(Resource):
                 'result': None,
             }, 400
 
+        # TODO: check ES if rule name already exists, if so return error code 409 (conflict)
+        # TODO: validate if job_type (hysds_io) name exists in jobs, return 400 if not
+
+        # TODO: morph new ES document into this form
+        """
+        new_doc = {
+            "workflow": workflow,
+            "priority": priority,
+            "rule_name": rule_name,
+            "username": g.user.id,
+            "query_string": query_string,
+            "kwargs": kwargs,
+            "job_type": job_type,
+            "enabled": True,
+            "query": json.loads(query_string),
+            "passthru_query": passthru_query,
+            "query_all": query_all,
+            "queue": queue,
+            "modified_time": mtime,
+            "creation_time": mtime,
+        }
+        """
+
         return {
             'success': True,
-            'rule_name': rule_name,
-            'workflow': workflow,
-            'priority': priority,
-            'query_string': query_string,
-            'kwargs': kwargs,
-            'queue': queue,
+            'message': 'rule created'
         }
