@@ -440,6 +440,7 @@ class UserRules(Resource):
     def get(self):
         user_rules_index = app.config['USER_RULES_INDEX']
 
+        # TODO: add query_param to pull specific user rule
         # TODO: add user role and permissions
         query = {"query": {"match_all": {}}}
         user_rules = get_es_scrolled_data(ES_URL, user_rules_index, query)
@@ -459,15 +460,24 @@ class UserRules(Resource):
         hysds_io = post_data.get('workflow')
         priority = int(post_data.get('priority', 0))
         query_string = post_data.get('query_string')
-        kwargs = post_data.get('kwargs')
+        kwargs = post_data.get('kwargs', '{}')
         queue = post_data.get('queue')
 
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
-        if not hysds_io:
+        if not rule_name or not hysds_io or not query_string or not queue:
+            missing_params = ''
+            if not rule_name:
+                missing_params = missing_params + ' rule_name'
+            if not hysds_io:
+                missing_params = missing_params + ' workflow'
+            if not query_string:
+                missing_params = missing_params + ' query_string'
+            if not queue:
+                missing_params = missing_params + ' queue'
             return {
                 'success': False,
-                'message': "Workflow not specified.",
+                'message': 'Params not specified:%s' % missing_params,
                 'result': None,
             }, 400
 
@@ -494,7 +504,7 @@ class UserRules(Resource):
                 'message': '%s not found' % hysds_io
             }, 400
 
-        params = job_type['_source']['params']
+        params = job_type['params']
         is_passthrough_query = check_passthrough_query(params)
 
         now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
