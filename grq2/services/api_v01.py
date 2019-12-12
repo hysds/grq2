@@ -323,17 +323,17 @@ class OnDemandJobs(Resource):
         :return: submit job id?
         """
         # TODO: add user auth and permissions
-        post_data = request.json
-        if not post_data:
-            post_data = request.form
+        request_data = request.json
+        if not request_data:
+            request_data = request.form
 
-        tag = post_data.get('tags', None)
-        job_type = post_data.get('job_type', None)
-        hysds_io = post_data.get('hysds_io', None)
-        queue = post_data.get('queue', None)
-        priority = int(post_data.get('priority', 0))
-        query_string = post_data.get('query', None)
-        kwargs = post_data.get('kwargs', None)
+        tag = request_data.get('tags', None)
+        job_type = request_data.get('job_type', None)
+        hysds_io = request_data.get('hysds_io', None)
+        queue = request_data.get('queue', None)
+        priority = int(request_data.get('priority', 0))
+        query_string = request_data.get('query', None)
+        kwargs = request_data.get('kwargs', None)
 
         query = json.loads(query_string)
         query_string = json.dumps(query)
@@ -458,17 +458,17 @@ class UserRules(Resource):
         }
 
     def post(self):
-        post_data = request.json or request.form
+        request_data = request.json or request.form
 
         es = Elasticsearch([ES_URL])
         user_rules_index = app.config['USER_RULES_INDEX']
 
-        rule_name = post_data.get('rule_name')
-        hysds_io = post_data.get('workflow')
-        priority = int(post_data.get('priority', 0))
-        query_string = post_data.get('query_string')
-        kwargs = post_data.get('kwargs', '{}')
-        queue = post_data.get('queue')
+        rule_name = request_data.get('rule_name')
+        hysds_io = request_data.get('workflow')
+        priority = int(request_data.get('priority', 0))
+        query_string = request_data.get('query_string')
+        kwargs = request_data.get('kwargs', '{}')
+        queue = request_data.get('queue')
 
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
@@ -547,3 +547,81 @@ class UserRules(Resource):
             'message': 'rule created',
             'result': result
         }
+
+    def put(self):
+        request_data = request.json or request.form
+
+        es = Elasticsearch([ES_URL])
+        user_rules_index = app.config['USER_RULES_INDEX']
+
+        _id = request_data.get('id')
+        if not _id:
+            return {
+                'result': False,
+                'message': 'id not included'
+            }, 400
+
+        rule_name = request_data.get('rule_name')
+        hysds_io = request_data.get('workflow')
+        priority = int(request_data.get('priority', 0))
+        query_string = request_data.get('query_string')
+        kwargs = request_data.get('kwargs', '{}')
+        queue = request_data.get('queue')
+
+        username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
+
+        if not rule_name or not hysds_io or not query_string or not queue:
+            missing_params = []
+            if not rule_name:
+                missing_params.append('rule_name')
+            if not hysds_io:
+                missing_params.append('workflow')
+            if not query_string:
+                missing_params.append('query_string')
+            if not queue:
+                missing_params.append('queue')
+            return {
+                'success': False,
+                'message': 'Params not specified: %s' % ', '.join(missing_params),
+                'result': None,
+            }, 400
+
+        # check if job_type (hysds_io) exists in elasticsearch
+        job_type = get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
+        if not job_type:
+            return {
+                'success': False,
+                'message': '%s not found' % hysds_io
+            }, 400
+
+        now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        new_doc = {
+            'doc_as_upsert': True,
+            "doc": {
+                "workflow": hysds_io,
+                "priority": priority,
+                "rule_name": rule_name,
+                "username": username,
+                "query_string": query_string,
+                "kwargs": kwargs,
+                "job_type": hysds_io,
+                "enabled": True,
+                "query": json.loads(query_string),
+                "passthru_query": False,
+                "query_all": False,
+                "queue": queue,
+                "modified_time": now
+            }
+        }
+
+        try:
+            es.update(user_rules_index, id=_id, body=new_doc)
+            return {
+                'success': True
+            }
+        except Exception as e:
+            app.logger.error('failed to edit user rule: %s' % rule_name)
+            app.logger.error(e)
+            return {
+                'success': False
+            }, 500
