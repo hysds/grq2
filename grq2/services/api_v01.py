@@ -450,6 +450,8 @@ class UserRules(Resource):
             rule_copy = rule.copy()
             rule_temp = {**rule_copy, **rule['_source']}
             rule_temp.pop('_source')
+            rule_temp.pop('_score')
+            rule_temp.pop('_type')
             parsed_user_rules.append(rule_temp)
 
         return {
@@ -548,7 +550,7 @@ class UserRules(Resource):
             'result': result
         }
 
-    def put(self):
+    def put(self):  # TODO: add user role and permissions
         request_data = request.json or request.form
 
         es = Elasticsearch([ES_URL])
@@ -563,61 +565,49 @@ class UserRules(Resource):
 
         rule_name = request_data.get('rule_name')
         hysds_io = request_data.get('workflow')
-        priority = int(request_data.get('priority', 0))
+        priority = request_data.get('priority')
         query_string = request_data.get('query_string')
-        kwargs = request_data.get('kwargs', '{}')
+        kwargs = request_data.get('kwargs')
         queue = request_data.get('queue')
+        enabled = request_data.get('enabled')
 
-        username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
+        # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
+        if hysds_io:
+            job_type = get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
+            if not job_type:
+                return {
+                    'success': False,
+                    'message': '%s not found' % hysds_io
+                }, 400
 
-        if not rule_name or not hysds_io or not query_string or not queue:
-            missing_params = []
-            if not rule_name:
-                missing_params.append('rule_name')
-            if not hysds_io:
-                missing_params.append('workflow')
-            if not query_string:
-                missing_params.append('query_string')
-            if not queue:
-                missing_params.append('queue')
-            return {
-                'success': False,
-                'message': 'Params not specified: %s' % ', '.join(missing_params),
-                'result': None,
-            }, 400
+        update_doc = {}
+        if rule_name:
+            update_doc['rule_name'] = rule_name
+        if hysds_io:
+            update_doc['hysds_io'] = hysds_io
+        if priority:
+            update_doc['priority'] = int(priority)
+        if query_string:
+            update_doc['query_string'] = query_string
+            update_doc['query'] = json.loads(query_string)
+        if kwargs:
+            update_doc['kwargs'] = kwargs
+        if queue:
+            update_doc['queue'] = queue
+        if enabled is not None:
+            update_doc['enabled'] = enabled
+        update_doc['modified_time'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        # check if job_type (hysds_io) exists in elasticsearch
-        job_type = get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
-        if not job_type:
-            return {
-                'success': False,
-                'message': '%s not found' % hysds_io
-            }, 400
-
-        now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
         new_doc = {
             'doc_as_upsert': True,
-            "doc": {
-                "workflow": hysds_io,
-                "priority": priority,
-                "rule_name": rule_name,
-                "username": username,
-                "query_string": query_string,
-                "kwargs": kwargs,
-                "job_type": hysds_io,
-                "enabled": True,
-                "query": json.loads(query_string),
-                "passthru_query": False,
-                "query_all": False,
-                "queue": queue,
-                "modified_time": now
-            }
+            'doc': update_doc
         }
 
         try:
             es.update(user_rules_index, id=_id, body=new_doc)
             return {
-                'success': True
+                'success': True,
+                'updated': update_doc
             }
         except Exception as e:
             app.logger.error('failed to edit user rule: %s' % rule_name)
