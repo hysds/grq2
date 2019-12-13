@@ -18,7 +18,7 @@ from flask import jsonify, Blueprint, request, Response, render_template, make_r
 from flask_restplus import Api, apidoc, Resource, fields
 from flask_login import login_required
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 
 from hysds.celery import app as celery_app
 from hysds.task_worker import do_submit_task
@@ -536,6 +536,11 @@ class UserRules(Resource):
 
         try:
             result = es.index(index=user_rules_index, doc_type='_doc', body=new_doc)
+            return {
+                'success': True,
+                'message': 'rule created',
+                'result': result
+            }
         except Exception as e:
             app.logger.error('failed to index document %s' % rule_name)
             app.logger.error(e)
@@ -544,17 +549,8 @@ class UserRules(Resource):
                 'message': '%s failed to add user rule' % rule_name
             }, 500
 
-        return {
-            'success': True,
-            'message': 'rule created',
-            'result': result
-        }
-
     def put(self):  # TODO: add user role and permissions
         request_data = request.json or request.form
-
-        es = Elasticsearch([ES_URL])
-        user_rules_index = app.config['USER_RULES_INDEX']
 
         _id = request_data.get('id')
         if not _id:
@@ -562,6 +558,9 @@ class UserRules(Resource):
                 'result': False,
                 'message': 'id not included'
             }, 400
+
+        es = Elasticsearch([ES_URL])
+        user_rules_index = app.config['USER_RULES_INDEX']
 
         rule_name = request_data.get('rule_name')
         hysds_io = request_data.get('workflow')
@@ -577,8 +576,21 @@ class UserRules(Resource):
             if not job_type:
                 return {
                     'success': False,
-                    'message': '%s not found' % hysds_io
+                    'message': 'job_type not found: %s' % hysds_io
                 }, 400
+
+        try:
+            app.logger.info('finding existing user rule: %s' % _id)
+            es.get(index=user_rules_index, doc_type='_doc', id=_id)
+        except NotFoundError as e:
+            app.logger.error(e)
+            return {
+                'result': False,
+                'message': 'user rule not found: %s' % _id
+            }, 404
+        except Exception as e:
+            app.logger.error(e)
+            raise Exception("Something went wrong with Elasticsearch")
 
         update_doc = {}
         if rule_name:
@@ -615,3 +627,33 @@ class UserRules(Resource):
             return {
                 'success': False
             }, 500
+
+    def delete(self):
+        # TODO: need to add user rules and permissions
+        _id = request.args.get('id')
+        if not _id:
+            return {
+                'result': False,
+                'message': 'id not included'
+            }, 400
+
+        es = Elasticsearch([ES_URL])
+        user_rules_index = app.config['USER_RULES_INDEX']
+
+        try:
+            es.delete(index=user_rules_index, doc_type='_doc', id=_id)
+            return {
+                'success': True,
+                'message': 'user rule deleted',
+                'id': _id
+            }
+        except NotFoundError as e:
+            app.logger.error(e)
+            return {
+                'success': False,
+                'message': 'user rule id %s not found' % _id
+            }
+        except Exception as e:
+            app.logger.error('Unable to delete user rule id %s' % _id)
+            app.logger.error(e)
+            raise('Unable to delete user rule id %s' % _id)
