@@ -275,8 +275,6 @@ class OnDemandJobs(Resource):
     # @api.marshal_with(resp_model)
     def get(self):
         """List available on demand jobs"""
-        es = Elasticsearch([ES_URL])
-
         query = {
             "_source": ["id", "job-specification", "label", "job-version"],
             "sort": [{"label.keyword": {"order": "asc"}}],
@@ -286,28 +284,11 @@ class OnDemandJobs(Resource):
                 }
             }
         }
-        page = es.search(index='hysds_ios', scroll='2m', size=100, body=query)
 
-        sid = page['_scroll_id']
-        documents = page['hits']['hits']
-        page_size = page['hits']['total']['value']
-
-        # Start scrolling
-        while page_size > 0:
-            page = es.scroll(scroll_id=sid, scroll='2m')
-
-            # Update the scroll ID
-            sid = page['_scroll_id']
-
-            scroll_document = page['hits']['hits']
-
-            # Get the number of results that we returned in the last scroll
-            page_size = len(scroll_document)
-
-            documents.extend(scroll_document)
-
+        documents = get_es_scrolled_data(ES_URL, 'hysds_ios', query)
         documents = [{
-            'value': row['_source']['job-specification'],
+            'hysds_io': row['_source']['id'],
+            'job_spec': row['_source']['job-specification'],
             'version': row['_source']['job-version'],
             'label': row['_source']['label']
         } for row in documents]
@@ -409,6 +390,7 @@ class JobParams(Resource):
 
         query = {
             "query": {
+                # "term": {"_id": job_type}
                 "term": {"job-specification.keyword": job_type}
             }
         }
@@ -438,10 +420,29 @@ class UserRules(Resource):
     """User Rules API"""
 
     def get(self):
+        # TODO: add user role and permissions
+        id = request.args.get('id')
         user_rules_index = app.config['USER_RULES_INDEX']
 
-        # TODO: add query_param to pull specific user rule
-        # TODO: add user role and permissions
+        if id:
+            es = Elasticsearch([ES_URL])
+            try:
+                user_rule = es.get(index=user_rules_index, doc_type='_doc', id=id)
+                user_rule = {**user_rule, **user_rule['_source']}
+                return {
+                    'success': True,
+                    'rule': user_rule
+                }
+            except NotFoundError as e:
+                app.logger.error(e)
+                return {
+                    'success': False,
+                    'rule': None
+                }, 404
+            except Exception as e:
+                app.logger.error(e)
+                raise Exception("Something went wrong with Elasticsearch")
+
         query = {"query": {"match_all": {}}}
         user_rules = get_es_scrolled_data(ES_URL, user_rules_index, query)
 
@@ -450,8 +451,6 @@ class UserRules(Resource):
             rule_copy = rule.copy()
             rule_temp = {**rule_copy, **rule['_source']}
             rule_temp.pop('_source')
-            rule_temp.pop('_score')
-            rule_temp.pop('_type')
             parsed_user_rules.append(rule_temp)
 
         return {
@@ -467,6 +466,7 @@ class UserRules(Resource):
 
         rule_name = request_data.get('rule_name')
         hysds_io = request_data.get('workflow')
+        job_spec = request_data.get('job_spec')
         priority = int(request_data.get('priority', 0))
         query_string = request_data.get('query_string')
         kwargs = request_data.get('kwargs', '{}')
@@ -474,12 +474,14 @@ class UserRules(Resource):
 
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
-        if not rule_name or not hysds_io or not query_string or not queue:
+        if not rule_name or not hysds_io or not job_spec or not query_string or not queue:
             missing_params = []
             if not rule_name:
                 missing_params.append('rule_name')
             if not hysds_io:
                 missing_params.append('workflow')
+            if not job_spec:
+                missing_params.append('job_spec')
             if not query_string:
                 missing_params.append('query_string')
             if not queue:
@@ -519,6 +521,7 @@ class UserRules(Resource):
         now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
         new_doc = {
             "workflow": hysds_io,
+            "job_spec": job_spec,
             "priority": priority,
             "rule_name": rule_name,
             "username": username,
@@ -603,6 +606,15 @@ class UserRules(Resource):
             update_doc['query_string'] = query_string
             update_doc['query'] = json.loads(query_string)
         if kwargs:
+            try:
+                json.loads(kwargs)
+            except (ValueError, TypeError) as e:
+                app.logger.error(e)
+                return {
+                    'success': False,
+                    'message': 'invalid JSON: kwargs'
+                }, 400
+
             update_doc['kwargs'] = kwargs
         if queue:
             update_doc['queue'] = queue
@@ -619,6 +631,7 @@ class UserRules(Resource):
             es.update(user_rules_index, id=_id, body=new_doc)
             return {
                 'success': True,
+                'id': _id,
                 'updated': update_doc
             }
         except Exception as e:
