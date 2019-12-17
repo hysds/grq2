@@ -31,7 +31,6 @@ from hysds_commons.metadata_rest_utils import get_by_id
 from hysds_commons.action_utils import check_passthrough_query
 from hysds_commons.elasticsearch_utils import get_es_scrolled_data
 
-
 ES_URL = app.config['ES_URL']
 NAMESPACE = "grq"
 
@@ -567,6 +566,7 @@ class UserRules(Resource):
 
         rule_name = request_data.get('rule_name')
         hysds_io = request_data.get('workflow')
+        job_spec = request_data.get('job_spec')
         priority = request_data.get('priority')
         query_string = request_data.get('query_string')
         kwargs = request_data.get('kwargs')
@@ -600,6 +600,9 @@ class UserRules(Resource):
             update_doc['rule_name'] = rule_name
         if hysds_io:
             update_doc['hysds_io'] = hysds_io
+            update_doc['job_type'] = hysds_io
+        if job_spec:
+            update_doc['job_spec'] = job_spec
         if priority:
             update_doc['priority'] = int(priority)
         if query_string:
@@ -628,7 +631,7 @@ class UserRules(Resource):
         }
 
         try:
-            es.update(user_rules_index, id=_id, body=new_doc)
+            es.update(user_rules_index, id=_id, body=new_doc, refresh=True)
             return {
                 'success': True,
                 'id': _id,
