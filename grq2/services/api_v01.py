@@ -537,7 +537,7 @@ class UserRules(Resource):
         }
 
         try:
-            result = es.index(index=user_rules_index, doc_type='_doc', body=new_doc)
+            result = es.index(index=user_rules_index, doc_type='_doc', body=new_doc, refresh=True)
             return {
                 'success': True,
                 'message': 'rule created',
