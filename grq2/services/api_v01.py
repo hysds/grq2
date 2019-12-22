@@ -491,6 +491,16 @@ class UserRules(Resource):
                 'result': None,
             }, 400
 
+        try:
+            parsed_query = json.loads(query_string)
+            query_string = json.dumps(parsed_query)
+        except (ValueError, TypeError) as e:
+            app.logger.error(e)
+            return {
+                'success': False,
+                'message': 'invalid elasticsearch query JSON'
+            }, 400
+
         # check if rule name already exists
         rule_exists_query = {
             "query": {

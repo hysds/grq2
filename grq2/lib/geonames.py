@@ -97,10 +97,11 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
                     }
                 }
             })
-        # TODO: need to figure out how to add multi polygon logic (maybe use "should"???)
-        query['query']['bool']['filter'].append({
-            "or": or_filters
-        })
+        # TODO: need to figure out how to add multi polygon logic (maybe use "should"???) (or filter removed)
+        # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
+        query['query']['bool']['should'] = []
+        query['query']['bool']['should'].append(or_filters)
+
     else:
         query['query']['bool']['filter'].append({
             "geo_polygon": {
