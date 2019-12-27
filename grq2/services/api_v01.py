@@ -603,7 +603,10 @@ class UserRules(Resource):
             }, 404
         except Exception as e:
             app.logger.error(e)
-            raise Exception("Something went wrong with Elasticsearch")
+            return {
+                'success': False,
+                'message': 'Unable to edit user rule'
+            }, 500
 
         update_doc = {}
         if rule_name:
@@ -648,10 +651,10 @@ class UserRules(Resource):
                 'updated': update_doc
             }
         except Exception as e:
-            app.logger.error('failed to edit user rule: %s' % rule_name)
             app.logger.error(e)
             return {
-                'success': False
+                'success': False,
+                'message': 'failed to edit user rule: %s' % rule_name
             }, 500
 
     def delete(self):
@@ -678,8 +681,10 @@ class UserRules(Resource):
             return {
                 'success': False,
                 'message': 'user rule id %s not found' % _id
-            }
+            }, 404
         except Exception as e:
-            app.logger.error('Unable to delete user rule id %s' % _id)
             app.logger.error(e)
-            raise('Unable to delete user rule id %s' % _id)
+            return {
+                'success': False,
+                'message': 'Unable to delete user rule id %s' % _id
+            }, 500
