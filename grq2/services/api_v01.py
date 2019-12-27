@@ -509,8 +509,8 @@ class UserRules(Resource):
                 }
             }
         }
-        existing_rules = es.search(index=user_rules_index, body=rule_exists_query)
-        if existing_rules['hits']['total']['value'] > 0:
+        existing_rules = es.count(index=user_rules_index, body=rule_exists_query)
+        if existing_rules['count'] > 0:
             return {
                 'success': False,
                 'message': 'user rule already exists: %s' % rule_name
