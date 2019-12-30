@@ -97,10 +97,10 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
                     }
                 }
             })
-        # TODO: need to figure out how to add multi polygon logic (maybe use "should"???)
-        query['query']['bool']['filter'].append({
-            "or": or_filters
-        })
+        # filtered is removed, using bool + should + minimum_should_match instead
+        query['query']['bool']['should'] = or_filters
+        query['query']['bool']['minimum_should_match'] = 1
+
     else:
         query['query']['bool']['filter'].append({
             "geo_polygon": {
