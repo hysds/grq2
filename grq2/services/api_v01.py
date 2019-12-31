@@ -536,6 +536,7 @@ class UserRules(Resource):
             "username": username,
             "query_string": query_string,
             "kwargs": kwargs,
+            "hysds_io": hysds_io,
             "job_type": hysds_io,
             "enabled": True,
             "query": json.loads(query_string),
