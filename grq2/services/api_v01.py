@@ -157,8 +157,7 @@ class GetHySDSIOType(Resource):
         '''
         try:
             ident = request.form.get('id', request.args.get('id', None))
-            spec = hysds_commons.hysds_io_utils.get_hysds_io(app.config["ES_URL"], ident, logger=app.logger,
-                                                             hysds_io_type='_doc')
+            spec = hysds_commons.hysds_io_utils.get_hysds_io(app.config["ES_URL"], ident, logger=app.logger)
         except Exception as e:
             message = "Failed to query ES for HySDS IO object. {0}:{1}".format(
                 type(e), str(e))
@@ -200,8 +199,7 @@ class AddHySDSIOType(Resource):
             if spec is None:
                 raise Exception("'spec' must be supplied")
             obj = json.loads(spec)
-            ident = hysds_commons.hysds_io_utils.add_hysds_io(app.config["ES_URL"], obj, logger=app.logger,
-                                                              hysds_io_type='_doc')
+            ident = hysds_commons.hysds_io_utils.add_hysds_io(app.config["ES_URL"], obj, logger=app.logger)
         except Exception as e:
             message = "Failed to add ES for HySDS IO. {0}:{1}".format(
                 type(e), str(e))
@@ -238,8 +236,7 @@ class RemoveHySDSIOType(Resource):
         '''
         try:
             ident = request.form.get('id', request.args.get('id', None))
-            hysds_commons.hysds_io_utils.remove_hysds_io(app.config["ES_URL"], ident, logger=app.logger,
-                                                         hysds_io_type='_doc')
+            hysds_commons.hysds_io_utils.remove_hysds_io(app.config["ES_URL"], ident, logger=app.logger)
         except Exception as e:
             message = "Failed to add ES for HySDS IO. {0}:{1}".format(
                 type(e), str(e))
@@ -426,7 +423,7 @@ class UserRules(Resource):
         if id:
             es = Elasticsearch([ES_URL])
             try:
-                user_rule = es.get(index=user_rules_index, doc_type='_doc', id=id)
+                user_rule = es.get(index=user_rules_index, id=id)
                 user_rule = {**user_rule, **user_rule['_source']}
                 return {
                     'success': True,
@@ -517,7 +514,7 @@ class UserRules(Resource):
             }, 409
 
         # check if job_type (hysds_io) exists in elasticsearch
-        job_type = get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
+        job_type = get_by_id(ES_URL, 'hysds_ios', hysds_io, safe=True, logger=app.logger)
         if not job_type:
             return {
                 'success': False,
@@ -548,7 +545,7 @@ class UserRules(Resource):
         }
 
         try:
-            result = es.index(index=user_rules_index, doc_type='_doc', body=new_doc, refresh=True)
+            result = es.index(index=user_rules_index, body=new_doc, refresh=True)
             return {
                 'success': True,
                 'message': 'rule created',
@@ -586,7 +583,7 @@ class UserRules(Resource):
 
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
-            job_type = get_by_id(ES_URL, 'hysds_ios', '_doc', hysds_io, safe=True, logger=app.logger)
+            job_type = get_by_id(ES_URL, 'hysds_ios', hysds_io, safe=True, logger=app.logger)
             if not job_type:
                 return {
                     'success': False,
@@ -595,7 +592,7 @@ class UserRules(Resource):
 
         try:
             app.logger.info('finding existing user rule: %s' % _id)
-            es.get(index=user_rules_index, doc_type='_doc', id=_id)
+            es.get(index=user_rules_index, id=_id)
         except NotFoundError as e:
             app.logger.error(e)
             return {
@@ -671,7 +668,7 @@ class UserRules(Resource):
         user_rules_index = app.config['USER_RULES_INDEX']
 
         try:
-            es.delete(index=user_rules_index, doc_type='_doc', id=_id)
+            es.delete(index=user_rules_index, id=_id)
             return {
                 'success': True,
                 'message': 'user rule deleted',
