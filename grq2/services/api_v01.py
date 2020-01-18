@@ -5,12 +5,7 @@ from __future__ import absolute_import
 from builtins import str
 from future import standard_library
 standard_library.install_aliases()
-import os
-import sys
 import json
-import requests
-import types
-import re
 import traceback
 from datetime import datetime
 
