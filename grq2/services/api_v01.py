@@ -313,10 +313,16 @@ class OnDemandJobs(Resource):
         queue = request_data.get('queue', None)
         priority = int(request_data.get('priority', 0))
         query_string = request_data.get('query', None)
-        kwargs = request_data.get('kwargs', None)
+        kwargs = request_data.get('kwargs', '{}')
 
         query = json.loads(query_string)
         query_string = json.dumps(query)
+
+        if tag is None or job_type is None or hysds_io is None or queue is None or query_string is None:
+            return {
+                'success': False,
+                'message': 'missing field: [tags, job_type, hysds_io, queue, query]'
+            }, 400
 
         es = Elasticsearch([ES_URL])
         try:
@@ -350,7 +356,8 @@ class OnDemandJobs(Resource):
             'args': ["tosca", rule],
         }
 
-        celery_task = do_submit_task(payload, celery_app.conf['ON_DEMAND_DATASET_QUEUE'])
+        on_demand_dataset_queue = celery_app.conf['ON_DEMAND_DATASET_QUEUE']
+        celery_task = do_submit_task(payload, on_demand_dataset_queue)
 
         return {
             'success': True,
