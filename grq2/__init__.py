@@ -4,10 +4,20 @@ from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
+
 from flask import Flask
+
+from hysds_commons.elasticsearch_utils import ElasticsearchUtility
+
 
 app = Flask(__name__)
 app.config.from_pyfile('../settings.cfg')
+
+# initializing connection to GRQ's Elasticsearch
+grq_es = ElasticsearchUtility(app.config['ES_URL'], app.logger)
+
+# initializing connection to Mozart's Elasticsearch
+mozart_es = ElasticsearchUtility(app.config['MOZART_ES_URL'], app.logger)
 
 # views blueprints
 from grq2.views.main import mod as viewsModule
