@@ -13,5 +13,8 @@ GEONAMES_INDEX = "geonames"
 # Redis URL
 REDIS_URL = "redis://{{ MOZART_REDIS_PVT_IP }}:6379/0"
 
-# elastic search index for user rules
-USER_RULES_INDEX = "user_rules"
+# ES index for user rules (located in mozart's ES)
+USER_RULES_INDEX = "user_rules-grq"
+
+# ES index for hysds_ios (located in mozart's ES)
+HYSDS_IOS_INDEX = 'hysds_ios-grq'

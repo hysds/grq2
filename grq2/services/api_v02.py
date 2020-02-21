@@ -5,37 +5,34 @@ from __future__ import absolute_import
 from builtins import str
 from future import standard_library
 standard_library.install_aliases()
+
 import json
 import traceback
 from datetime import datetime
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from flask_restplus import Api, apidoc, Resource, fields
-from flask_login import login_required
-
-from elasticsearch import Elasticsearch, NotFoundError
+# from flask_login import login_required
 
 from hysds.celery import app as celery_app
 from hysds.task_worker import do_submit_task
 
-from grq2 import app
-from grq2.lib.dataset import update as updateDataset
-import hysds_commons.hysds_io_utils
-import hysds_commons.mozart_utils
-from hysds_commons.metadata_rest_utils import get_by_id
+from grq2 import app, mozart_es
+from grq2.lib.dataset import update as update_dataset
 from hysds_commons.action_utils import check_passthrough_query
-from hysds_commons.elasticsearch_utils import get_es_scrolled_data
 
-ES_URL = app.config['ES_URL']
 NAMESPACE = "grq"
 
 services = Blueprint('api_v0-2', __name__, url_prefix='/api/v0.2')
-api = Api(services, ui=False, version="0.2", title="Mozart API",
-          description="API for GRQ Services.")
+api = Api(services, ui=False, version="0.2", title="Mozart API", description="API for GRQ Services.")
 ns = api.namespace(NAMESPACE, description="GRQ operations")
 
 HYSDS_IO_NS = "hysds_io"
 hysds_io_ns = api.namespace(HYSDS_IO_NS, description="HySDS IO operations")
+
+HYSDS_IOS_INDEX = app.config['HYSDS_IOS_INDEX']
+USER_RULES_INDEX = app.config['USER_RULES_INDEX']
+ON_DEMAND_DATASET_QUEUE = celery_app.conf['ON_DEMAND_DATASET_QUEUE']
 
 
 @services.route('/doc/', endpoint='api_doc')
@@ -50,110 +47,126 @@ class IndexDataset(Resource):
     """Dataset indexing API."""
 
     resp_model = api.model('JsonResponse', {
-        'success': fields.Boolean(required=True, description="if 'false', " +
-                                  "encountered exception; otherwise no errors " +
-                                  "occurred"),
-        'message': fields.String(required=True, description="message describing " +
-                                 "success or failure"),
+        'success': fields.Boolean(required=True, description="Boolean, whether the API was successful"),
+        'message': fields.String(required=True, description="message describing success or failure"),
         'objectid': fields.String(required=True, description="ID of indexed dataset"),
         'index': fields.String(required=True, description="dataset index name"),
     })
 
     parser = api.parser()
-    parser.add_argument('dataset_info', required=True, type=str,
-                        location='form',  help="HySDS dataset info JSON")
+    parser.add_argument('dataset_info', required=True, type=str, location='form',  help="HySDS dataset info JSON")
 
     @api.marshal_with(resp_model)
     @api.expect(parser, validate=True)
     def post(self):
+        info = request.form.get('dataset_info', request.args.get('dataset_info', None))
+        if info is None:
+            return {'success': False, 'message': 'dataset_info must be supplied'}, 400
 
-        # get info
-        info = request.form.get(
-            'dataset_info', request.args.get('dataset_info', None))
-        if info is not None:
-            try:
-                info = json.loads(info)
-            except Exception as e:
-                message = "Failed to parse dataset info JSON."
-                app.logger.debug(message)
-                return {'success': False,
-                        'message': message,
-                        'job_id': None}, 500
-
-        # update
         try:
-            return updateDataset(info)
+            info = json.loads(info)
+        except Exception as e:
+            message = "Failed to parse dataset info JSON."
+            app.logger.debug(message)
+            return {
+                'success': False,
+                'message': message,
+                'job_id': None
+            }, 500
+
+        try:
+            return update_dataset(info)
         except Exception as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
             app.logger.debug(message)
-            return {'success': False,
-                    'message': message}, 500
+            return {
+                'success': False,
+                'message': message
+            }, 500
 
 
-@hysds_io_ns.route('/hysds-io', endpoint='hysds_io-list')
+@hysds_io_ns.route('/list', endpoint='hysds_ios')
 @api.doc(responses={200: "Success", 500: "Query execution failed"},
          description="Gets list of registered hysds-io specifications and return as JSON.")
-class HySDSIO(Resource):
+class HySDSIOTypes(Resource):
+    """Get list of registered hysds-io and return as JSON."""
+    resp_model_job_types = api.model('HySDS IO List Response(JSON)', {
+        'success': fields.Boolean(required=True, description="Boolean, whether the API was successful"),
+        'message': fields.String(required=True, description="message describing success or failure"),
+        'result':  fields.List(fields.String, required=True, description="list of hysds-io types")
+    })
+
+    @api.marshal_with(resp_model_job_types)
+    def get(self):
+        query = {
+            "query": {
+                "match_all": {}
+            }
+        }
+        hysds_ios = mozart_es.query(HYSDS_IOS_INDEX, query)
+        ids = [hysds_io['_id'] for hysds_io in hysds_ios]
+        return {
+            'success': True,
+            'message': "",
+            'result': ids
+        }
+
+
+@hysds_io_ns.route('', endpoint='hysds_ios')
+@api.doc(responses={200: "Success", 500: "Query execution failed"},
+         description="Gets list of registered hysds-io specifications and return as JSON.")
+class HySDSio(Resource):
     """Get list of registered hysds-io and return as JSON."""
     parser = api.parser()
     parser.add_argument('id', required=True, type=str, help="HySDS IO Type ID")
 
     def get(self):
-        """List HySDS IO specifications"""
-        ident = request.args.get('id', None)
-        es_url = app.config["ES_URL"]
+        """Gets a HySDS-IO specification by ID"""
+        _id = request.form.get('id', request.args.get('id', None))
+        if _id is None:
+            return {'success': False, 'message': 'missing parameter: id'}, 400
 
-        try:
-            if ident:
-                result = hysds_commons.hysds_io_utils.get_hysds_io(es_url, ident, logger=app.logger)
-            else:
-                result = hysds_commons.hysds_io_utils.get_hysds_io_types(es_url, logger=app.logger)
-        except Exception as e:
-            message = "Failed to query ES for HySDS IO types. {0}:{1}".format(type(e), str(e))
-            app.logger.warning(message)
-            app.logger.warning(traceback.format_exc(e))
-            return {'success': False, 'message': message}, 500
+        hysds_io = mozart_es.get_by_id(HYSDS_IOS_INDEX, _id, safe=True)
+        if hysds_io['found'] is False:
+            return {'success': False, 'message': ""}, 404
 
         return {
             'success': True,
-            'message': "hysds_io retrieved",
-            'result': result
+            'message': "",
+            'result': hysds_io['_source']
         }
 
     def post(self):
         """Add a HySDS IO specification"""
-        es_url = app.config["ES_URL"]
+        spec = request.form.get('spec', request.args.get('spec', None))
+        if spec is None:
+            return {'success': False, 'message': 'spec must be supplied'}, 400
+
         try:
-            spec = request.form.get('spec', request.args.get('spec', None))
-            if spec is None:
-                raise Exception("'spec' must be supplied")
             obj = json.loads(spec)
-            ident = hysds_commons.hysds_io_utils.add_hysds_io(es_url, obj, logger=app.logger)
-        except Exception as e:
-            message = "Failed to add ES for HySDS IO. {0}:{1}".format(type(e), str(e))
-            app.logger.warning(message)
-            app.logger.warning(traceback.format_exc(e))
-            return {'success': False, 'message': message}, 500
+            _id = obj['id']
+        except (ValueError, KeyError, json.decoder.JSONDecodeError, Exception) as e:
+            return {'success': False, 'message': e}, 400
+
+        mozart_es.index_document(HYSDS_IOS_INDEX, obj, _id)
         return {
             'success': True,
-            'message': "hysds_io added",
-            'result': ident
+            'message': "%s added to index: %s" % (_id, HYSDS_IOS_INDEX),
+            'result': _id
         }
 
     def delete(self):
         """Remove HySDS IO for the given ID"""
-        es_url = app.config["ES_URL"]
-        try:
-            ident = request.args.get('id', None)
-            hysds_commons.hysds_io_utils.remove_hysds_io(es_url, ident, logger=app.logger)
-        except Exception as e:
-            message = "Failed to add ES for HySDS IO. {0}:{1}".format(type(e), str(e))
-            app.logger.warning(message)
-            app.logger.warning(traceback.format_exc(e))
-            return {'success': False, 'message': message}, 500
+        _id = request.form.get('id', request.args.get('id', None))
+        if _id is None:
+            return {'success': False, 'message': 'id must be supplied'}, 400
+
+        mozart_es.delete_by_id(HYSDS_IOS_INDEX, _id)
+        app.logger.info('deleted %s from index: %s' % (_id, HYSDS_IOS_INDEX))
+
         return {
             'success': True,
-            'message': 'hysds_io removed %s' % ident
+            'message': "removed %s from index %s" % (_id, HYSDS_IOS_INDEX)
         }
 
 
@@ -164,17 +177,11 @@ class OnDemandJobs(Resource):
     """On Demand Jobs API."""
 
     resp_model = api.model('JsonResponse', {
-        'success': fields.Boolean(required=True, description="if 'false', " +
-                                  "encountered exception; otherwise no errors " +
-                                  "occurred"),
-        'message': fields.String(required=True, description="message describing " +
-                                 "success or failure"),
-        'objectid': fields.String(required=True, description="ID of indexed dataset"),
-        'index': fields.String(required=True, description="dataset index name"),
+        'success': fields.Boolean(required=True, description="Boolean, whether the API was successful"),
+        'message': fields.String(required=True, description="message describing success or failure")
     })
 
     def get(self):
-        """List available on demand jobs"""
         query = {
             "_source": ["id", "job-specification", "label", "job-version"],
             "sort": [{"label.keyword": {"order": "asc"}}],
@@ -185,7 +192,7 @@ class OnDemandJobs(Resource):
             }
         }
 
-        documents = get_es_scrolled_data(ES_URL, 'hysds_ios', query)
+        documents = mozart_es.query(HYSDS_IOS_INDEX, query)
         documents = [{
             'hysds_io': row['_source']['id'],
             'job_spec': row['_source']['job-specification'],
@@ -214,18 +221,23 @@ class OnDemandJobs(Resource):
         queue = request_data.get('queue', None)
         priority = int(request_data.get('priority', 0))
         query_string = request_data.get('query', None)
-        kwargs = request_data.get('kwargs', None)
+        kwargs = request_data.get('kwargs', '{}')
 
         query = json.loads(query_string)
         query_string = json.dumps(query)
 
-        es = Elasticsearch([ES_URL])
-        try:
-            doc = es.get(index='hysds_ios', id=hysds_io)
-        except Exception as e:
-            app.logger.error('failed to fetch %s' % hysds_io)
-            app.logger.error(e)
-            return {'success': False, 'message': '%s not found' % hysds_io}, 404
+        if tag is None or job_type is None or hysds_io is None or queue is None or query_string is None:
+            return {
+                'success': False,
+                'message': 'missing field: [tags, job_type, hysds_io, queue, query]'
+            }, 400
+
+        doc = mozart_es.get_by_id(HYSDS_IOS_INDEX, hysds_io, safe=True)
+        if doc['found'] is False:
+            return {
+                'success': False,
+                'message': '%s job not found' % hysds_io
+            }, 400
 
         params = doc['_source']['params']
         is_passthrough_query = check_passthrough_query(params)
@@ -250,8 +262,7 @@ class OnDemandJobs(Resource):
             'function': 'hysds_commons.job_iterator.iterate',
             'args': ["tosca", rule],
         }
-
-        celery_task = do_submit_task(payload, celery_app.conf['ON_DEMAND_DATASET_QUEUE'])
+        celery_task = do_submit_task(payload, ON_DEMAND_DATASET_QUEUE)
 
         return {
             'success': True,
@@ -266,34 +277,23 @@ class JobParams(Resource):
     """Job Params API."""
 
     resp_model = api.model('JsonResponse', {
-        'success': fields.Boolean(required=True, description="if 'false', " +
-                                  "encountered exception; otherwise no errors " +
-                                  "occurred"),
-        'message': fields.String(required=True, description="message describing " +
-                                 "success or failure"),
-        'objectid': fields.String(required=True, description="ID of indexed dataset"),
-        'index': fields.String(required=True, description="dataset index name"),
+        'success': fields.Boolean(required=True, description="Boolean, whether the API was successful"),
+        'message': fields.String(required=True, description="message describing success or failure")
     })
 
     parser = api.parser()
-    # parser.add_argument('dataset_info', required=True, type=str,
-    #                     location='form',  help="HySDS dataset info JSON")
 
-    # @api.marshal_with(resp_model)
     def get(self):
-        es = Elasticsearch([ES_URL])
-
         job_type = request.args.get('job_type')
         if not job_type:
             return {'success': False, 'message': 'job_type not provided'}, 400
 
         query = {
             "query": {
-                # "term": {"_id": job_type}
                 "term": {"job-specification.keyword": job_type}
             }
         }
-        documents = es.search(index='hysds_ios', body=query)
+        documents = mozart_es.search(HYSDS_IOS_INDEX, query)
 
         if documents['hits']['total']['value'] == 0:
             error_message = '%s not found' % job_type
@@ -319,30 +319,27 @@ class UserRules(Resource):
 
     def get(self):
         # TODO: add user role and permissions
-        id = request.args.get('id')
-        user_rules_index = app.config['USER_RULES_INDEX']
+        _id = request.args.get('id')
 
-        if id:
-            es = Elasticsearch([ES_URL])
-            try:
-                user_rule = es.get(index=user_rules_index, id=id)
-                user_rule = {**user_rule, **user_rule['_source']}
-                return {
-                    'success': True,
-                    'rule': user_rule
-                }
-            except NotFoundError as e:
-                app.logger.error(e)
+        if _id:
+            user_rule = mozart_es.get_by_id(USER_RULES_INDEX, _id, safe=True)
+            if user_rule['found'] is False:
                 return {
                     'success': False,
-                    'rule': None
+                    'message': 'rule %s not found' % _id
                 }, 404
-            except Exception as e:
-                app.logger.error(e)
-                raise Exception("Something went wrong with Elasticsearch")
+            user_rule = {**user_rule, **user_rule['_source']}
+            return {
+                'success': True,
+                'rule': user_rule
+            }
 
-        query = {"query": {"match_all": {}}}
-        user_rules = get_es_scrolled_data(ES_URL, user_rules_index, query)
+        query = {
+            "query": {
+                "match_all": {}
+            }
+        }
+        user_rules = mozart_es.query(USER_RULES_INDEX, query)
 
         parsed_user_rules = []
         for rule in user_rules:
@@ -359,9 +356,6 @@ class UserRules(Resource):
     def post(self):
         request_data = request.json or request.form
 
-        es = Elasticsearch([ES_URL])
-        user_rules_index = app.config['USER_RULES_INDEX']
-
         rule_name = request_data.get('rule_name')
         hysds_io = request_data.get('workflow')
         job_spec = request_data.get('job_spec')
@@ -373,27 +367,16 @@ class UserRules(Resource):
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
         if not rule_name or not hysds_io or not job_spec or not query_string or not queue:
-            missing_params = []
-            if not rule_name:
-                missing_params.append('rule_name')
-            if not hysds_io:
-                missing_params.append('workflow')
-            if not job_spec:
-                missing_params.append('job_spec')
-            if not query_string:
-                missing_params.append('query_string')
-            if not queue:
-                missing_params.append('queue')
             return {
                 'success': False,
-                'message': 'Params not specified: %s' % ', '.join(missing_params),
+                'message': 'All params must be supplied: (rule_name, hysds_io, job_spec, query_string, queue)',
                 'result': None,
             }, 400
 
         try:
             parsed_query = json.loads(query_string)
             query_string = json.dumps(parsed_query)
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError, Exception) as e:
             app.logger.error(e)
             return {
                 'success': False,
@@ -408,16 +391,16 @@ class UserRules(Resource):
                 }
             }
         }
-        existing_rules = es.count(index=user_rules_index, body=rule_exists_query)
-        if existing_rules['count'] > 0:
+        existing_rules_count = mozart_es.get_count(USER_RULES_INDEX, rule_exists_query)
+        if existing_rules_count > 0:
             return {
                 'success': False,
                 'message': 'user rule already exists: %s' % rule_name
             }, 409
 
-        # check if job_type (hysds_io) exists in elasticsearch
-        job_type = get_by_id(ES_URL, 'hysds_ios', hysds_io, safe=True, logger=app.logger)
-        if not job_type:
+        # check if job_type (hysds_io) exists in Elasticsearch
+        job_type = mozart_es.get_by_id(HYSDS_IOS_INDEX, hysds_io, safe=True)
+        if job_type is False:
             return {
                 'success': False,
                 'message': '%s not found' % hysds_io
@@ -446,33 +429,19 @@ class UserRules(Resource):
             "creation_time": now,
         }
 
-        try:
-            result = es.index(index=user_rules_index, body=new_doc, refresh=True)
-            return {
-                'success': True,
-                'message': 'rule created',
-                'result': result
-            }
-        except Exception as e:
-            app.logger.error('failed to index document %s' % rule_name)
-            app.logger.error(e)
-            return {
-                'success': False,
-                'message': '%s failed to add user rule' % rule_name
-            }, 500
+        result = mozart_es.index_document(USER_RULES_INDEX, new_doc, refresh=True)
+        return {
+            'success': True,
+            'message': 'rule created',
+            'result': result
+        }
 
     def put(self):  # TODO: add user role and permissions
         request_data = request.json or request.form
 
         _id = request_data.get('id')
         if not _id:
-            return {
-                'result': False,
-                'message': 'id not included'
-            }, 400
-
-        es = Elasticsearch([ES_URL])
-        user_rules_index = app.config['USER_RULES_INDEX']
+            return {'result': False, 'message': 'id not included'}, 400
 
         rule_name = request_data.get('rule_name')
         hysds_io = request_data.get('workflow')
@@ -485,28 +454,19 @@ class UserRules(Resource):
 
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
-            job_type = get_by_id(ES_URL, 'hysds_ios', hysds_io, safe=True, logger=app.logger)
-            if not job_type:
+            job_type = mozart_es.get_by_id(HYSDS_IOS_INDEX, hysds_io, safe=True)
+            if job_type['found'] is False:
                 return {
                     'success': False,
                     'message': 'job_type not found: %s' % hysds_io
                 }, 400
 
-        try:
-            app.logger.info('finding existing user rule: %s' % _id)
-            es.get(index=user_rules_index, id=_id)
-        except NotFoundError as e:
-            app.logger.error(e)
-            return {
-                'result': False,
-                'message': 'user rule not found: %s' % _id
-            }, 404
-        except Exception as e:
-            app.logger.error(e)
+        existing_rule = mozart_es.get_by_id(USER_RULES_INDEX, _id, safe=True)
+        if existing_rule['found'] is False:
             return {
                 'success': False,
-                'message': 'Unable to edit user rule'
-            }, 500
+                'message': 'rule %s not found' % _id
+            }, 404
 
         update_doc = {}
         if rule_name:
@@ -526,11 +486,7 @@ class UserRules(Resource):
                 json.loads(kwargs)
             except (ValueError, TypeError) as e:
                 app.logger.error(e)
-                return {
-                    'success': False,
-                    'message': 'invalid JSON: kwargs'
-                }, 400
-
+                return {'success': False, 'message': 'invalid JSON: kwargs'}, 400
             update_doc['kwargs'] = kwargs
         if queue:
             update_doc['queue'] = queue
@@ -543,48 +499,25 @@ class UserRules(Resource):
             'doc': update_doc
         }
 
-        try:
-            es.update(user_rules_index, id=_id, body=new_doc, refresh=True)
-            return {
-                'success': True,
-                'id': _id,
-                'updated': update_doc
-            }
-        except Exception as e:
-            app.logger.error(e)
-            return {
-                'success': False,
-                'message': 'failed to edit user rule: %s' % rule_name
-            }, 500
+        mozart_es.update_document(USER_RULES_INDEX, _id, new_doc, refresh=True)
+        app.logger.info('user rule %s updated' % _id)
+        return {
+            'success': True,
+            'id': _id,
+            'updated': update_doc
+        }
 
     def delete(self):
         # TODO: need to add user rules and permissions
         _id = request.args.get('id')
         if not _id:
-            return {
-                'result': False,
-                'message': 'id not included'
-            }, 400
+            return {'result': False, 'message': 'id not included'}, 400
 
-        es = Elasticsearch([ES_URL])
-        user_rules_index = app.config['USER_RULES_INDEX']
+        mozart_es.delete_by_id(USER_RULES_INDEX, _id)
+        app.logger.info('user rule %s deleted' % _id)
 
-        try:
-            es.delete(index=user_rules_index, id=_id)
-            return {
-                'success': True,
-                'message': 'user rule deleted',
-                'id': _id
-            }
-        except NotFoundError as e:
-            app.logger.error(e)
-            return {
-                'success': False,
-                'message': 'user rule id %s not found' % _id
-            }, 404
-        except Exception as e:
-            app.logger.error(e)
-            return {
-                'success': False,
-                'message': 'Unable to delete user rule id %s' % _id
-            }, 500
+        return {
+            'success': True,
+            'message': 'user rule deleted',
+            'id': _id
+        }
