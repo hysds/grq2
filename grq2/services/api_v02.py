@@ -112,7 +112,7 @@ class HySDSIOTypes(Resource):
         }
 
 
-@hysds_io_ns.route('', endpoint='hysds_ios')
+@hysds_io_ns.route('', endpoint='hysds_io')
 @api.doc(responses={200: "Success", 500: "Query execution failed"},
          description="Gets list of registered hysds-io specifications and return as JSON.")
 class HySDSio(Resource):
