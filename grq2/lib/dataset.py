@@ -5,21 +5,16 @@ from __future__ import absolute_import
 from builtins import str
 from future import standard_library
 standard_library.install_aliases()
+
 import json
 import traceback
 import re
-import requests
-import types
-from flask import jsonify, Blueprint, request
-from pprint import pformat
-from elasticsearch import Elasticsearch
 
-from grq2 import app
+from grq2 import app, grq_es
 from grq2.lib.geonames import get_cities, get_continents
 from grq2.lib.geo import get_center
-from grq2.lib.utils import parse_config
 from grq2.lib.time_utils import getTemporalSpanInDays as get_ts
-
+# from grq2.lib.utils import parse_config
 
 POLYGON_RE = re.compile(r'^polygon$', re.I)
 MULTIPOLYGON_RE = re.compile(r'^multipolygon$', re.I)
@@ -28,34 +23,25 @@ LINESTRING_RE = re.compile(r'^linestring$', re.I)
 
 def update(update_json):
     """Update GRQ metadata and urls for a product."""
+    version = update_json['version']  # get version
 
-    #app.logger.debug("update_json:\n%s" % json.dumps(update_json, indent=2))
-
-    # get version
-    version = update_json['version']
-
-    # determine index name
-    dataset = update_json.get('dataset', None)
+    dataset = update_json.get('dataset', None)  # determine index name
     index_suffix = dataset
 
-    # get default index
-    index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, index_suffix)
+    index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, index_suffix)  # get default index
 
     # get custom index and aliases
     aliases = []
     if 'index' in update_json:
         if 'suffix' in update_json['index']:
-            index = '%s_%s' % (app.config['GRQ_INDEX'],
-                               update_json['index']['suffix'])
+            index = '%s_%s' % (app.config['GRQ_INDEX'], update_json['index']['suffix'])
         aliases.extend(update_json['index'].get('aliases', []))
         del update_json['index']
 
-    # ensure compatible index name
-    index = index.lower()
+    index = index.lower()  # ensure compatible index name
 
-    # add reverse geolocation data
+    # add reverse geo-location data
     if 'location' in update_json:
-
         # get coords and if it's a multipolygon
         loc_type = update_json['location']['type']
         mp = False
@@ -76,13 +62,13 @@ def update(update_json):
                 center_lon, center_lat = get_center(coords[0])
                 update_json['center'] = {
                     'type': 'point',
-                    'coordinates': [ center_lon, center_lat ]
+                    'coordinates': [center_lon, center_lat]
                 }
             else:
                 center_lon, center_lat = get_center(coords)
                 update_json['center'] = {
                     'type': 'point',
-                    'coordinates': [ center_lon, center_lat ]
+                    'coordinates': [center_lon, center_lat]
                 }
 
         # add closest continent
@@ -97,45 +83,30 @@ def update(update_json):
 
         if isinstance(update_json['starttime'], str) and \
            isinstance(update_json['endtime'], str):
-            update_json['temporal_span'] = get_ts(
-                update_json['starttime'], update_json['endtime'])
 
-    #app.logger.debug("update_json:\n%s" % json.dumps(update_json, indent=2))
+            start_time = update_json['starttime']
+            end_time = update_json['endtime']
+            update_json['temporal_span'] = get_ts(start_time, end_time)
 
-    # update in elasticsearch
-    try:
-        es = Elasticsearch(hosts=[app.config['ES_URL']])
-        ret = es.index(index=index, id=update_json['id'], body=update_json)
-    except Exception as e:
-        message = "Got exception trying to index dataset: %s\n%s" % (
-            str(e), traceback.format_exc())
-        app.logger.debug(message)
-        return jsonify({
-            'success': False,
-            'message': message,
-            'update_json': update_json
-        }), 500
+    result = grq_es.index_document(index, update_json, update_json['id'])  # indexing to ES
+    app.logger.debug("%s" % json.dumps(result, indent=2))
 
-    app.logger.debug("%s" % json.dumps(ret, indent=2))
-
-    # update custom aliases
-    # Fixing HC-23
+    # update custom aliases (Fixing HC-23)
     if len(aliases) > 0:
         try:
             actions = list()
             for index_alias in aliases:
                 actions.append({"add": {"index": index, "alias": index_alias}})
-            alias_ret = es.indices.update_aliases({
-                "actions": actions
-            })
-            #app.logger.debug("alias_ret: %s" % json.dumps(alias_ret, indent=2))
+
+            update_alias = {"actions": actions}
+            grq_es.es.indices.update_aliases(update_alias)
         except Exception as e:
             app.logger.debug("Got exception trying to add aliases to index: %s\n%s\nContinuing on." %
                              (str(e), traceback.format_exc()))
 
     return {
         'success': True,
-        'message': ret,
+        'message': result,
         'objectid': update_json['id'],
         'index': index,
     }
