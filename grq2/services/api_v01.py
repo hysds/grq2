@@ -446,7 +446,7 @@ class UserRules(Resource):
                 'message': '%s not found' % hysds_io
             }, 400
 
-        params = job_type['params']
+        params = job_type['_source']['params']
         is_passthrough_query = check_passthrough_query(params)
 
         now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -534,12 +534,8 @@ class UserRules(Resource):
             update_doc['enabled'] = enabled
         update_doc['modified_time'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        new_doc = {
-            'doc_as_upsert': True,
-            'doc': update_doc
-        }
-
-        mozart_es.update_document(USER_RULES_INDEX, _id, new_doc, refresh=True)
+        app.logger.info('new user rule: %s', json.dumps(update_doc))
+        mozart_es.update_document(USER_RULES_INDEX, _id, update_doc, refresh=True)
         app.logger.info('user rule %s updated' % _id)
         return {
             'success': True,
