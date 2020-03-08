@@ -16,7 +16,7 @@ USER_RULES_INDEX = app.config['USER_RULES_INDEX']
 
 def create_user_rules_index():
     """Create user rules index applying percolator mapping."""
-    mapping_file = os.path.join(app.root_path, '..', 'configs', 'user_rules_dataset.mapping')
+    mapping_file = os.path.join(app.root_path, '..', 'config', 'user_rules_dataset.mapping')
     mapping_file = os.path.normpath(mapping_file)
 
     with open(mapping_file) as f:
