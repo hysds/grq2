@@ -14,7 +14,7 @@ import re
 import traceback
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
-from flask_restplus import Api, apidoc, Resource, fields
+from flask_restx import Api, apidoc, Resource, fields
 from flask_login import login_required
 
 from grq2 import app
