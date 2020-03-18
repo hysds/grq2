@@ -12,7 +12,6 @@ from datetime import datetime
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from flask_restx import Api, apidoc, Resource, fields
-from flask_login import login_required
 
 from hysds.celery import app as celery_app
 from hysds.task_worker import do_submit_task
@@ -29,7 +28,7 @@ ns = api.namespace(NAMESPACE, description="GRQ operations")
 
 HYSDS_IO_NS = "hysds_io"
 hysds_io_ns = api.namespace(HYSDS_IO_NS, description="HySDS IO operations")
-”
+
 HYSDS_IOS_INDEX = app.config['HYSDS_IOS_INDEX']
 USER_RULES_INDEX = app.config['USER_RULES_INDEX']
 ON_DEMAND_DATASET_QUEUE = celery_app.conf['ON_DEMAND_DATASET_QUEUE']

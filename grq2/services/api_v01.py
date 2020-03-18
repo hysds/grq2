@@ -12,7 +12,6 @@ from datetime import datetime
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
 from flask_restx import Api, apidoc, Resource, fields
-from flask_login import login_required
 
 from hysds.celery import app as celery_app
 from hysds.task_worker import do_submit_task
