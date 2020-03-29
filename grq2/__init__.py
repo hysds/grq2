@@ -6,12 +6,16 @@ from future import standard_library
 standard_library.install_aliases()
 
 from flask import Flask
+from flask_cors import CORS  # TODO: will remove this once we figure out the proper host for the UI
 
 from hysds_commons.elasticsearch_utils import ElasticsearchUtility
 
 
 app = Flask(__name__)
 app.config.from_pyfile('../settings.cfg')
+
+# TODO: will remove this when ready for actual release, need to figure out the right host
+CORS(app)
 
 # initializing connection to GRQ's Elasticsearch
 grq_es = ElasticsearchUtility(app.config['ES_URL'], app.logger)
