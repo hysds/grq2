@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='grq2',
-    version='1.1.2',
+    version='1.1.3',
     long_description='GeoRegionQuery REST API using ElasticSearch backend',
     packages=find_packages(),
     include_package_data=True,
@@ -23,11 +23,7 @@ setup(
         'shapely>=1.5.15',
         'Cython>=0.15.1',
         'Cartopy>=0.13.1',
-        # TODO: remove installation of master branch after new release of
-        # flask-restx includes the fix referred to here:
-        # https://github.com/python-restx/flask-restx/issues/85
-        'flask-restx @ git+https://git@github.com/python-restx/flask-restx',
-        # 'redis', 'flask-restx>0.1.1', 'future>=0.17.1']
+        'flask-restx>=0.2.0',
         'redis',
         'future>=0.17.1'
     ]
