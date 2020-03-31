@@ -17,53 +17,45 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
     Spatial search of top populated cities within a bounding box.
 
     Example query DSL:
-      {
-        "sort": {
-          "population": {
-            "order": "desc"
-          }
-        },
-        "filter": {
-          "and": [
+    {
+      "sort": {
+        "population": {
+          "order": "desc"
+        }
+      },
+      "query": {
+        "bool": {
+          "must": [],
+          "filter": [
             {
               "term": {
                 "feature_class": "P"
               }
             },
             {
+              "range": {
+                "population": {
+                  "gte": 0
+                }
+              }
+            },
+            {
               "geo_polygon": {
                 "location": {
                   "points": [
-                    [
-                      -119,
-                      44
-                    ],
-                    [
-                      110,
-                      44
-                    ],
-                    [
-                      110,
-                      23
-                    ],
-                    [
-                      -119,
-                      23
-                    ],
-                    [
-                      -119,
-                      44
-                    ]
+                    [-119, 44],
+                    [110, 44],
+                    [110, 23],
+                    [-119, 23],
+                    [-119, 44]
                   ]
                 }
               }
             }
           ]
-        },
-        "query": {
-          "match_all": {}
         }
       }
+    }
     """
 
     # build query DSL
@@ -74,24 +66,23 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
                 "order": "desc"
             }
         },
-        "filter": {
-            "and": [
-                {
-                    "term": {
-                        "feature_class": "P"
-                    }
-                },
-                {
-                    "numeric_range": {
-                        "population": {
-                            "gte": pop_th,
+        "query": {
+            "bool": {
+                "filter": [
+                    {
+                        "term": {
+                            "feature_class": "P"
+                        }
+                    },
+                    {
+                        "range": {
+                            "population": {
+                                "gte": 0
+                            }
                         }
                     }
-                }
-            ]
-        },
-        "query": {
-            "match_all": {}
+                ]
+            }
         }
     }
 
@@ -106,11 +97,12 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
                     }
                 }
             })
-        query['filter']['and'].append({
-            "or": or_filters
-        })
+        # filtered is removed, using bool + should + minimum_should_match instead
+        query['query']['bool']['should'] = or_filters
+        query['query']['bool']['minimum_should_match'] = 1
+
     else:
-        query['filter']['and'].append({
+        query['query']['bool']['filter'].append({
             "geo_polygon": {
                 "location": {
                     "points": polygon,
@@ -121,13 +113,18 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
     # query for results
     es_url = app.config['ES_URL']
     index = app.config['GEONAMES_INDEX']
-    r = requests.post('%s/%s/_search' %
-                      (es_url, index), data=json.dumps(query))
+
+    headers = {'Content-Type': 'application/json'}
+    r = requests.post('%s/%s/_search' % (es_url, index), data=json.dumps(query), headers=headers)
+
     app.logger.debug("get_cities(): %s" % json.dumps(query, indent=2))
+
     if r.status_code != 200:
         raise RuntimeError("Failed to get cities: %s" % pformat(r.json()))
+
     res = r.json()
     results = []
+
     for hit in res['hits']['hits']:
         results.append(hit['_source'])
     return results
@@ -138,9 +135,19 @@ def get_continents(lon, lat):
     Spatial search of closest continents to the specified geo point.
 
     Example query DSL:
-      {
-        "filter": {
-          "and": [
+    {
+      "sort": [
+        {
+          "_geo_distance": {
+            "location": [-84.531233, -78.472148],
+            "order": "asc",
+            "unit": "km"
+          }
+        }
+      ],
+      "query": {
+        "bool": {
+          "filter": [
             {
               "term": {
                 "feature_class": "L"
@@ -152,41 +159,13 @@ def get_continents(lon, lat):
               }
             }
           ]
-        },
-        "sort": [
-          {
-            "_geo_distance": {
-              "location": [
-                -84.531233,
-                -78.472148
-              ],
-              "order": "asc",
-              "unit": "km"
-            }
-          }
-        ],
-        "query": {
-          "match_all": {}
         }
       }
+    }
     """
 
     # build query DSL
     query = {
-        "filter": {
-            "and": [
-                {
-                    "term": {
-                        "feature_class": "L"
-                    }
-                },
-                {
-                    "term": {
-                        "feature_code": "CONT"
-                    }
-                }
-            ]
-        },
         "sort": [
             {
                 "_geo_distance": {
@@ -197,20 +176,38 @@ def get_continents(lon, lat):
             }
         ],
         "query": {
-            "match_all": {}
+            "bool": {
+                "filter": [
+                    {
+                        "term": {
+                            "feature_class": "L"
+                        }
+                    },
+                    {
+                        "term": {
+                            "feature_code": "CONT"
+                        }
+                    }
+                ]
+            }
         }
     }
 
     # query for results
     es_url = app.config['ES_URL']
     index = app.config['GEONAMES_INDEX']
-    r = requests.post('%s/%s/_search' %
-                      (es_url, index), data=json.dumps(query))
+
+    headers = {'Content-Type': 'application/json'}
+    r = requests.post('%s/%s/_search' % (es_url, index), data=json.dumps(query), headers=headers)
+
     app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
+
     if r.status_code != 200:
         raise RuntimeError("Failed to get cities: %s" % pformat(r.json()))
+
     res = r.json()
     results = []
+
     for hit in res['hits']['hits']:
         results.append(hit['_source'])
     return results
