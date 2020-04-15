@@ -15,6 +15,7 @@ ingest_file = os.path.normpath(ingest_file)
 
 with open(ingest_file) as f:
     pipeline_settings = json.load(f)
+    print(json.dumps(pipeline_settings, indent=2))
 
     pipeline_name = 'dataset_pipeline'
     endpoint = '%s/_ingest/pipeline/%s' % (es_url, pipeline_name)
