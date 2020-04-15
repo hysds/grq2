@@ -5,23 +5,24 @@ import requests
 from hysds.celery import app
 
 
-if __name__ == '__main__':
-    es_url = app.conf['GRQ_ES_URL']
+es_url = app.conf['GRQ_ES_URL']
 
-    ingest_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config', 'ingest_pipeline.json'))
-    ingest_file = os.path.normpath(ingest_file)
+current_directory = os.path.dirname(__file__)
 
-    with open(ingest_file) as f:
-        pipeline_settings = json.load(f)
+ingest_file = os.path.join(current_directory, '..', 'config', 'ingest_pipeline.json')
+ingest_file = os.path.abspath(ingest_file)
+ingest_file = os.path.normpath(ingest_file)
 
-        pipeline_name = 'dataset_pipeline'
-        endpoint = '%s/_ingest/pipeline/%s' % (es_url, pipeline_name)
+with open(ingest_file) as f:
+    pipeline_settings = json.load(f)
 
-        requests.delete(endpoint)
+    pipeline_name = 'dataset_pipeline'
+    endpoint = '%s/_ingest/pipeline/%s' % (es_url, pipeline_name)
 
-        headers = {'Content-Type': 'application/json'}
-        r = requests.put(endpoint, data=json.dumps(pipeline_settings), headers=headers)
-        r.raise_for_status()
-        print(r.json())
-        print("Successfully installed ingest_pipeline: %s " % pipeline_name)
+    requests.delete(endpoint)
 
+    headers = {'Content-Type': 'application/json'}
+    r = requests.put(endpoint, data=json.dumps(pipeline_settings), headers=headers)
+    r.raise_for_status()
+    print(r.json())
+    print("Successfully installed ingest_pipeline: %s " % pipeline_name)
