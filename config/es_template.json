@@ -15,7 +15,8 @@
           "tokenizer": "keyword"
         }
       }
-    }
+    },
+    "default_pipeline": "dataset_pipeline"
   },
   "mappings": {
     "dynamic_templates": [
