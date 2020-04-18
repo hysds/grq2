@@ -586,6 +586,7 @@ class UserTags(Resource):
         _id = request_data.get('id')
         _index = request_data.get('index')
         tag = request_data.get('tag')
+        app.logger.info('_id: %s\n _index: %s\n tag: %s' % (_id, _index, tag))
 
         if _id is None or _index is None or tag is None:
             return {
@@ -603,16 +604,18 @@ class UserTags(Resource):
         source = dataset['_source']
         metadata = source['metadata']
         user_tags = metadata.get('user_tags', [])
+        app.logger.info('found user tags: %s' % str(user_tags))
 
         if tag not in user_tags:
             user_tags.append(tag)
+            app.logger.info('tags after adding: %s' % str(user_tags))
 
         update_doc = {
             'metadata': {
                 'user_tags': user_tags
             }
         }
-        grq_es.update_document(_index, _id, update_doc)
+        grq_es.update_document(_index, _id, update_doc, refresh=True)
 
         return {
             'success': True,
@@ -623,6 +626,7 @@ class UserTags(Resource):
         _id = request.args.get('id')
         _index = request.args.get('index')
         tag = request.args.get('tag')
+        app.logger.info('_id: %s _index: %s tag: %s' % (_id, _index, tag))
 
         if _id is None or _index is None:
             return {
@@ -640,16 +644,20 @@ class UserTags(Resource):
         source = dataset['_source']
         metadata = source['metadata']
         user_tags = metadata.get('user_tags', [])
+        app.logger.info('found user tags %s' % str(user_tags))
 
-        if tag not in user_tags:
+        if tag in user_tags:
             user_tags.remove(tag)
+            app.logger.info('tags after removing: %s' % str(user_tags))
+        else:
+            app.logger.warning('tag not found: %s' % tag)
 
         update_doc = {
             'metadata': {
                 'user_tags': user_tags
             }
         }
-        grq_es.update_document(_index, _id, update_doc)
+        grq_es.update_document(_index, _id, update_doc, refresh=True)
 
         return {
             'success': True,
