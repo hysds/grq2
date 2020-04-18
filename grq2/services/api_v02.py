@@ -541,32 +541,6 @@ class UserRules(Resource):
 @ns.route('/user-tags', endpoint='user-tags')
 @api.doc(responses={200: "Success", 500: "Execution failed"}, description="User tags for GRQ datasets")
 class UserTags(Resource):
-    def get(self):
-        _id = request.args.get('id')
-        _index = request.args.get('index')
-
-        if _id is None or _index is None:
-            return {
-                'success': False,
-                'message': 'id and index must be supplied'
-            }, 400
-
-        dataset = grq_es.get_by_id(_index, _id, safe=True)
-        if dataset['found'] is False:
-            return {
-                'success': False,
-                'message': "dataset not found"
-            }, 404
-
-        source = dataset['_source']
-        metadata = source['metadata']
-        user_tags = metadata.get('user_tags', [])
-
-        return {
-            'success': True,
-            'tags': user_tags
-        }
-
     def put(self):
         request_data = request.json or request.form
         _id = request_data.get('id')
