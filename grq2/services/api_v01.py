@@ -16,7 +16,7 @@ from flask_restx import Api, apidoc, Resource, fields
 from hysds.celery import app as celery_app
 from hysds.task_worker import do_submit_task
 
-from grq2 import app, mozart_es
+from grq2 import app, mozart_es, grq_es
 from grq2.lib.dataset import update as update_dataset
 from hysds_commons.action_utils import check_passthrough_query
 
@@ -575,4 +575,91 @@ class UserRules(Resource):
             'success': True,
             'message': 'user rule deleted',
             'id': _id
+        }
+
+
+@ns.route('/user-tags', endpoint='user-tags')
+@api.doc(responses={200: "Success", 500: "Execution failed"}, description="User tags for GRQ datasets")
+class UserTags(Resource):
+    def put(self):
+        request_data = request.json or request.form
+        _id = request_data.get('id')
+        _index = request_data.get('index')
+        tag = request_data.get('tag')
+        app.logger.info('_id: %s\n _index: %s\n tag: %s' % (_id, _index, tag))
+
+        if _id is None or _index is None or tag is None:
+            return {
+                'success': False,
+                'message': 'id, index and tag must be supplied'
+            }, 400
+
+        dataset = grq_es.get_by_id(_index, _id, safe=True)
+        if dataset['found'] is False:
+            return {
+                'success': False,
+                'message': "dataset not found"
+            }, 404
+
+        source = dataset['_source']
+        metadata = source['metadata']
+        user_tags = metadata.get('user_tags', [])
+        app.logger.info('found user tags: %s' % str(user_tags))
+
+        if tag not in user_tags:
+            user_tags.append(tag)
+            app.logger.info('tags after adding: %s' % str(user_tags))
+
+        update_doc = {
+            'metadata': {
+                'user_tags': user_tags
+            }
+        }
+        grq_es.update_document(_index, _id, update_doc, refresh=True)
+
+        return {
+            'success': True,
+            'tags': user_tags
+        }
+
+    def delete(self):
+        _id = request.args.get('id')
+        _index = request.args.get('index')
+        tag = request.args.get('tag')
+        app.logger.info('_id: %s _index: %s tag: %s' % (_id, _index, tag))
+
+        if _id is None or _index is None:
+            return {
+                'success': False,
+                'message': 'id and index must be supplied'
+            }, 400
+
+        dataset = grq_es.get_by_id(_index, _id, safe=True)
+        if dataset['found'] is False:
+            return {
+                'success': False,
+                'message': "dataset not found"
+            }, 404
+
+        source = dataset['_source']
+        metadata = source['metadata']
+        user_tags = metadata.get('user_tags', [])
+        app.logger.info('found user tags %s' % str(user_tags))
+
+        if tag in user_tags:
+            user_tags.remove(tag)
+            app.logger.info('tags after removing: %s' % str(user_tags))
+        else:
+            app.logger.warning('tag not found: %s' % tag)
+
+        update_doc = {
+            'metadata': {
+                'user_tags': user_tags
+            }
+        }
+        grq_es.update_document(_index, _id, update_doc, refresh=True)
+
+        return {
+            'success': True,
+            'tags': user_tags
         }
