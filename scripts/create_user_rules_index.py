@@ -8,26 +8,16 @@ standard_library.install_aliases()
 
 import os
 import json
-from elasticsearch import RequestError
 from grq2 import app, mozart_es
 
 USER_RULES_INDEX = app.config['USER_RULES_INDEX']
 
 
-def create_user_rules_index():
-    """Create user rules index applying percolator mapping."""
-    mapping_file = os.path.join(app.root_path, '..', 'config', 'user_rules_dataset.mapping')
-    mapping_file = os.path.normpath(mapping_file)
+# Create user rules index applying percolator mapping.
+mapping_file = os.path.join(app.root_path, '..', 'config', 'user_rules_dataset.mapping')
+mapping_file = os.path.normpath(mapping_file)
 
-    with open(mapping_file) as f:
-        mapping = json.load(f)
+with open(mapping_file) as f:
+    mapping = json.load(f)
 
-    mozart_es.es.indices.create(USER_RULES_INDEX, mapping)
-
-
-try:
-    create_user_rules_index()
-except RequestError as e:
-    pass
-except Exception as e:
-    raise e
+mozart_es.es.indices.create(USER_RULES_INDEX, mapping, ignore=400)
