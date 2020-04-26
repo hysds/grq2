@@ -12,7 +12,10 @@ from future import standard_library
 standard_library.install_aliases()
 
 import traceback
-from elasticsearch import Elasticsearch
+import argparse
+import boto3
+from requests_aws4auth import AWS4Auth
+from elasticsearch import Elasticsearch, RequestsHttpConnection
 
 
 '''
@@ -28,8 +31,8 @@ country code      : ISO-3166 2-letter country code, 2 characters
 cc2               : alternate country codes, comma separated, ISO-3166 2-letter country code, 60 characters
 admin1 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for
                     display names of this code; varchar(20)
-admin2 code       : code for the second administrative division, a county in the US
-                    see file admin2Codes.txt;varchar(80)
+admin2 code       : code for the second administrative division, a county in the US,
+                    see file admin2Codes.txt; varchar(80)
 admin3 code       : code for third level administrative division, varchar(20)
 admin4 code       : code for fourth level administrative division, varchar(20)
 population        : bigint (8 byte int)
@@ -127,9 +130,6 @@ MAPPING = {
 }
 
 
-ES_URL = 'http://localhost:9200'
-
-
 def get_admin_dict(admin_file):
     d = {}
     with open(admin_file) as f:
@@ -150,8 +150,22 @@ def get_country_dict(country_file):
     return d
 
 
-def parse(csv_file):
+def create_geonames_mapping(es):
+    """
+    :param es: python elasticsearch's es object
+    :return:
+    """
+    es.indices.create(INDEX, {'mappings': MAPPING}, ignore=400)
+    print('%s index created!!' % INDEX)
 
+
+def parse(csv_file, es):
+    """
+    index geonames docs into the geonames index
+    :param csv_file: string
+    :param es: elasticsearch-py's es object
+    :return:
+    """
     # get adm dicts
     adm1 = get_admin_dict('admin1CodesASCII.txt')
     adm2 = get_admin_dict('admin2Codes.txt')
@@ -159,17 +173,15 @@ def parse(csv_file):
     # get country dict
     cntries = get_country_dict('countryInfo.txt')
 
-    # get ElasticSearch connection
-    es = Elasticsearch(hosts=[ES_URL])
-    es.indices.create(INDEX, {'mappings': MAPPING}, ignore=400)
-    print('%s index created!!' % INDEX)
-
     # iterate and index
     line_number = 0
     try:
         with open(csv_file) as f:
+            # TODO: maybe use csv reader instead
+            #  csv_reader = csv.reader(f, delimiter='\t')
+            #  for row in csv_reader
             for line in f:
-                row = dict(list(zip(FIELD_NAMES, line.strip().split('\t'))))
+                row = dict(list(zip(FIELD_NAMES, line.strip().split('\t'))))  # creates a dictionary per row
                 line_number += 1
                 for k in row:
                     if row[k] == '':
@@ -212,16 +224,39 @@ def parse(csv_file):
                                 adm1_code, row['admin2_code'])
                             row['admin2_name'] = adm2.get(adm2_code, [None])[0]
 
-                # index
                 es.index(index=INDEX, id=row['geonameid'], body=row)
                 if line_number % 10000 == 0:
                     print('%d documents ingested into %s' % (line_number, INDEX))
     except Exception as e:
         traceback.print_exc()
-        print(("line_number: %d" % line_number))
+        print(('line_number: %d' % line_number))
         raise
 
 
-if __name__ == "__main__":
-    csv_file = 'allCountries.txt'
-    parse(csv_file)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Create and populate geonames index')
+
+    parser.add_argument('--es-url', action='store', default='http://localhost:9200', help="Elasticsearch endpoint")
+    parser.add_argument('--region', action='store', default='us-west-1', help="AWS region")
+    parser.add_argument('--verify-certs', action='store_true', default=False, help='verify SSL if using https')
+
+    args = parser.parse_args()
+    verify_ssl = args.veri
+
+    service = 'es'
+    region = args.region  # e.g. us-west-1
+    credentials = boto3.Session().get_credentials()
+    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
+
+    grq_es = Elasticsearch(
+        hosts=[args.es_url],
+        http_auth=awsauth,
+        use_ssl=True,
+        verify_certs=args.verify_certs,
+        connection_class=RequestsHttpConnection
+    )
+
+    create_geonames_mapping(grq_es)  # create geonames index with mapping
+
+    countries_csv_file = 'allCountries.txt'
+    parse(countries_csv_file, grq_es)
