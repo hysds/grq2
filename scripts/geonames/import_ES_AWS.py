@@ -13,9 +13,12 @@ standard_library.install_aliases()
 
 import traceback
 import argparse
+import urllib3
 import boto3
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
+
+urllib3.disable_warnings()
 
 
 '''
