@@ -230,8 +230,7 @@ def parse(csv_file, es):
 
                 es.index(index=INDEX, id=row['geonameid'], body=row)
                 if line_number % 10000 == 0:
-                    print('%d documents ingested' % line_number)
-                    print('current time: %s' % datetime.now().isoformat())
+                    print('%d documents ingested at %s' % (line_number, datetime.now().isoformat()))
     except Exception as e:
         traceback.print_exc()
         print(('line_number: %d' % line_number))
@@ -261,6 +260,7 @@ if __name__ == '__main__':
         connection_class=RequestsHttpConnection
     )
 
+    print("script start time: %s" % datetime.now().isoformat())
     create_geonames_mapping(grq_es)  # create geonames index with mapping
 
     countries_csv_file = 'allCountries.txt'
