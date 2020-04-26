@@ -241,7 +241,6 @@ if __name__ == '__main__':
     parser.add_argument('--verify-certs', action='store_true', default=False, help='verify SSL if using https')
 
     args = parser.parse_args()
-    verify_ssl = args.veri
 
     service = 'es'
     region = args.region  # e.g. us-west-1
