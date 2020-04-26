@@ -13,6 +13,7 @@ standard_library.install_aliases()
 
 import traceback
 import argparse
+from datetime import datetime
 import urllib3
 import boto3
 from requests_aws4auth import AWS4Auth
@@ -229,10 +230,12 @@ def parse(csv_file, es):
 
                 es.index(index=INDEX, id=row['geonameid'], body=row)
                 if line_number % 10000 == 0:
-                    print('%d documents ingested into %s' % (line_number, INDEX))
+                    print('%d documents ingested' % line_number)
+                    print('current time: %s' % datetime.now().isoformat())
     except Exception as e:
         traceback.print_exc()
         print(('line_number: %d' % line_number))
+        print('failed at %s' % datetime.now().isoformat())
         raise
 
 
