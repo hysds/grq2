@@ -163,30 +163,34 @@ def create_geonames_mapping(es):
     print('%s index created!!' % INDEX)
 
 
-def parse(csv_file, es):
+def parse(es, csv_file, start_position=0):
     """
     index geonames docs into the geonames index
     :param csv_file: string
     :param es: elasticsearch-py's es object
+    :param start_position: file position to start loop at (if we don't want to start from the beginning)
     :return:
     """
-    # get adm dicts
-    adm1 = get_admin_dict('admin1CodesASCII.txt')
+    adm1 = get_admin_dict('admin1CodesASCII.txt')  # get adm dicts
     adm2 = get_admin_dict('admin2Codes.txt')
+    cntries = get_country_dict('countryInfo.txt')  # get country dict
 
-    # get country dict
-    cntries = get_country_dict('countryInfo.txt')
-
-    # iterate and index
     line_number = 0
+    line_position = 0  # tracking line_position in case we don't want to start from the beginning
     try:
         with open(csv_file) as f:
-            # TODO: maybe use csv reader instead
-            #  csv_reader = csv.reader(f, delimiter='\t')
-            #  for row in csv_reader
-            for line in f:
+            if start_position > 0:
+                f.seek(start_position)  # if we do not want to start from beginning
+
+            while True:
+                line_position = f.tell()  # change current line position
+                line = f.readline()
+                if not line:
+                    break
+
                 row = dict(list(zip(FIELD_NAMES, line.strip().split('\t'))))  # creates a dictionary per row
                 line_number += 1
+
                 for k in row:
                     if row[k] == '':
                         if k in ('alternatename', 'cc2'):
@@ -230,25 +234,28 @@ def parse(csv_file, es):
 
                 es.index(index=INDEX, id=row['geonameid'], body=row)
                 if line_number % 10000 == 0:
-                    print('%d documents ingested at %s' % (line_number, datetime.now().isoformat()))
+                    print('%d documents ingested at %s, position: %d' % (line_number, datetime.now().isoformat(),
+                                                                         line_position))
     except Exception as e:
         traceback.print_exc()
-        print(('line_number: %d' % line_number))
+        print('line_number: %d' % line_number)
+        print('failed position %d' % line_position)
         print('failed at %s' % datetime.now().isoformat())
-        raise
+        raise e
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create and populate geonames index')
 
-    parser.add_argument('--es-url', action='store', default='http://localhost:9200', help="Elasticsearch endpoint")
+    parser.add_argument('--es-url', action='store', default='http://localhost:9200', help="ES endpoint")
     parser.add_argument('--region', action='store', default='us-west-1', help="AWS region")
     parser.add_argument('--verify-certs', action='store_true', default=False, help='verify SSL if using https')
+    parser.add_argument('--start-position', type=int, default=0, help='file position to where left off')
 
     args = parser.parse_args()
 
     service = 'es'
-    region = args.region  # e.g. us-west-1
+    region = args.region  # us-west-1
     credentials = boto3.Session().get_credentials()
     awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
 
@@ -257,11 +264,14 @@ if __name__ == '__main__':
         http_auth=awsauth,
         use_ssl=True,
         verify_certs=args.verify_certs,
-        connection_class=RequestsHttpConnection
+        connection_class=RequestsHttpConnection,
+        timeout=60,
+        max_retries=10,
+        retry_on_timeout=True
     )
 
     print("script start time: %s" % datetime.now().isoformat())
     create_geonames_mapping(grq_es)  # create geonames index with mapping
 
     countries_csv_file = 'allCountries.txt'
-    parse(countries_csv_file, grq_es)
+    parse(grq_es, countries_csv_file, args.start_position)
