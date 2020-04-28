@@ -16,7 +16,7 @@ import argparse
 from datetime import datetime
 import urllib3
 import boto3
-from requests_aws4auth import AWS4Auth
+from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
 urllib3.disable_warnings()
@@ -248,6 +248,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create and populate geonames index')
 
     parser.add_argument('--es-url', action='store', default='http://localhost:9200', help="ES endpoint")
+    parser.add_argument('--port', type=int, default=9200, help='Elasticsearch port')
     parser.add_argument('--region', action='store', default='us-west-1', help="AWS region")
     parser.add_argument('--verify-certs', action='store_true', default=False, help='verify SSL if using https')
     parser.add_argument('--start-position', type=int, default=0, help='file position to where left off')
@@ -256,12 +257,13 @@ if __name__ == '__main__':
 
     service = 'es'
     region = args.region  # us-west-1
-    credentials = boto3.Session().get_credentials()
-    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
+
+    aws_auth = BotoAWSRequestsAuth(aws_host=args.es_url, aws_region=region, aws_service='es')
 
     grq_es = Elasticsearch(
         hosts=[args.es_url],
-        http_auth=awsauth,
+        port=args.port,
+        http_auth=aws_auth,
         use_ssl=True,
         verify_certs=args.verify_certs,
         connection_class=RequestsHttpConnection,
