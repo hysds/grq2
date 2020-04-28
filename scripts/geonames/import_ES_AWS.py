@@ -15,7 +15,6 @@ import traceback
 import argparse
 from datetime import datetime
 import urllib3
-import boto3
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
