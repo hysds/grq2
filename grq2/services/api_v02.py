@@ -23,7 +23,7 @@ from hysds_commons.action_utils import check_passthrough_query
 NAMESPACE = "grq"
 
 services = Blueprint('api_v0-2', __name__, url_prefix='/api/v0.2')
-api = Api(services, ui=False, version="0.2", title="Mozart API", description="API for GRQ Services.")
+api = Api(services, ui=False, version="0.2", title="GRQ API", description="API for GRQ Services.")
 ns = api.namespace(NAMESPACE, description="GRQ operations")
 
 HYSDS_IO_NS = "hysds_io"
