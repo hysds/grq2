@@ -158,7 +158,10 @@ def create_geonames_mapping(es):
     :param es: python elasticsearch's es object
     :return:
     """
-    es.indices.create(INDEX, {'mappings': MAPPING}, ignore=400)
+    mapping = {
+        "mappings": MAPPING
+    }
+    es.indices.create(INDEX, mapping, ignore=400)
     print('%s index created!!' % INDEX)
 
 
