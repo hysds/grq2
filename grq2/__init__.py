@@ -84,7 +84,7 @@ ES_PORT = app.config['ES_PORT']
 AWS_REGION = app.config['AWS_REGION']
 AWS_ES = app.config['AWS_ES']
 
-grq_es = get_grq_es(es_host=ES_HOST, port=ES_PORT, logger=app.logger, region=AWS_REGION, aws_es_service=AWS_ES)
+grq_es = get_grq_es(logger=app.logger)
 
 # initializing connection to Mozart's Elasticsearch
 MOZART_ES_URL = app.config['MOZART_ES_URL']

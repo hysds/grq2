@@ -6,9 +6,10 @@ from __future__ import absolute_import
 import urllib3
 
 from elasticsearch import RequestsHttpConnection
-from hysds_commons.elasticsearch_utils import ElasticsearchUtility
-
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
+
+from hysds_commons.elasticsearch_utils import ElasticsearchUtility
+from hysds.celery import app
 
 urllib3.disable_warnings()
 
@@ -23,18 +24,20 @@ def get_mozart_es(es_url, logger):
     return MOZART_ES
 
 
-def get_grq_es(es_host='localhost', port=9200, logger=None, region='', aws_es_service=False):
+def get_grq_es(logger=None):
     global GRQ_ES
 
     if GRQ_ES is None:
-        es_url = 'http://%s:%d' % (es_host, port)
+        aws_es = app.conf['GRQ_AWS_ES']
+        es_host = app.conf['GRQ_ES_HOST']
+        es_url = app.conf['GRQ_ES_URL']
+        region = app.conf['AWS_REGION']
 
-        if aws_es_service:
+        if aws_es:
             aws_auth = BotoAWSRequestsAuth(aws_host=es_host, aws_region=region, aws_service='es')
             GRQ_ES = ElasticsearchUtility(
                 es_url=es_host,
                 logger=logger,
-                port=port,
                 http_auth=aws_auth,
                 connection_class=RequestsHttpConnection,
                 use_ssl=True,
