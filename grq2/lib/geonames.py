@@ -4,12 +4,9 @@ from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
-import json
-import requests
-import types
-from pprint import pformat
 
-from grq2 import app
+import json
+from grq2 import app, grq_es
 
 
 def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
@@ -110,21 +107,11 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
             }
         })
 
-    # query for results
-    es_url = app.config['ES_URL']
     index = app.config['GEONAMES_INDEX']
-
-    headers = {'Content-Type': 'application/json'}
-    r = requests.post('%s/%s/_search' % (es_url, index), data=json.dumps(query), headers=headers)
-
+    res = grq_es.search(index, query)  # query for results
     app.logger.debug("get_cities(): %s" % json.dumps(query, indent=2))
 
-    if r.status_code != 200:
-        raise RuntimeError("Failed to get cities: %s" % pformat(r.json()))
-
-    res = r.json()
     results = []
-
     for hit in res['hits']['hits']:
         results.append(hit['_source'])
     return results
@@ -193,21 +180,11 @@ def get_continents(lon, lat):
         }
     }
 
-    # query for results
-    es_url = app.config['ES_URL']
-    index = app.config['GEONAMES_INDEX']
-
-    headers = {'Content-Type': 'application/json'}
-    r = requests.post('%s/%s/_search' % (es_url, index), data=json.dumps(query), headers=headers)
-
+    index = app.config['GEONAMES_INDEX']  # query for results
+    res = grq_es.search(index, query)
     app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
 
-    if r.status_code != 200:
-        raise RuntimeError("Failed to get cities: %s" % pformat(r.json()))
-
-    res = r.json()
     results = []
-
     for hit in res['hits']['hits']:
         results.append(hit['_source'])
     return results

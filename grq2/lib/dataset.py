@@ -14,7 +14,6 @@ from grq2 import app, grq_es
 from grq2.lib.geonames import get_cities, get_continents
 from grq2.lib.geo import get_center
 from grq2.lib.time_utils import getTemporalSpanInDays as get_ts
-# from grq2.lib.utils import parse_config
 
 POLYGON_RE = re.compile(r'^polygon$', re.I)
 MULTIPOLYGON_RE = re.compile(r'^multipolygon$', re.I)
