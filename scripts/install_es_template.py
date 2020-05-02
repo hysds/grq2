@@ -7,33 +7,28 @@ from builtins import open
 from future import standard_library
 standard_library.install_aliases()
 import os
-import sys
-import json
-import requests
 from jinja2 import Template
 
-from grq2 import app
+from grq2 import grq_es
 
 
-def write_template(es_url, prefix, alias, tmpl_file):
+def write_template(prefix, alias, tmpl_file):
     """Write template to ES."""
 
     with open(tmpl_file) as f:
         tmpl = Template(f.read()).render(prefix=prefix, alias=alias)
-    tmpl_url = "%s/_template/%s" % (es_url, alias)
-    headers = {'Content-Type': 'application/json'}
-    r = requests.delete(tmpl_url, headers=headers)
-    r = requests.put(tmpl_url, data=tmpl, headers=headers)
-    r.raise_for_status()
-    print((r.json()))
-    print(("Successfully installed template %s at %s." % (alias, tmpl_url)))
+
+    # https://elasticsearch-py.readthedocs.io/en/1.3.0/api.html#elasticsearch.Elasticsearch.put_template
+    grq_es.es.indices.put_template(name=alias, body=tmpl, ignore=400)
+    print(("Successfully installed template %s" % alias))
 
 
 if __name__ == "__main__":
-    es_url = app.config['ES_URL']
     prefix = "grq"
     alias = "grq"
-    tmpl_file = os.path.normpath(os.path.abspath(os.path.join(
-        os.path.dirname(__file__), '..', 'config', 'es_template.json'
-    )))
-    write_template(es_url, prefix, alias, tmpl_file)
+
+    current_file = os.path.dirname(__file__)
+    tmpl_file = os.path.abspath(os.path.join(current_file, '..', 'config', 'es_template.json'))
+    tmpl_file = os.path.normpath(tmpl_file)
+
+    write_template(prefix, alias, tmpl_file)
