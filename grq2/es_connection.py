@@ -3,10 +3,14 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
+import urllib3
+
 from elasticsearch import RequestsHttpConnection
 from hysds_commons.elasticsearch_utils import ElasticsearchUtility
 
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
+
+urllib3.disable_warnings()
 
 MOZART_ES = None
 GRQ_ES = None
