@@ -28,7 +28,8 @@ def get_grq_es(es_host='localhost', port=9200, logger=None, region='', aws_es_se
         if aws_es_service:
             aws_auth = BotoAWSRequestsAuth(aws_host=es_host, aws_region=region, aws_service='es')
             GRQ_ES = ElasticsearchUtility(
-                hosts=[es_host],
+                es_url=es_host,
+                logger=logger,
                 port=port,
                 http_auth=aws_auth,
                 connection_class=RequestsHttpConnection,
