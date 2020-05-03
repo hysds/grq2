@@ -79,11 +79,6 @@ app.config.from_pyfile('../settings.cfg')
 CORS(app)
 
 # initializing connection to GRQ's Elasticsearch
-ES_HOST = app.config['ES_HOST']
-ES_PORT = app.config['ES_PORT']
-AWS_REGION = app.config['AWS_REGION']
-AWS_ES = app.config['AWS_ES']
-
 grq_es = get_grq_es(logger=app.logger)
 
 # initializing connection to Mozart's Elasticsearch
