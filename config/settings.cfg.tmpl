@@ -1,5 +1,9 @@
 # ElasticSearch URL
-ES_URL = "http://{{ GRQ_ES_PVT_IP }}:9200"
+AWS_ES = {{ GRQ_AWS_ES or False }}
+ES_PROTOCOL = "{{ GRQ_ES_PROTOCOL or 'http' }}"
+ES_HOST = "{{ GRQ_ES_PVT_IP }}"
+ES_PORT = {{ GRQ_ES_PORT or 9200}}
+ES_URL = "{{ GRQ_ES_PROTOCOL or 'http' }}://{{ GRQ_ES_PVT_IP }}:{{ GRQ_ES_PORT or 9200}}"
 
 # Mozart Elasticsearch URL
 MOZART_ES_URL = "http://{{ MOZART_ES_PVT_IP }}:9200"
@@ -18,3 +22,5 @@ USER_RULES_INDEX = "user_rules-grq"
 
 # ES index for hysds_ios (located in mozart's ES)
 HYSDS_IOS_INDEX = 'hysds_ios-grq'
+
+AWS_REGION = "{{ AWS_REGION }}"

@@ -8,7 +8,7 @@ standard_library.install_aliases()
 from flask import Flask
 from flask_cors import CORS  # TODO: will remove this once we figure out the proper host for the UI
 
-from hysds_commons.elasticsearch_utils import ElasticsearchUtility
+from grq2.es_connection import get_grq_es, get_mozart_es
 
 
 class ReverseProxied(object):
@@ -79,10 +79,11 @@ app.config.from_pyfile('../settings.cfg')
 CORS(app)
 
 # initializing connection to GRQ's Elasticsearch
-grq_es = ElasticsearchUtility(app.config['ES_URL'], app.logger)
+grq_es = get_grq_es(logger=app.logger)
 
 # initializing connection to Mozart's Elasticsearch
-mozart_es = ElasticsearchUtility(app.config['MOZART_ES_URL'], app.logger)
+MOZART_ES_URL = app.config['MOZART_ES_URL']
+mozart_es = get_mozart_es(MOZART_ES_URL, app.logger)
 
 # views blueprints
 from grq2.views.main import mod as viewsModule

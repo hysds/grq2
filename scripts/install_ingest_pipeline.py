@@ -1,11 +1,9 @@
+#!/usr/bin/env python
 import os
 import json
-import requests
 
-from hysds.celery import app
+from grq2 import grq_es
 
-
-es_url = app.conf['GRQ_ES_URL']
 
 current_directory = os.path.dirname(__file__)
 
@@ -18,12 +16,6 @@ with open(ingest_file) as f:
     print(json.dumps(pipeline_settings, indent=2))
 
     pipeline_name = 'dataset_pipeline'
-    endpoint = '%s/_ingest/pipeline/%s' % (es_url, pipeline_name)
 
-    requests.delete(endpoint)
-
-    headers = {'Content-Type': 'application/json'}
-    r = requests.put(endpoint, data=json.dumps(pipeline_settings), headers=headers)
-    r.raise_for_status()
-    print(r.json())
-    print("Successfully installed ingest_pipeline: %s " % pipeline_name)
+    # https://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.client.IngestClient
+    grq_es.es.ingest.put_pipeline(id=pipeline_name, body=pipeline_settings, ignore=400)

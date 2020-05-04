@@ -40,8 +40,7 @@ def swagger_ui():
 
 
 @ns.route('/dataset/index', endpoint='dataset_index')
-@api.doc(responses={200: "Success", 500: "Execution failed"},
-         description="Dataset index.")
+@api.doc(responses={200: "Success", 500: "Execution failed"}, description="Dataset index.")
 class IndexDataset(Resource):
     """Dataset indexing API."""
 
@@ -77,7 +76,7 @@ class IndexDataset(Resource):
             return update_dataset(info)
         except Exception as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
-            app.logger.debug(message)
+            app.logger.error(message)
             return {
                 'success': False,
                 'message': message
@@ -546,7 +545,7 @@ class UserTags(Resource):
         _id = request_data.get('id')
         _index = request_data.get('index')
         tag = request_data.get('tag')
-        app.logger.info('_id: %s\n _index: %s\n tag: %s' % (_id, _index, tag))
+        app.logger.info('_id: %s _index: %s tag: %s' % (_id, _index, tag))
 
         if _id is None or _index is None or tag is None:
             return {
