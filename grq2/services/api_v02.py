@@ -96,12 +96,7 @@ class HySDSIOTypes(Resource):
 
     @api.marshal_with(resp_model_job_types)
     def get(self):
-        query = {
-            "query": {
-                "match_all": {}
-            }
-        }
-        hysds_ios = mozart_es.query(HYSDS_IOS_INDEX, query)
+        hysds_ios = mozart_es.query(index=HYSDS_IOS_INDEX, _source=False)
         ids = [hysds_io['_id'] for hysds_io in hysds_ios]
         return {
             'success': True,
@@ -124,7 +119,7 @@ class HySDSio(Resource):
         if _id is None:
             return {'success': False, 'message': 'missing parameter: id'}, 400
 
-        hysds_io = mozart_es.get_by_id(HYSDS_IOS_INDEX, _id, safe=True)
+        hysds_io = mozart_es.get_by_id(index=HYSDS_IOS_INDEX, id=_id, ignore=404)
         if hysds_io['found'] is False:
             return {'success': False, 'message': ""}, 404
 
@@ -146,7 +141,7 @@ class HySDSio(Resource):
         except (ValueError, KeyError, json.decoder.JSONDecodeError, Exception) as e:
             return {'success': False, 'message': e}, 400
 
-        mozart_es.index_document(HYSDS_IOS_INDEX, obj, _id)
+        mozart_es.index_document(index=HYSDS_IOS_INDEX, body=obj, id=_id)
         return {
             'success': True,
             'message': "%s added to index: %s" % (_id, HYSDS_IOS_INDEX),
@@ -159,7 +154,7 @@ class HySDSio(Resource):
         if _id is None:
             return {'success': False, 'message': 'id must be supplied'}, 400
 
-        mozart_es.delete_by_id(HYSDS_IOS_INDEX, _id)
+        mozart_es.delete_by_id(index=HYSDS_IOS_INDEX, id=_id, ignore=404)
         app.logger.info('deleted %s from index: %s' % (_id, HYSDS_IOS_INDEX))
 
         return {
@@ -190,7 +185,7 @@ class OnDemandJobs(Resource):
             }
         }
 
-        documents = mozart_es.query(HYSDS_IOS_INDEX, query)
+        documents = mozart_es.query(index=HYSDS_IOS_INDEX, body=query)
         documents = [{
             'hysds_io': row['_source']['id'],
             'job_spec': row['_source']['job-specification'],
@@ -237,7 +232,7 @@ class OnDemandJobs(Resource):
                 'message': 'missing field: [tags, job_type, hysds_io, queue, query]'
             }, 400
 
-        doc = mozart_es.get_by_id(HYSDS_IOS_INDEX, hysds_io, safe=True)
+        doc = mozart_es.get_by_id(index=HYSDS_IOS_INDEX, id=hysds_io, ignore=404)
         if doc['found'] is False:
             return {
                 'success': False,
@@ -298,7 +293,7 @@ class JobParams(Resource):
                 "term": {"job-specification.keyword": job_type}
             }
         }
-        documents = mozart_es.search(HYSDS_IOS_INDEX, query)
+        documents = mozart_es.search(index=HYSDS_IOS_INDEX, body=query)
 
         if documents['hits']['total']['value'] == 0:
             error_message = '%s not found' % job_type
@@ -327,7 +322,7 @@ class UserRules(Resource):
         _id = request.args.get('id')
 
         if _id:
-            user_rule = mozart_es.get_by_id(USER_RULES_INDEX, _id, safe=True)
+            user_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
             if user_rule['found'] is False:
                 return {
                     'success': False,
@@ -339,12 +334,7 @@ class UserRules(Resource):
                 'rule': user_rule
             }
 
-        query = {
-            "query": {
-                "match_all": {}
-            }
-        }
-        user_rules = mozart_es.query(USER_RULES_INDEX, query)
+        user_rules = mozart_es.query(index=USER_RULES_INDEX)
 
         parsed_user_rules = []
         for rule in user_rules:
@@ -404,7 +394,7 @@ class UserRules(Resource):
                 }
             }
         }
-        existing_rules_count = mozart_es.get_count(USER_RULES_INDEX, rule_exists_query)
+        existing_rules_count = mozart_es.get_count(index=USER_RULES_INDEX, body=rule_exists_query)
         if existing_rules_count > 0:
             return {
                 'success': False,
@@ -412,8 +402,8 @@ class UserRules(Resource):
             }, 409
 
         # check if job_type (hysds_io) exists in Elasticsearch
-        job_type = mozart_es.get_by_id(HYSDS_IOS_INDEX, hysds_io, safe=True)
-        if job_type is False:
+        job_type = mozart_es.get_by_id(index=HYSDS_IOS_INDEX, id=hysds_io, ignore=404)
+        if job_type['found'] is False:
             return {
                 'success': False,
                 'message': '%s not found' % hysds_io
@@ -440,7 +430,7 @@ class UserRules(Resource):
             "creation_time": now,
         }
 
-        result = mozart_es.index_document(USER_RULES_INDEX, new_doc, refresh=True)
+        result = mozart_es.index_document(index=USER_RULES_INDEX, body=new_doc, refresh=True)
         return {
             'success': True,
             'message': 'rule created',
@@ -465,14 +455,14 @@ class UserRules(Resource):
 
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
-            job_type = mozart_es.get_by_id(HYSDS_IOS_INDEX, hysds_io, safe=True)
+            job_type = mozart_es.get_by_id(index=HYSDS_IOS_INDEX, id=hysds_io, ignore=404)
             if job_type['found'] is False:
                 return {
                     'success': False,
                     'message': 'job_type not found: %s' % hysds_io
                 }, 400
 
-        existing_rule = mozart_es.get_by_id(USER_RULES_INDEX, _id, safe=True)
+        existing_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
         if existing_rule['found'] is False:
             return {
                 'success': False,
@@ -513,7 +503,11 @@ class UserRules(Resource):
         update_doc['modified_time'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
         app.logger.info('new user rule: %s', json.dumps(update_doc))
-        mozart_es.update_document(USER_RULES_INDEX, _id, update_doc, refresh=True)
+        doc = {
+            "doc_as_upsert": True,
+            "doc": update_doc
+        }
+        mozart_es.update_document(index=USER_RULES_INDEX, id=_id, body=doc, refresh=True)
         app.logger.info('user rule %s updated' % _id)
         return {
             'success': True,
@@ -527,7 +521,7 @@ class UserRules(Resource):
         if not _id:
             return {'result': False, 'message': 'id not included'}, 400
 
-        mozart_es.delete_by_id(USER_RULES_INDEX, _id)
+        mozart_es.delete_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
         app.logger.info('user rule %s deleted' % _id)
 
         return {
@@ -553,7 +547,7 @@ class UserTags(Resource):
                 'message': 'id, index and tag must be supplied'
             }, 400
 
-        dataset = grq_es.get_by_id(_index, _id, safe=True)
+        dataset = grq_es.get_by_id(index=_index, id=_id, ignore=404)
         if dataset['found'] is False:
             return {
                 'success': False,
@@ -570,11 +564,14 @@ class UserTags(Resource):
             app.logger.info('tags after adding: %s' % str(user_tags))
 
         update_doc = {
-            'metadata': {
-                'user_tags': user_tags
+            "doc_as_upsert": True,
+            "doc": {
+                'metadata': {
+                    'user_tags': user_tags
+                }
             }
         }
-        grq_es.update_document(_index, _id, update_doc, refresh=True)
+        grq_es.update_document(index=_index, id=_id, body=update_doc, refresh=True)
 
         return {
             'success': True,
@@ -593,7 +590,7 @@ class UserTags(Resource):
                 'message': 'id and index must be supplied'
             }, 400
 
-        dataset = grq_es.get_by_id(_index, _id, safe=True)
+        dataset = grq_es.get_by_id(index=_index, id=_id, ignore=404)
         if dataset['found'] is False:
             return {
                 'success': False,
@@ -612,11 +609,14 @@ class UserTags(Resource):
             app.logger.warning('tag not found: %s' % tag)
 
         update_doc = {
-            'metadata': {
-                'user_tags': user_tags
+            "doc_as_upsert": True,
+            "doc": {
+                'metadata': {
+                    'user_tags': user_tags
+                }
             }
         }
-        grq_es.update_document(_index, _id, update_doc, refresh=True)
+        grq_es.update_document(index=_index, id=_id, body=update_doc, refresh=True)
 
         return {
             'success': True,

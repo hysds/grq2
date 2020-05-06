@@ -87,7 +87,7 @@ def update(update_json):
             end_time = update_json['endtime']
             update_json['temporal_span'] = get_ts(start_time, end_time)
 
-    result = grq_es.index_document(index, update_json, update_json['id'])  # indexing to ES
+    result = grq_es.index_document(index=index, body=update_json, id=update_json['id'])  # indexing to ES
     app.logger.debug("%s" % json.dumps(result, indent=2))
 
     # update custom aliases (Fixing HC-23)
