@@ -108,7 +108,7 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
         })
 
     index = app.config['GEONAMES_INDEX']
-    res = grq_es.search(index, query)  # query for results
+    res = grq_es.search(index=index, body=query)  # query for results
     app.logger.debug("get_cities(): %s" % json.dumps(query, indent=2))
 
     results = []
@@ -181,7 +181,7 @@ def get_continents(lon, lat):
     }
 
     index = app.config['GEONAMES_INDEX']  # query for results
-    res = grq_es.search(index, query)
+    res = grq_es.search(index=index, body=query)
     app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
 
     results = []
