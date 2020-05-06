@@ -503,11 +503,11 @@ class UserRules(Resource):
         update_doc['modified_time'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
         app.logger.info('new user rule: %s', json.dumps(update_doc))
-        update_doc = {
+        doc = {
             "doc_as_upsert": True,
             "doc": update_doc
         }
-        mozart_es.update_document(index=USER_RULES_INDEX, id=_id, body=update_doc, refresh=True)
+        mozart_es.update_document(index=USER_RULES_INDEX, id=_id, body=doc, refresh=True)
         app.logger.info('user rule %s updated' % _id)
         return {
             'success': True,
