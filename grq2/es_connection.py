@@ -3,15 +3,11 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-import urllib3
-
 from elasticsearch import RequestsHttpConnection
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 
 from hysds_commons.elasticsearch_utils import ElasticsearchUtility
 from hysds.celery import app
-
-urllib3.disable_warnings()
 
 MOZART_ES = None
 GRQ_ES = None
@@ -42,6 +38,7 @@ def get_grq_es(logger=None):
                 connection_class=RequestsHttpConnection,
                 use_ssl=True,
                 verify_certs=False,
+                ssl_show_warn=False
             )
         else:
             GRQ_ES = ElasticsearchUtility(es_url, logger)
