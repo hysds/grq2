@@ -643,22 +643,26 @@ class UserRulesTags(Resource):
     def get(self):
         body = {
             "size": 0,
-            "query": {
-                "match_all": {}
-            },
             "aggs": {
-                "tags": {
-                    "terms": {
-                        "field": "tags",
-                        "size": 100
+                "my_buckets": {
+                    "composite": {
+                        "sources": [
+                            {
+                                "tags": {
+                                    "terms": {
+                                        "field": "tags"
+                                    }
+                                }
+                            }
+                        ]
                     }
                 }
             }
         }
         results = mozart_es.search(index=USER_RULES_INDEX, body=body)
-        buckets = results['aggregations']['tags']['buckets']
+        buckets = results['aggregations']['my_buckets']['buckets']
         app.logger.info(buckets)
         return {
             'success': True,
-            'tags': [tag['key'] for tag in buckets]
+            'tags': [tag['key']['tags'] for tag in buckets]
         }
