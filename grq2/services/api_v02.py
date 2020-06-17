@@ -358,6 +358,7 @@ class UserRules(Resource):
         query_string = request_data.get('query_string')
         kwargs = request_data.get('kwargs', '{}')
         queue = request_data.get('queue')
+        tags = request_data.get('tags', [])
 
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
@@ -412,6 +413,9 @@ class UserRules(Resource):
         params = job_type['_source']['params']
         is_passthrough_query = check_passthrough_query(params)
 
+        if type(tags) == str:
+            tags = [tags]
+
         now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
         new_doc = {
             "workflow": hysds_io,
@@ -428,6 +432,7 @@ class UserRules(Resource):
             "queue": queue,
             "modified_time": now,
             "creation_time": now,
+            "tags": tags
         }
 
         result = mozart_es.index_document(index=USER_RULES_INDEX, body=new_doc, refresh=True)
@@ -442,7 +447,10 @@ class UserRules(Resource):
 
         _id = request_data.get('id')
         if not _id:
-            return {'result': False, 'message': 'id not included'}, 400
+            return {
+                'result': False,
+                'message': 'id not included'
+            }, 400
 
         rule_name = request_data.get('rule_name')
         hysds_io = request_data.get('workflow')
@@ -452,6 +460,7 @@ class UserRules(Resource):
         kwargs = request_data.get('kwargs')
         queue = request_data.get('queue')
         enabled = request_data.get('enabled')
+        tags = request_data.get('tags')
 
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
@@ -500,6 +509,10 @@ class UserRules(Resource):
             update_doc['queue'] = queue
         if enabled is not None:
             update_doc['enabled'] = enabled
+        if tags:
+            if type(tags) == str:
+                tags = [tags]
+            update_doc['tags'] = tags
         update_doc['modified_time'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
         app.logger.info('new user rule: %s', json.dumps(update_doc))
@@ -621,4 +634,31 @@ class UserTags(Resource):
         return {
             'success': True,
             'tags': user_tags
+        }
+
+
+@ns.route('/user-rules-tags', endpoint='user-rules-tags')
+@api.doc(responses={200: "Success", 500: "Execution failed"}, description="User rules tags for Mozart user rules")
+class UserRulesTags(Resource):
+    def get(self):
+        body = {
+            "size": 0,
+            "query": {
+                "match_all": {}
+            },
+            "aggs": {
+                "tags": {
+                    "terms": {
+                        "field": "tags",
+                        "size": 100
+                    }
+                }
+            }
+        }
+        results = mozart_es.search(index=USER_RULES_INDEX, body=body)
+        buckets = results['aggregations']['tags']['buckets']
+        app.logger.info(buckets)
+        return {
+            'success': True,
+            'tags': [tag['key'] for tag in buckets]
         }
