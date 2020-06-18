@@ -686,6 +686,7 @@ class UserRulesTags(Resource):
             "aggs": {
                 "my_buckets": {
                     "composite": {
+                        "size": 1000,
                         "sources": [
                             {
                                 "tags": {
