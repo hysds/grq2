@@ -702,8 +702,12 @@ class UserRulesTags(Resource):
         }
         results = mozart_es.search(index=USER_RULES_INDEX, body=body)
         buckets = results['aggregations']['my_buckets']['buckets']
+        buckets = sorted(buckets, key=lambda k: k['doc_count'], reverse=True)
         app.logger.info(buckets)
         return {
             'success': True,
-            'tags': [tag['key']['tags'] for tag in buckets]
+            'tags': [{
+                'key': tag['key']['tags'],
+                'count': tag['doc_count']
+            } for tag in buckets]
         }
