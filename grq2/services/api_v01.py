@@ -528,7 +528,7 @@ class UserRules(Resource):
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
             job_type = mozart_es.get_by_id(index=HYSDS_IOS_INDEX, id=hysds_io, ignore=404)
-            if job_type['found'] is False:
+            if job_type.get("success", False) is False:
                 return {
                     'success': False,
                     'message': 'job_type not found: %s' % hysds_io
@@ -536,20 +536,20 @@ class UserRules(Resource):
 
         if _id:
             existing_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
-            if existing_rule['found'] is False:
+            if existing_rule.get("success", False) is False:
                 return {
                            'success': False,
                            'message': 'rule %s not found' % _id
                        }, 404
         elif _rule_name:
-            existing_rule = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
-            if existing_rule['found'] is False:
+            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                            'success': False,
                            'message': 'rule %s not found' % _rule_name
                        }, 404
             else:
-                _id = existing_rule.get("_id")
+                _id = result.get("hits").get("hits")[0].get("_id")
 
         update_doc = {}
         if rule_name:

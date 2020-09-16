@@ -319,12 +319,12 @@ class UserRules(Resource):
 
     def get(self):
         # TODO: add user role and permissions
-        _id = request.args.get('id')
-        _rule_name = request.args.get("rule_name")
+        _id = request.args.get("id", None)
+        _rule_name = request.args.get("rule_name", None)
 
         if _id:
             user_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
-            if user_rule['found'] is False:
+            if user_rule.get("success", False) is False:
                 return {
                     'success': False,
                     'message': 'rule %s not found' % _id
@@ -335,16 +335,22 @@ class UserRules(Resource):
                 'rule': user_rule
             }
         elif _rule_name:
-            user_rule = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
-            if user_rule["found"] is False:
+            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                     "success": False,
                     "message": "rule {} not found".format(_rule_name)
                 }, 404
-            user_rule = {**user_rule, **user_rule["_source"]}
+            parsed_user_rules = []
+            for rule in result.get("hits").get("hits"):
+                rule_copy = rule.copy()
+                rule_temp = {**rule_copy, **rule['_source']}
+                rule_temp.pop('_source')
+                parsed_user_rules.append(rule_temp)
+
             return {
-                "success": True,
-                "rule": user_rule
+                'success': True,
+                'rules': parsed_user_rules
             }
 
         user_rules = mozart_es.query(index=USER_RULES_INDEX)
@@ -484,7 +490,7 @@ class UserRules(Resource):
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
             job_type = mozart_es.get_by_id(index=HYSDS_IOS_INDEX, id=hysds_io, ignore=404)
-            if job_type['found'] is False:
+            if job_type.get("success", False) is False:
                 return {
                     'success': False,
                     'message': 'job_type not found: %s' % hysds_io
@@ -492,20 +498,20 @@ class UserRules(Resource):
 
         if _id:
             existing_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
-            if existing_rule['found'] is False:
+            if existing_rule.get("success", False) is False:
                 return {
                            'success': False,
                            'message': 'rule %s not found' % _id
                        }, 404
         elif _rule_name:
-            existing_rule = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
-            if existing_rule['found'] is False:
+            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                            'success': False,
                            'message': 'rule %s not found' % _rule_name
                        }, 404
             else:
-                _id = existing_rule.get("_id")
+                _id = result.get("hits").get("hits")[0].get("_id")
 
         update_doc = {}
         if rule_name:
