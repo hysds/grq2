@@ -624,7 +624,14 @@ class UserRules(Resource):
             }
         elif "rule_name" in request.args:
             _rule_name = request.args.get("rule_name")
-            mozart_es.es.delete_by_query(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            query = {
+                "query": {
+                    "match": {
+                        "rule_name": _rule_name
+                    }
+                }
+            }
+            mozart_es.es.delete_by_query(index=USER_RULES_INDEX, body=query, ignore=404)
             app.logger.info('user rule %s deleted' % _rule_name)
             return {
                 'success': True,
