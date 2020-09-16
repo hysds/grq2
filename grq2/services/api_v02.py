@@ -341,16 +341,11 @@ class UserRules(Resource):
                     "success": False,
                     "message": "rule {} not found".format(_rule_name)
                 }, 404
-            parsed_user_rules = []
-            for rule in result.get("hits").get("hits"):
-                rule_copy = rule.copy()
-                rule_temp = {**rule_copy, **rule['_source']}
-                rule_temp.pop('_source')
-                parsed_user_rules.append(rule_temp)
-
+            user_rule = result.get("hits").get("hits")[0]
+            user_rule = {**user_rule, **user_rule["_source"]}
             return {
-                'success': True,
-                'rules': parsed_user_rules
+                "success": True,
+                "rule": user_rule
             }
 
         user_rules = mozart_es.query(index=USER_RULES_INDEX)
@@ -386,6 +381,13 @@ class UserRules(Resource):
                 'success': False,
                 'message': 'All params must be supplied: (rule_name, hysds_io, job_spec, query_string, queue)',
                 'result': None,
+            }, 400
+
+        if len(rule_name) > 32:
+            return {
+                "success": False,
+                "message": "rule_name needs to be less than 32 characters",
+                "result": None,
             }, 400
 
         try:
