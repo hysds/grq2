@@ -359,12 +359,12 @@ class UserRules(Resource):
 
     def get(self):
         # TODO: add user role and permissions
-        _id = request.args.get('id')
-        _rule_name = request.args.get("rule_name")
+        _id = request.args.get("id", None)
+        _rule_name = request.args.get("rule_name", None)
 
         if _id:
             user_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
-            if user_rule['found'] is False:
+            if user_rule.get("success", False) is False:
                 return {
                     'success': False,
                     'message': 'rule %s not found' % _id
@@ -375,16 +375,22 @@ class UserRules(Resource):
                 'rule': user_rule
             }
         elif _rule_name:
-            user_rule = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
-            if user_rule["found"] is False:
+            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                     "success": False,
                     "message": "rule {} not found".format(_rule_name)
                 }, 404
-            user_rule = {**user_rule, **user_rule["_source"]}
+            parsed_user_rules = []
+            for rule in result.get("hits").get("hits"):
+                rule_copy = rule.copy()
+                rule_temp = {**rule_copy, **rule['_source']}
+                rule_temp.pop('_source')
+                parsed_user_rules.append(rule_temp)
+
             return {
-                "success": True,
-                "rule": user_rule
+                'success': True,
+                'rules': parsed_user_rules
             }
 
         user_rules = mozart_es.query(index=USER_RULES_INDEX)
