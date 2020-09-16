@@ -364,7 +364,7 @@ class UserRules(Resource):
 
         if _id:
             user_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
-            if user_rule.get("success", False) is False:
+            if user_rule.get("found", False) is False:
                 return {
                     'success': False,
                     'message': 'rule %s not found' % _id
@@ -528,7 +528,7 @@ class UserRules(Resource):
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
             job_type = mozart_es.get_by_id(index=HYSDS_IOS_INDEX, id=hysds_io, ignore=404)
-            if job_type.get("success", False) is False:
+            if job_type.get("found", False) is False:
                 return {
                     'success': False,
                     'message': 'job_type not found: %s' % hysds_io
@@ -536,7 +536,7 @@ class UserRules(Resource):
 
         if _id:
             existing_rule = mozart_es.get_by_id(index=USER_RULES_INDEX, id=_id, ignore=404)
-            if existing_rule.get("success", False) is False:
+            if existing_rule.get("found", False) is False:
                 return {
                            'success': False,
                            'message': 'rule %s not found' % _id
