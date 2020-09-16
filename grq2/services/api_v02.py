@@ -543,7 +543,14 @@ class UserRules(Resource):
         if queue:
             update_doc['queue'] = queue
         if enabled is not None:
-            update_doc['enabled'] = enabled
+            if isinstance(enabled, str):
+                if enabled.lower() == "false":
+                    value = False
+                else:
+                    value = True
+                update_doc["enabled"] = value
+            else:
+                update_doc["enabled"] = enabled
         if tags is not None:
             if type(tags) == str:
                 tags = [tags]
