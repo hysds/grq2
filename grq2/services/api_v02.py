@@ -329,7 +329,8 @@ class UserRules(Resource):
                     'success': False,
                     'message': 'rule %s not found' % _id
                 }, 404
-            user_rule = {**user_rule["_source"]}
+            user_rule = {**user_rule, **user_rule["_source"]}
+            user_rule.pop("_source", None)
             return {
                 'success': True,
                 'rule': user_rule
@@ -342,7 +343,8 @@ class UserRules(Resource):
                     "message": "rule {} not found".format(_rule_name)
                 }, 404
             user_rule = result.get("hits").get("hits")[0]
-            user_rule = {**user_rule["_source"]}
+            user_rule = {**user_rule, **user_rule["_source"]}
+            user_rule.pop("_source", None)
             return {
                 "success": True,
                 "rule": user_rule
@@ -465,17 +467,12 @@ class UserRules(Resource):
 
     def put(self):  # TODO: add user role and permissions
         request_data = request.json or request.form
+        _id = request_data.get("id", None)
+        _rule_name = request_data.get("rule_name", None)
 
-        request_data = request.json or request.form
-        _id = None
-        _rule_name = None
-        if "id" in request_data:
-            _id = request_data.get('id')
-        elif "rule_name" in request_data:
-            _rule_name = request_data.get("rule_name")
-        else:
+        if not _id and not _rule_name:
             return {
-                "result": False,
+                "success": False,
                 "message": "Must specify id or rule_name in the request"
             }, 400
 
@@ -580,8 +577,13 @@ class UserRules(Resource):
 
     def delete(self):
         # TODO: need to add user rules and permissions
-        _id = None
-        _rule_name = None
+        _id = request.args.get("id", None)
+        _rule_name = request.args.get("rule_name", None)
+
+        if not _id and not _rule_name:
+            return {"success": False,
+                    "message": "Must specify id or rule_name in the request"
+                    }, 400
 
         if "id" in request.args:
             _id = request.args.get('id')
@@ -608,8 +610,6 @@ class UserRules(Resource):
                 'message': 'user rule deleted',
                 'rule_name': _rule_name
             }
-        else:
-            return {'result': False, 'message': 'id or rule_name not included'}, 400
 
 
 @ns.route('/user-tags', endpoint='user-tags')
