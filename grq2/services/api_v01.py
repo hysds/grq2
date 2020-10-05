@@ -256,6 +256,8 @@ class OnDemandJobs(Resource):
         priority = int(request_data.get('priority', 0))
         query_string = request_data.get('query', None)
         kwargs = request_data.get('kwargs', '{}')
+        time_limit = request_data.get('time_limit', None)
+        soft_time_limit = request_data.get('soft_time_limit', None)
 
         try:
             query = json.loads(query_string)
@@ -297,6 +299,24 @@ class OnDemandJobs(Resource):
             'query_all': False,
             'queue': queue
         }
+
+        if time_limit and isinstance(time_limit, int):
+            if time_limit <= 0 or time_limit > 86400 * 7:
+                return {
+                    'success': False,
+                    'message': 'time_limit limit is 604800 (sec)'
+                }, 400
+            else:
+                rule['time_limit'] = time_limit
+
+        if soft_time_limit and isinstance(soft_time_limit, int):
+            if soft_time_limit <= 0 or soft_time_limit > 86400 * 7:
+                return {
+                    'success': False,
+                    'message': 'time_limit limit is 604800 (sec)'
+                }, 400
+            else:
+                rule['soft_time_limit'] = soft_time_limit
 
         payload = {
             'type': 'job_iterator',
