@@ -446,6 +446,8 @@ class UserRules(Resource):
         kwargs = request_data.get('kwargs', '{}')
         queue = request_data.get('queue')
         tags = request_data.get('tags', [])
+        time_limit = request_data.get('time_limit', None)
+        soft_time_limit = request_data.get('soft_time_limit', None)
 
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
@@ -529,6 +531,24 @@ class UserRules(Resource):
             "tags": tags
         }
 
+        if time_limit and isinstance(time_limit, int):
+            if time_limit <= 0 or time_limit > 86400 * 7:
+                return {
+                    'success': False,
+                    'message': 'time_limit must be between 0 and 604800 (sec)'
+                }, 400
+            else:
+                new_doc['time_limit'] = time_limit
+
+        if soft_time_limit and isinstance(soft_time_limit, int):
+            if soft_time_limit <= 0 or soft_time_limit > 86400 * 7:
+                return {
+                    'success': False,
+                    'message': 'soft_time_limit must be between 0 and 604800 (sec)'
+                }, 400
+            else:
+                new_doc['soft_time_limit'] = soft_time_limit
+
         result = mozart_es.index_document(index=USER_RULES_INDEX, body=new_doc, refresh=True)
         return {
             'success': True,
@@ -556,6 +576,8 @@ class UserRules(Resource):
         queue = request_data.get('queue')
         enabled = request_data.get('enabled')
         tags = request_data.get('tags')
+        time_limit = request_data.get('time_limit', None)
+        soft_time_limit = request_data.get('soft_time_limit', None)
 
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
@@ -632,6 +654,24 @@ class UserRules(Resource):
                 tags = [tags]
             update_doc['tags'] = tags
         update_doc['modified_time'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        if time_limit and isinstance(time_limit, int):
+            if time_limit <= 0 or time_limit > 86400 * 7:
+                return {
+                    'success': False,
+                    'message': 'time_limit must be between 0 and 604800 (sec)'
+                }, 400
+            else:
+                update_doc['time_limit'] = time_limit
+
+        if soft_time_limit and isinstance(soft_time_limit, int):
+            if soft_time_limit <= 0 or soft_time_limit > 86400 * 7:
+                return {
+                    'success': False,
+                    'message': 'soft_time_limit must be between 0 and 604800 (sec)'
+                }, 400
+            else:
+                update_doc['soft_time_limit'] = soft_time_limit
 
         app.logger.info('new user rule: %s', json.dumps(update_doc))
         doc = {
