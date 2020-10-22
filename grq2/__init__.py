@@ -85,10 +85,6 @@ grq_es = get_grq_es(logger=app.logger)
 MOZART_ES_URL = app.config['MOZART_ES_URL']
 mozart_es = get_mozart_es(MOZART_ES_URL, app.logger)
 
-# views blueprints
-from grq2.views.main import mod as viewsModule
-app.register_blueprint(viewsModule)
-
 # services blueprints
 from grq2.services.main import mod as mainModule
 app.register_blueprint(mainModule)
