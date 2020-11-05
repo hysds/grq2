@@ -19,5 +19,12 @@ python run.py
 
 To run in production mode
 --------------------------
-As a daemon:       gunicorn -w2 -b 0.0.0.0:8878 -k gevent --daemon -p grq2.pid grq2:app
-In the foreground: gunicorn -w2 -b 0.0.0.0:8878 -k gevent -p grq2.pid grq2:app
+As a daemon:
+```bash
+gunicorn -w2 -b 0.0.0.0:8878 -k gevent --daemon -p grq2.pid grq2:app
+```
+
+In the foreground:
+```bash
+gunicorn -w2 -b 0.0.0.0:8878 -k gevent -p grq2.pid grq2:app
+```
