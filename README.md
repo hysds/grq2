@@ -5,17 +5,23 @@ GeoRegionQuery, REST API using ElasticSearch backend.
 
 Create virtualenv using SciFlo system packages
 ----------------------------------------------
+```bash
 virtualenv --system-site-packages env
+```
 
 Install Dependencies via pip
 ----------------------------
+```bash
 pip install flask
 pip install gunicorn
 pip install gevent
+```
 
 To run in development mode
 --------------------------
+```bash
 python run.py
+```
 
 To run in production mode
 --------------------------
