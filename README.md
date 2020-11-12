@@ -34,3 +34,10 @@ In the foreground:
 ```bash
 gunicorn -w2 -b 0.0.0.0:8878 -k gevent -p grq2.pid grq2:app
 ```
+
+Swagger UI
+-----------
+* `https://<mozart host>/grq/api/v0.1/` (api `v0.1`)
+* `https://<mozart host>/grq/api/v0.2/` (api `v0.2`)
+
+![Swagger UI](./img/swagger_ui.png)
