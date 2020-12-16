@@ -17,7 +17,6 @@ setup(
         'eventlet',
         'pymongo',
         'elasticsearch>=7.0.0,<8.0.0',
-        'elasticsearch-dsl>=7.0.0,<8.0.0',
         'requests',
         'pyshp',
         'shapely>=1.5.15',
