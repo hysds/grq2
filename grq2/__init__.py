@@ -110,5 +110,5 @@ app.register_blueprint(geonames_module)
 from grq2.services.api_v01.service import services as api_v01_services
 app.register_blueprint(api_v01_services)
 
-from grq2.services.api_v02 import services as api_v02_services
+from grq2.services.api_v02.service import services as api_v02_services
 app.register_blueprint(api_v02_services)
