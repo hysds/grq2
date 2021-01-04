@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS  # TODO: will remove this once we figure out the proper host for the UI
 
 from grq2.es_connection import get_grq_es, get_mozart_es
@@ -72,12 +72,22 @@ class ReverseProxied(object):
         return self.app(environ, start_response)
 
 
+def resource_not_found(e):
+    return jsonify({
+        'status_code': 404,
+        'message': str(e)
+    }), 404
+
+
 app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 app.config.from_pyfile('../settings.cfg')
 
 # TODO: will remove this when ready for actual release, need to figure out the right host
 CORS(app)
+
+# handle global errors
+app.register_error_handler(404, resource_not_found)
 
 # initializing connection to GRQ's Elasticsearch
 grq_es = get_grq_es(logger=app.logger)
@@ -87,18 +97,18 @@ MOZART_ES_URL = app.config['MOZART_ES_URL']
 mozart_es = get_mozart_es(MOZART_ES_URL, app.logger)
 
 # services blueprints
-from grq2.services.main import mod as mainModule
-app.register_blueprint(mainModule)
+from grq2.services.main import mod as main_module
+app.register_blueprint(main_module)
 
-from grq2.services.query import mod as queryModule
-app.register_blueprint(queryModule)
+from grq2.services.query import mod as query_module
+app.register_blueprint(query_module)
 
-from grq2.services.geonames import mod as geonamesModule
-app.register_blueprint(geonamesModule)
+from grq2.services.geonames import mod as geonames_module
+app.register_blueprint(geonames_module)
 
 # rest API blueprints
-from grq2.services.api_v01 import services as api_v01Services
-app.register_blueprint(api_v01Services)
+from grq2.services.api_v01.service import services as api_v01_services
+app.register_blueprint(api_v01_services)
 
-from grq2.services.api_v02 import services as api_v02Services
-app.register_blueprint(api_v02Services)
+from grq2.services.api_v02.service import services as api_v02_services
+app.register_blueprint(api_v02_services)

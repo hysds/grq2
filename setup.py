@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='grq2',
-    version='2.0.8',
+    version='2.0.9',
     long_description='GeoRegionQuery REST API using ElasticSearch backend',
     packages=find_packages(),
     include_package_data=True,
@@ -17,7 +17,6 @@ setup(
         'eventlet',
         'pymongo',
         'elasticsearch>=7.0.0,<8.0.0',
-        'elasticsearch-dsl>=7.0.0,<8.0.0',
         'requests',
         'pyshp',
         'shapely>=1.5.15',
