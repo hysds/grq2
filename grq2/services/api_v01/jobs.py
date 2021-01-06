@@ -34,9 +34,21 @@ class OnDemandJobs(Resource):
         'success': fields.Boolean(required=True, description="Boolean, whether the API was successful"),
         'message': fields.String(required=True, description="message describing success or failure"),
     })
+
     parser = grq_ns.parser()
+    parser.add_argument('tag', type=str, location="form", required=True, help='job tag')
+    parser.add_argument('job_type', type=str, location="form", required=True, help='job spec name')
+    parser.add_argument('hysds_io', type=str, location="form", required=True, help='hysds io name')
+    parser.add_argument('queue', type=str, location="form", required=True, help='queue')
+    parser.add_argument('priority', type=int, location="form", required=True, help='RabbitMQ job priority (0-9)')
+    parser.add_argument('query_string', type=str, location="form", required=True, help='elasticsearch query')
+    parser.add_argument('kwargs', type=str, location="form", required=True, help='keyword arguments for PGE')
+    parser.add_argument('time_limit', type=int, location="form", help='time limit for PGE job')
+    parser.add_argument('soft_time_limit', type=int, location="form", help='soft time limit for PGE job')
+    parser.add_argument('disk_usage', type=str, location="form", help='memory usage required for jon (KB, MB, GB)')
 
     def get(self):
+        """retrieve list of on-demand jobs"""
         query = {
             "_source": ["id", "job-specification", "label", "job-version"],
             "sort": [{"label.keyword": {"order": "asc"}}],
@@ -60,10 +72,11 @@ class OnDemandJobs(Resource):
             'result': documents
         }
 
+    @grq_ns.expect(parser)
     def post(self):
         """
         submits on demand job
-        :return: submit job id?
+        :return: submit task id
         """
         # TODO: add user auth and permissions
         request_data = request.json
@@ -168,8 +181,11 @@ class JobParams(Resource):
     })
 
     parser = grq_ns.parser()
+    parser.add_argument('job_type', type=str, required=True, help='job tag')
 
+    @grq_ns.expect(parser)
     def get(self):
+        """get job parameters"""
         job_type = request.args.get('job_type')
         if not job_type:
             return {'success': False, 'message': 'job_type not provided'}, 400

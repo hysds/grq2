@@ -19,7 +19,16 @@ USER_RULES_INDEX = app.config['USER_RULES_INDEX']
 @grq_ns.route('/user-tags', endpoint='user-tags')
 @grq_ns.doc(responses={200: "Success", 500: "Execution failed"}, description="User tags for GRQ datasets")
 class UserTags(Resource):
+    """user defined tags for job record"""
+
+    parser = grq_ns.parser()
+    parser.add_argument('id', type=str, required=True, help="job id")
+    parser.add_argument('index', type=str, required=True, help="job index (job_status-current)")
+    parser.add_argument('tag', type=str, required=True, help="user defined tag")
+
+    @grq_ns.expect(parser)
     def put(self):
+        """add user defined tag for dataset"""
         request_data = request.json or request.form
         _id = request_data.get('id')
         _index = request_data.get('index')
@@ -63,7 +72,9 @@ class UserTags(Resource):
             'tags': user_tags
         }
 
+    @grq_ns.expect(parser)
     def delete(self):
+        """delete user defined tag for dataset"""
         _id = request.args.get('id')
         _index = request.args.get('index')
         tag = request.args.get('tag')
@@ -110,9 +121,11 @@ class UserTags(Resource):
 
 
 @grq_ns.route('/user-rules-tags', endpoint='user-rules-tags')
-@grq_ns.doc(responses={200: "Success", 500: "Execution failed"}, description="User rules tags for Mozart user rules")
+@grq_ns.doc(responses={200: "Success", 500: "Execution failed"}, description="User rules tags for GRQ user rules")
 class UserRulesTags(Resource):
+    """user defined tags for trigger rules"""
     def get(self):
+        """retrieve user defined tags for trigger rules"""
         body = {
             "size": 0,
             "aggs": {
