@@ -51,7 +51,7 @@ class OnDemandJobs(Resource):
             'hysds_io': row['_source']['id'],
             'job_spec': row['_source']['job-specification'],
             'version': row['_source']['job-version'],
-            'label': row['_source']['label']
+            'label': row['_source'].get('label', row['_source']['job-specification'])
         } for row in documents]
 
         return {
