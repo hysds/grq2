@@ -51,6 +51,9 @@ def update(update_json):
             mp = True
         elif LINESTRING_RE.search(loc_type):
             coords = update_json['location']['coordinates']
+        else:
+            # TODO: NEED TO HANDLE DEFAULT CASE (MAYBE POINT?)
+            pass
 
         # add cities
         update_json['city'] = get_cities(coords, pop_th=0, multipolygon=mp)
