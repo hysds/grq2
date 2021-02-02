@@ -19,13 +19,13 @@ HYSDS_IOS_INDEX = app.config['HYSDS_IOS_INDEX']
 body = {}
 
 # get settings
-path = os.path.join(app.root_path, '..', 'configs', 'es_settings.json')
+path = os.path.join(app.root_path, '..', 'config', 'es_settings.json')
 with open(path) as f:
     settings_object = json.load(f)
     body = {**body, **settings_object}
 
 # get doc type mapping
-path = os.path.join(app.root_path, '..', 'configs', 'hysds_ios.mapping')
+path = os.path.join(app.root_path, '..', 'config', 'hysds_ios.mapping')
 with open(path) as f:
     user_rules_mapping = json.load(f)
     body = {**body, **user_rules_mapping}
