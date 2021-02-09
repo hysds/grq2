@@ -37,17 +37,37 @@ class OnDemandJobs(Resource):
     parser = grq_ns.parser()
 
     def get(self):
-        query = {
-            "_source": ["id", "job-specification", "label", "job-version"],
-            "sort": [{"label.keyword": {"order": "asc"}}],
-            "query": {
-                "exists": {
-                    "field": "job-specification"
+        """List available on demand jobs"""
+        _id = request.args.get('id')
+        source = ['id', 'job-specification', 'label', 'job-version']
+
+        if _id is not None:
+            query = {
+                "query": {
+                    "term": {
+                        "job-specification.keyword": _id
+                    }
                 }
             }
-        }
+            documents = mozart_es.search(index=HYSDS_IOS_INDEX, body=query, _source=source, sort='label.keyword:asc')
+            if documents['hits']['total']['value'] == 0:
+                return {
+                    'success': False,
+                    'message': 'job not found: %s' % _id
+                }, 404
+            else:
+                doc = documents['hits']['hits'][0]
+                return {
+                    'success': True,
+                    'result': {
+                        'hysds_io': doc['_source']['id'],
+                        'job_spec': doc['_source']['job-specification'],
+                        'version': doc['_source']['job-version'],
+                        'label': doc['_source'].get('label', doc['_source']['job-specification'])
+                    }
+                }
 
-        documents = mozart_es.query(index=HYSDS_IOS_INDEX, body=query)
+        documents = mozart_es.query(index=HYSDS_IOS_INDEX, _source=source, sort='label.keyword:asc')
         documents = [{
             'hysds_io': row['_source']['id'],
             'job_spec': row['_source']['job-specification'],
