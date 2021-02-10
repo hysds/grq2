@@ -11,16 +11,19 @@ import traceback
 from shapely.geometry import shape
 
 from grq2 import app, grq_es
-from grq2.lib.geonames import get_cities, get_continents
+from grq2.lib.geonames import get_cities, get_nearest_cities, get_continents
 from grq2.lib.time_utils import getTemporalSpanInDays as get_ts
 standard_library.install_aliases()
 
 
-LINESTRING = 'linestring'
-MULTILINESTRING = 'multilinestring'
-POLYGON = 'polygon'
-MULTIPOLYGON = 'multipolygon'
-GEOJSON_TYPES = {LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON}
+_POINT = 'Point'
+_MULTIPOINT = 'MultiPoint'
+_LINESTRING = 'LineString'
+_MULTILINESTRING = 'MultiLineString'
+_POLYGON = 'Polygon'
+_MULTIPOLYGON = 'MultiPolygon'
+
+GEOJSON_TYPES = {_POINT, _MULTIPOINT, _LINESTRING, _MULTILINESTRING, _POLYGON, _MULTIPOLYGON}
 
 
 def map_geojson_type(geo_type):
@@ -37,14 +40,18 @@ def map_geojson_type(geo_type):
         return geo_type
 
     geo_type_lower = geo_type.lower()
-    if MULTILINESTRING in geo_type_lower:
-        return MULTILINESTRING
-    elif LINESTRING in geo_type_lower:
-        return LINESTRING
-    elif MULTIPOLYGON in geo_type_lower:
-        return MULTIPOLYGON
-    elif POLYGON in geo_type_lower:
-        return POLYGON
+    if _POINT.lower() == geo_type_lower:
+        return _POINT
+    elif _MULTIPOINT.lower() == geo_type_lower:
+        return _MULTIPOINT
+    elif _MULTILINESTRING.lower() == geo_type_lower:
+        return _MULTILINESTRING
+    elif _LINESTRING.lower() == geo_type_lower:
+        return _LINESTRING
+    elif _MULTIPOLYGON.lower() == geo_type_lower:
+        return _MULTIPOLYGON
+    elif _POLYGON.lower() == geo_type_lower:
+        return _POLYGON
     else:
         return None
 
@@ -70,39 +77,36 @@ def update(update_json):
 
     # add reverse geo-location data
     if 'location' in update_json:
-        # get coords and if it's a multipolygon
-        location = update_json['location']
+        location = {**update_json['location']}  # copying location to be used to create a shapely geometry object
         loc_type = location['type']
 
         geo_json_type = map_geojson_type(loc_type)
-        if loc_type not in GEOJSON_TYPES:
-            update_json['location']['type'] = geo_json_type
-
-        mp = True if geo_json_type == 'MultiPolygon' else False
-
-        if geo_json_type == 'Polygon':
-            coords = location['coordinates'][0]
-        elif geo_json_type == 'MultiPolygon':
-            coords = location['coordinates'][0]
-        elif geo_json_type == 'LineString':
-            coords = location['coordinates']
-        else:
-            raise TypeError('%s is not a valid GEOJson type (or un-supported): %s' % (geo_json_type, GEOJSON_TYPES))
-
-        # add cities
-        update_json['city'] = get_cities(coords, pop_th=0, multipolygon=mp)
+        location['type'] = geo_json_type  # setting proper GEOJson type, ex. multipolygon -> MultiPolygon
+        update_json['location']['type'] = geo_json_type.lower()
 
         # add center if missing
         if 'center' not in update_json:
             geo_shape = shape(location)
             centroid = geo_shape.centroid
             update_json['center'] = {
-                'type': 'Point',
+                'type': 'point',
                 'coordinates': [centroid.x, centroid.y]
             }
 
-        # add closest continent
+        # extract coordinates from center
         lon, lat = update_json['center']['coordinates']
+
+        # add cities
+        if geo_json_type in (_POLYGON, _MULTIPOLYGON):
+            mp = True if geo_json_type == _MULTIPOLYGON else False
+            coords = location['coordinates'][0]
+            update_json['city'] = get_cities(coords, pop_th=0, multipolygon=mp)
+        elif geo_json_type in (_POINT, _MULTIPOINT, _LINESTRING, _MULTILINESTRING):
+            update_json['city'] = get_nearest_cities(lon, lat)
+        else:
+            raise TypeError('%s is not a valid GEOJson type (or un-supported): %s' % (geo_json_type, GEOJSON_TYPES))
+
+        # add closest continent
         continents = get_continents(lon, lat)
         update_json['continent'] = continents[0]['name'] if len(continents) > 0 else None
 
