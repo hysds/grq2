@@ -9,8 +9,9 @@ import json
 from grq2 import app, grq_es
 
 
-def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
+def get_cities(polygon, pop_th=1000000, size=15, multipolygon=False):
     """
+    TODO: not sure what pop_th means (maybe population?), maybe we should remove it?
     Spatial search of top populated cities within a bounding box.
 
     Example query DSL:

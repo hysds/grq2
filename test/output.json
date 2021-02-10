@@ -29,7 +29,7 @@
   "id": "index-airs.aqua_cloudsat-v4.0-2006.06.18.045", 
   "metadata": {
     "center": {
-      "type": "point", 
+      "type": "point",
       "coordinates": [
         140.1861572265625, 
         -19.95725440979004
@@ -40,7 +40,7 @@
     "level": "L2", 
     "version": "4.0", 
     "location": {
-      "type": "linestring", 
+      "type": "linestring",
       "coordinates": [
         [
           142.86524963378906, 

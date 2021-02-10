@@ -6,30 +6,39 @@ from __future__ import absolute_import
 from builtins import open
 from future import standard_library
 standard_library.install_aliases()
-import os
-import sys
+
 import json
 from pprint import pprint
 
+from shapely.geometry import shape
+
 from grq2.lib.geonames import get_cities, get_continents
-from grq2.lib.geo import get_center
 
 
 def main():
     # test linestring
     with open('output.json') as f:
         m = json.load(f)
-    coords = m['metadata']['location']['coordinates']
+
+    location = m['metadata']['location']
+    coords = location['coordinates']
+
     lon, lat = m['metadata']['center']['coordinates']
+
     cities = get_cities(coords, pop_th=0)
     continents = get_continents(lon, lat)
+
     if len(continents) > 0:
         continent = continents[0]['name']
     else:
         continent = None
+
     pprint(cities)
     print(continent)
-    print((get_center(coords)))
+
+    geo_shape = shape(location)
+    centroid = geo_shape.centroid
+    print(centroid.x, centroid.y)
 
 
 if __name__ == "__main__":
