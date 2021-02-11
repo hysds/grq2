@@ -31,7 +31,6 @@ def cities():
 
     # get query
     polygon = request.args.get('polygon', None)
-    pop_th = int(request.args.get('population', 1000000))
     size = int(request.args.get('size', 10))
 
     # if no polygon passed, show help
@@ -55,7 +54,7 @@ def cities():
 
     # get results
     try:
-        cities = get_cities(polygon, pop_th, size)
+        cities = get_cities(polygon, size)
     except Exception as e:
         return jsonify({
             'success': False,

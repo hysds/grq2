@@ -25,7 +25,7 @@ def main():
 
     lon, lat = m['metadata']['center']['coordinates']
 
-    cities = get_cities(coords, pop_th=0)
+    cities = get_cities(coords)
     continents = get_continents(lon, lat)
 
     if len(continents) > 0:

@@ -100,7 +100,7 @@ def update(update_json):
         if geo_json_type in (_POLYGON, _MULTIPOLYGON):
             mp = True if geo_json_type == _MULTIPOLYGON else False
             coords = location['coordinates'][0]
-            update_json['city'] = get_cities(coords, pop_th=0, multipolygon=mp)
+            update_json['city'] = get_cities(coords, multipolygon=mp)
         elif geo_json_type in (_POINT, _MULTIPOINT, _LINESTRING, _MULTILINESTRING):
             update_json['city'] = get_nearest_cities(lon, lat)
         else:

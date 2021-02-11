@@ -9,9 +9,8 @@ import json
 from grq2 import app, grq_es
 
 
-def get_cities(polygon, pop_th=1000000, size=15, multipolygon=False):
+def get_cities(polygon, size=5, multipolygon=False):
     """
-    TODO: not sure what pop_th means (maybe population?), maybe we should remove it?
     Spatial search of top populated cities within a bounding box.
 
     Example query DSL:
@@ -110,7 +109,7 @@ def get_cities(polygon, pop_th=1000000, size=15, multipolygon=False):
 
     index = app.config['GEONAMES_INDEX']
     res = grq_es.search(index=index, body=query)  # query for results
-    app.logger.debug("get_cities(): %s" % json.dumps(query, indent=2))
+    app.logger.debug("get_cities(): %s" % json.dumps(query))
 
     results = []
     for hit in res['hits']['hits']:
@@ -118,7 +117,7 @@ def get_cities(polygon, pop_th=1000000, size=15, multipolygon=False):
     return results
 
 
-def get_nearest_cities(lon, lat, size=15):
+def get_nearest_cities(lon, lat, size=5):
     """
     :param lon: float lon of center (ex. -122.61067217547183)
     :param lat: float lat of center (ex. 40.6046338643702)
