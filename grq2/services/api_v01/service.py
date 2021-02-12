@@ -9,7 +9,7 @@ standard_library.install_aliases()
 from flask import Blueprint
 from flask_restx import Api, apidoc, Namespace
 
-from .builder import hysds_io_ns
+from .specs import hysds_io_ns
 
 
 services = Blueprint('api_v0-1', __name__, url_prefix='/api/v0.1')

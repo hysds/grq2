@@ -9,7 +9,7 @@ import json
 from grq2 import app, grq_es
 
 
-def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
+def get_cities(polygon, size=5, multipolygon=False):
     """
     Spatial search of top populated cities within a bounding box.
 
@@ -74,7 +74,7 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
                     {
                         "range": {
                             "population": {
-                                "gte": 0
+                                "gte": 1
                             }
                         }
                     }
@@ -109,7 +109,60 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
 
     index = app.config['GEONAMES_INDEX']
     res = grq_es.search(index=index, body=query)  # query for results
-    app.logger.debug("get_cities(): %s" % json.dumps(query, indent=2))
+    app.logger.debug("get_cities(): %s" % json.dumps(query))
+
+    results = []
+    for hit in res['hits']['hits']:
+        results.append(hit['_source'])
+    return results
+
+
+def get_nearest_cities(lon, lat, size=5):
+    """
+    :param lon: float lon of center (ex. -122.61067217547183)
+    :param lat: float lat of center (ex. 40.6046338643702)
+    :param size: return size of results
+    :return: List[Dict]
+    """
+    query = {
+        "size": size,
+        "sort": [
+            {
+                "_geo_distance": {
+                    "location": [lon, lat],
+                    "order": "asc",
+                    "unit": "km"
+                }
+            }
+        ],
+        "query": {
+            "bool": {
+                "filter": [
+                    {
+                        "term": {
+                            "feature_class": "P"
+                        }
+                    },
+                    {
+                        "range": {
+                            "population": {
+                                "gte": 1
+                            }
+                        }
+                    },
+                    {
+                        "geo_distance": {
+                            "distance": "100km",
+                            "location": [lon, lat]
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    index = app.config['GEONAMES_INDEX']  # query for results
+    res = grq_es.search(index=index, body=query)
+    app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
 
     results = []
     for hit in res['hits']['hits']:
@@ -120,6 +173,8 @@ def get_cities(polygon, pop_th=1000000, size=20, multipolygon=False):
 def get_continents(lon, lat):
     """
     Spatial search of closest continents to the specified geo point.
+    :param lon: float lon of center (ex. -122.61067217547183)
+    :param lat: float lat of center (ex. 40.6046338643702)
 
     Example query DSL:
     {
