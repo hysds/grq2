@@ -7,6 +7,7 @@ standard_library.install_aliases()
 
 import json
 from grq2 import app, grq_es
+from elasticsearch.exceptions import RequestError
 
 
 def get_cities(polygon, size=5, multipolygon=False):
@@ -108,8 +109,12 @@ def get_cities(polygon, size=5, multipolygon=False):
         })
 
     index = app.config['GEONAMES_INDEX']
-    res = grq_es.search(index=index, body=query)  # query for results
-    app.logger.debug("get_cities(): %s" % json.dumps(query))
+    try:
+        res = grq_es.search(index=index, body=query)  # query for results
+        app.logger.debug("get_cities(): %s" % json.dumps(query))
+    except RequestError as re:
+        app.logger.info("Request Error returned: status_code={}, error={}, info={}".format(
+            re.status_code, re.error, json.dumps(re.info, indent=2)))
 
     results = []
     for hit in res['hits']['hits']:
