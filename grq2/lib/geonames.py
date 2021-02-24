@@ -115,6 +115,7 @@ def get_cities(polygon, size=5, multipolygon=False):
     except RequestError as re:
         app.logger.info("Request Error returned: status_code={}, error={}, info={}".format(
             re.status_code, re.error, json.dumps(re.info, indent=2)))
+        raise re
 
     results = []
     for hit in res['hits']['hits']:
