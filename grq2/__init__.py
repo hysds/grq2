@@ -94,7 +94,7 @@ grq_es = get_grq_es(logger=app.logger)
 
 # initializing connection to Mozart's Elasticsearch
 MOZART_ES_URL = app.config['MOZART_ES_URL']
-mozart_es = get_mozart_es(MOZART_ES_URL, app.logger)
+mozart_es = get_mozart_es(MOZART_ES_URL)
 
 # services blueprints
 from grq2.services.main import mod as main_module
