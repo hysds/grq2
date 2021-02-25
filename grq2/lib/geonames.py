@@ -9,6 +9,33 @@ import json
 from grq2 import app, grq_es
 from elasticsearch.exceptions import RequestError
 
+ILLEGAL_ARGUMENT_EXCEPTION = "illegal_argument_exception"
+TOO_FEW_POINTS_ERROR = "too few points"
+GEO_POLYGON = "geo_polygon"
+
+
+def __create_polygon_query(polygon, multipolygon=False, search_type="geo_polygon"):
+    if multipolygon:
+        or_filters = []
+        for p in polygon:
+            or_filters.append({
+                search_type: {
+                    "location": {
+                        "points": p,
+                    }
+                }
+            })
+        query = or_filters
+    else:
+        query = {
+            search_type: {
+                "location": {
+                    "points": polygon,
+                }
+            }
+        }
+    return query
+
 
 def get_cities(polygon, size=5, multipolygon=False):
     """
@@ -86,36 +113,35 @@ def get_cities(polygon, size=5, multipolygon=False):
 
     # multipolygon?
     if multipolygon:
-        or_filters = []
-        for p in polygon:
-            or_filters.append({
-                "geo_polygon": {
-                    "location": {
-                        "points": p,
-                    }
-                }
-            })
         # filtered is removed, using bool + should + minimum_should_match instead
-        query['query']['bool']['should'] = or_filters
+        query['query']['bool']['should'] = __create_polygon_query(polygon, multipolygon=True)
         query['query']['bool']['minimum_should_match'] = 1
 
     else:
-        query['query']['bool']['filter'].append({
-            "geo_polygon": {
-                "location": {
-                    "points": polygon,
-                }
-            }
-        })
+        query['query']['bool']['filter'].append(__create_polygon_query(polygon))
 
     index = app.config['GEONAMES_INDEX']
     try:
         res = grq_es.search(index=index, body=query)  # query for results
         app.logger.debug("get_cities(): %s" % json.dumps(query))
     except RequestError as re:
-        app.logger.info("Request Error returned: status_code={}, error={}, info={}".format(
+        app.logger.debug("Request Error returned: status_code={}, error={}, info={}".format(
             re.status_code, re.error, json.dumps(re.info, indent=2)))
-        raise re
+        reason = re.info.get("error", {}).get("reason", "")
+        if re.error == ILLEGAL_ARGUMENT_EXCEPTION and TOO_FEW_POINTS_ERROR in reason and GEO_POLYGON in reason:
+            app.logger.debug("Attempting to perform geo_shape query instead")
+            if multipolygon:
+                # filtered is removed, using bool + should + minimum_should_match instead
+                query['query']['bool']['should'] = __create_polygon_query(polygon, multipolygon=True,
+                                                                          search_type="geo_shape")
+                query['query']['bool']['minimum_should_match'] = 1
+
+            else:
+                query['query']['bool']['filter'].append(__create_polygon_query(polygon, search_type="geo_shape"))
+            res = grq_es.search(index=index, body=query)  # query for results
+            app.logger.debug("get_cities(): %s" % json.dumps(query))
+        else:
+            raise re
 
     results = []
     for hit in res['hits']['hits']:
