@@ -100,6 +100,8 @@ def get_cities(polygon, size=5, multipolygon=False):
                     }
                 }
             })
+            # filtered is removed, using bool + should + minimum_should_match instead
+        query['query']['bool']['should'] = or_filters
         query['query']['bool']['minimum_should_match'] = 1
 
     else:
