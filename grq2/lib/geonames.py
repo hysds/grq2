@@ -12,52 +12,6 @@ from elasticsearch.exceptions import RequestError
 ILLEGAL_ARGUMENT_EXCEPTION = "illegal_argument_exception"
 TOO_FEW_POINTS_ERROR = "too few points"
 GEO_POLYGON = "geo_polygon"
-GEO_SHAPE = "geo_shape"
-
-
-def __create_polygon_query(polygon, multipolygon=False, search_type=GEO_POLYGON):
-    if search_type == GEO_POLYGON:
-        if multipolygon:
-            or_filters = []
-            for p in polygon:
-                or_filters.append({
-                    GEO_POLYGON: {
-                        "location": {
-                            "points": p,
-                        }
-                    }
-                })
-            query = or_filters
-        else:
-            query = {
-                GEO_POLYGON: {
-                    "location": {
-                        "points": polygon,
-                    }
-                }
-            }
-    elif search_type == GEO_SHAPE:
-        query = {
-            GEO_SHAPE: {
-                "location": {
-                    "shape": {
-                        "coordinates": []
-                    }
-                }
-            }
-        }
-        if multipolygon:
-            query[GEO_SHAPE]["location"]["shape"]["type"] = "multipolygon"
-            for p in polygon:
-                query[GEO_SHAPE]["location"]["shape"]["coordinates"].append(p)
-        else:
-            query[GEO_SHAPE]["location"]["shape"]["type"] = "polygon"
-            query[GEO_SHAPE]["location"]["shape"]["coordinates"] = polygon
-    else:
-        raise RuntimeError("search_type not supported: {}. Should be either {} or {}".format(search_type,
-                                                                                             GEO_POLYGON, GEO_SHAPE))
-
-    return query
 
 
 def get_cities(polygon, size=5, multipolygon=False):
@@ -137,39 +91,43 @@ def get_cities(polygon, size=5, multipolygon=False):
     # multipolygon?
     if multipolygon:
         # filtered is removed, using bool + should + minimum_should_match instead
-        query['query']['bool']['should'] = __create_polygon_query(polygon, multipolygon=True)
+        or_filters = []
+        for p in polygon:
+            or_filters.append({
+                "geo_polygon": {
+                    "location": {
+                        "points": p,
+                    }
+                }
+            })
         query['query']['bool']['minimum_should_match'] = 1
 
     else:
-        query['query']['bool']['filter'].append(__create_polygon_query(polygon))
+        query['query']['bool']['filter'].append({
+            "geo_polygon": {
+                "location": {
+                    "points": polygon,
+                }
+            }
+        })
 
     index = app.config['GEONAMES_INDEX']
+    res = dict()
     try:
         res = grq_es.search(index=index, body=query)  # query for results
         app.logger.debug("get_cities(): %s" % json.dumps(query))
     except RequestError as re:
-        app.logger.debug("Request Error returned: status_code={}, error={}, info={}".format(
+        app.logger.error("Request Error returned: status_code={}, error={}, info={}".format(
             re.status_code, re.error, json.dumps(re.info, indent=2)))
         reason = re.info.get("error", {}).get("reason", "")
         if re.error == ILLEGAL_ARGUMENT_EXCEPTION and TOO_FEW_POINTS_ERROR in reason and GEO_POLYGON in reason:
-            app.logger.debug("Attempting to perform geo_shape query instead")
-            if multipolygon:
-                # filtered is removed, using bool + should + minimum_should_match instead
-                query['query']['bool']['should'] = __create_polygon_query(polygon,
-                                                                          multipolygon=True,
-                                                                          search_type=GEO_SHAPE)
-                query['query']['bool']['minimum_should_match'] = 1
-
-            else:
-                query['query']['bool']['filter'].append(__create_polygon_query(polygon,
-                                                                               search_type=GEO_SHAPE))
-            res = grq_es.search(index=index, body=query)  # query for results
-            app.logger.debug("get_cities(): %s" % json.dumps(query))
+            app.logger.debug("Quietly proceeding with dataset ingest. This will be resolved when we upgrade to ES 7.9")
+            pass
         else:
             raise re
 
     results = []
-    for hit in res['hits']['hits']:
+    for hit in res.get("hits", {}).get("hits", []):
         results.append(hit['_source'])
     return results
 
