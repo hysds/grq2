@@ -15,26 +15,48 @@ GEO_POLYGON = "geo_polygon"
 GEO_SHAPE = "geo_shape"
 
 
-def __create_polygon_query(polygon, multipolygon=False, search_type=GEO_POLYGON, location_type="points"):
-    if multipolygon:
-        or_filters = []
-        for p in polygon:
-            or_filters.append({
-                search_type: {
+def __create_polygon_query(polygon, multipolygon=False, search_type=GEO_POLYGON):
+    if search_type == GEO_POLYGON:
+        if multipolygon:
+            or_filters = []
+            for p in polygon:
+                or_filters.append({
+                    GEO_POLYGON: {
+                        "location": {
+                            "points": p,
+                        }
+                    }
+                })
+            query = or_filters
+        else:
+            query = {
+                GEO_POLYGON: {
                     "location": {
-                        location_type: p,
+                        "points": polygon,
                     }
                 }
-            })
-        query = or_filters
-    else:
+            }
+    elif search_type == GEO_SHAPE:
         query = {
-            search_type: {
+            GEO_SHAPE: {
                 "location": {
-                    location_type: polygon,
+                    "shape": {
+                        "coordinates": []
+                    }
                 }
             }
         }
+        if multipolygon:
+            query[GEO_SHAPE]["location"]["shape"]["type"] = "multipolygon"
+            for p in polygon:
+                query[GEO_SHAPE]["location"]["shape"]["coordinates"].append(p)
+        else:
+            query[GEO_SHAPE]["location"]["shape"]["type"] = "polygon"
+            query[GEO_SHAPE]["location"]["shape"]["coordinates"] = polygon
+    else:
+        raise RuntimeError("search_type not supported: {}. Should be either {} or {}".format(search_type,
+                                                                                             GEO_POLYGON, GEO_SHAPE))
+
     return query
 
 
@@ -135,14 +157,12 @@ def get_cities(polygon, size=5, multipolygon=False):
                 # filtered is removed, using bool + should + minimum_should_match instead
                 query['query']['bool']['should'] = __create_polygon_query(polygon,
                                                                           multipolygon=True,
-                                                                          search_type="geo_shape",
-                                                                          location_type="coordinates")
+                                                                          search_type=GEO_SHAPE)
                 query['query']['bool']['minimum_should_match'] = 1
 
             else:
                 query['query']['bool']['filter'].append(__create_polygon_query(polygon,
-                                                                               search_type="geo_shape",
-                                                                               location_type="coordinates"))
+                                                                               search_type=GEO_SHAPE))
             res = grq_es.search(index=index, body=query)  # query for results
             app.logger.debug("get_cities(): %s" % json.dumps(query))
         else:
