@@ -13,7 +13,7 @@ MOZART_ES = None
 GRQ_ES = None
 
 
-def get_mozart_es(es_url, logger):
+def get_mozart_es(es_url, logger=None):
     global MOZART_ES
     if MOZART_ES is None:
         MOZART_ES = ElasticsearchUtility(es_url, logger)
