@@ -12,16 +12,17 @@ from elasticsearch.exceptions import RequestError
 ILLEGAL_ARGUMENT_EXCEPTION = "illegal_argument_exception"
 TOO_FEW_POINTS_ERROR = "too few points"
 GEO_POLYGON = "geo_polygon"
+GEO_SHAPE = "geo_shape"
 
 
-def __create_polygon_query(polygon, multipolygon=False, search_type="geo_polygon"):
+def __create_polygon_query(polygon, multipolygon=False, search_type=GEO_POLYGON, location_type="points"):
     if multipolygon:
         or_filters = []
         for p in polygon:
             or_filters.append({
                 search_type: {
                     "location": {
-                        "points": p,
+                        location_type: p,
                     }
                 }
             })
@@ -30,7 +31,7 @@ def __create_polygon_query(polygon, multipolygon=False, search_type="geo_polygon
         query = {
             search_type: {
                 "location": {
-                    "points": polygon,
+                    location_type: polygon,
                 }
             }
         }
@@ -132,12 +133,16 @@ def get_cities(polygon, size=5, multipolygon=False):
             app.logger.debug("Attempting to perform geo_shape query instead")
             if multipolygon:
                 # filtered is removed, using bool + should + minimum_should_match instead
-                query['query']['bool']['should'] = __create_polygon_query(polygon, multipolygon=True,
-                                                                          search_type="geo_shape")
+                query['query']['bool']['should'] = __create_polygon_query(polygon,
+                                                                          multipolygon=True,
+                                                                          search_type="geo_shape",
+                                                                          location_type="coordinates")
                 query['query']['bool']['minimum_should_match'] = 1
 
             else:
-                query['query']['bool']['filter'].append(__create_polygon_query(polygon, search_type="geo_shape"))
+                query['query']['bool']['filter'].append(__create_polygon_query(polygon,
+                                                                               search_type="geo_shape",
+                                                                               location_type="coordinates"))
             res = grq_es.search(index=index, body=query)  # query for results
             app.logger.debug("get_cities(): %s" % json.dumps(query))
         else:
