@@ -90,7 +90,7 @@ CORS(app)
 app.register_error_handler(404, resource_not_found)
 
 # initializing connection to GRQ's Elasticsearch
-grq_es = get_grq_es(logger=app.logger)
+grq_es = get_grq_es()
 
 # initializing connection to Mozart's Elasticsearch
 MOZART_ES_URL = app.config['MOZART_ES_URL']
