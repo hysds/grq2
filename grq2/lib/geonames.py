@@ -90,7 +90,6 @@ def get_cities(polygon, size=5, multipolygon=False):
 
     # multipolygon?
     if multipolygon:
-        # filtered is removed, using bool + should + minimum_should_match instead
         or_filters = []
         for p in polygon:
             or_filters.append({
