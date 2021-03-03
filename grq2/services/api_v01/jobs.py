@@ -9,7 +9,7 @@ standard_library.install_aliases()
 import json
 
 from flask import request
-from flask_restx import Resource, fields
+from flask_restx import Resource, fields, inputs
 
 from hysds.task_worker import do_submit_task
 from hysds.celery import app as celery_app
@@ -30,11 +30,18 @@ ON_DEMAND_DATASET_QUEUE = celery_app.conf['ON_DEMAND_DATASET_QUEUE']
 class OnDemandJobs(Resource):
     """On Demand Jobs API."""
 
-    resp_model = grq_ns.model('JsonResponse', {
-        'success': fields.Boolean(required=True, description="Boolean, whether the API was successful"),
-        'message': fields.String(required=True, description="message describing success or failure"),
-    })
     parser = grq_ns.parser()
+    parser.add_argument('tag', type=str, location="form", required=True, help='job tag')
+    parser.add_argument('job_type', type=str, location="form", required=True, help='job spec name')
+    parser.add_argument('hysds_io', type=str, location="form", required=True, help='hysds io name')
+    parser.add_argument('queue', type=str, location="form", required=True, help='queue')
+    parser.add_argument('priority', type=int, location="form", required=True, help='RabbitMQ job priority (0-9)')
+    parser.add_argument('query_string', type=str, location="form", required=True, help='elasticsearch query')
+    parser.add_argument('kwargs', type=str, location="form", required=True, help='keyword arguments for PGE')
+    parser.add_argument('time_limit', type=int, location="form", help='time limit for PGE job')
+    parser.add_argument('soft_time_limit', type=int, location="form", help='soft time limit for PGE job')
+    parser.add_argument('disk_usage', type=str, location="form", help='memory usage required for jon (KB, MB, GB)')
+    parser.add_argument('enable_dedup', type=inputs.boolean, location="form", help='enable job de-duplication')
 
     def get(self):
         """List available on demand jobs"""
@@ -80,6 +87,7 @@ class OnDemandJobs(Resource):
             'result': documents
         }
 
+    @grq_ns.expect(parser)
     def post(self):
         """
         submits on demand job
@@ -90,16 +98,25 @@ class OnDemandJobs(Resource):
         if not request_data:
             request_data = request.form
 
-        tag = request_data.get('tags', None)
-        job_type = request_data.get('job_type', None)
-        hysds_io = request_data.get('hysds_io', None)
-        queue = request_data.get('queue', None)
+        tag = request_data.get('tags')
+        job_type = request_data.get('job_type')
+        hysds_io = request_data.get('hysds_io')
+        queue = request_data.get('queue')
         priority = int(request_data.get('priority', 0))
-        query_string = request_data.get('query', None)
+        query_string = request_data.get('query')
         kwargs = request_data.get('kwargs', '{}')
-        time_limit = request_data.get('time_limit', None)
-        soft_time_limit = request_data.get('soft_time_limit', None)
-        disk_usage = request_data.get('disk_usage', None)
+        time_limit = request_data.get('time_limit')
+        soft_time_limit = request_data.get('soft_time_limit')
+        disk_usage = request_data.get('disk_usage')
+        enable_dedup = request_data.get('enable_dedup')
+        if enable_dedup is not None:
+            try:
+                enable_dedup = inputs.boolean(enable_dedup)
+            except ValueError as e:
+                return {
+                    'success': True,
+                    'message': str(e)
+                }, 400
 
         try:
             query = json.loads(query_string)
@@ -108,7 +125,7 @@ class OnDemandJobs(Resource):
             app.logger.error(e)
             return {
                 'success': False,
-                'message': 'invalid JSON query'
+                'message': 'invalid ElasticSearch JSON query'
             }, 400
 
         if tag is None or job_type is None or hysds_io is None or queue is None or query_string is None:
@@ -162,6 +179,8 @@ class OnDemandJobs(Resource):
 
         if disk_usage:
             rule['disk_usage'] = disk_usage
+        if enable_dedup is not None:
+            rule['enable_dedup'] = enable_dedup
 
         payload = {
             'type': 'job_iterator',
@@ -172,6 +191,7 @@ class OnDemandJobs(Resource):
 
         return {
             'success': True,
+            'message': 'task submitted successfully',
             'result': celery_task.id
         }
 
