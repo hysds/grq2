@@ -131,7 +131,7 @@ class UserRules(Resource):
                 enable_dedup = inputs.boolean(enable_dedup)
             except ValueError as e:
                 return {
-                    'success': True,
+                    'success': False,
                     'message': str(e)
                 }, 400
 
@@ -277,7 +277,7 @@ class UserRules(Resource):
                 enable_dedup = inputs.boolean(enable_dedup)
             except ValueError as e:
                 return {
-                    'success': True,
+                    'success': False,
                     'message': str(e)
                 }, 400
 
