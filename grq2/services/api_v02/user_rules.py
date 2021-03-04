@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 from flask import request
-from flask_restx import Resource
+from flask_restx import Resource, inputs
 
 from hysds.celery import app as celery_app
 from hysds_commons.action_utils import check_passthrough_query
@@ -25,10 +25,42 @@ ON_DEMAND_DATASET_QUEUE = celery_app.conf['ON_DEMAND_DATASET_QUEUE']
 
 
 @grq_ns.route('/user-rules', endpoint='user-rules')
-@grq_ns.doc(responses={200: "Success", 500: "Execution failed"},
-            description="Retrieve on job params for specific jobs")
+@grq_ns.doc(responses={200: "Success", 500: "Execution failed"}, description="CRUD for user rules")
 class UserRules(Resource):
     """User Rules API"""
+
+    parser = grq_ns.parser()
+    parser.add_argument('id', type=str, help="rule id")
+    parser.add_argument('rule_name', type=str, help="rule name (fallback if id is not provided)")
+
+    post_parser = grq_ns.parser()
+    post_parser.add_argument('rule_name', type=str, required=True, location='form', help='rule name')
+    post_parser.add_argument('hysds_io', type=str, required=True, location='form', help='hysds io')
+    post_parser.add_argument('job_spec', type=str, required=True, location='form', help='queue')
+    post_parser.add_argument('priority', type=int, required=True, location='form', help='RabbitMQ job priority (0-9)')
+    post_parser.add_argument('query_string', type=str, required=True, location='form', help='elasticsearch query')
+    post_parser.add_argument('kwargs', type=str, required=True, location='form', help='keyword arguments for PGE')
+    post_parser.add_argument('queue', type=str, required=True, location='form', help='RabbitMQ job queue')
+    post_parser.add_argument('tags', type=list, location='form', help='user defined tags for trigger rule')
+    post_parser.add_argument('time_limit', type=int, location='form', help='time limit for PGE job')
+    post_parser.add_argument('soft_time_limit', type=int, location='form', help='soft time limit for PGE job')
+    post_parser.add_argument('disk_usage', type=str, location='form', help='memory usage required for jon (KB, MB, GB)')
+    post_parser.add_argument('enable_dedup', type=inputs.boolean, location="form", help='enable job de-duplication')
+
+    put_parser = grq_ns.parser()
+    put_parser.add_argument('id', type=str, help="rule id")
+    put_parser.add_argument('rule_name', type=str, help="rule name (fallback if id is not provided)")
+    put_parser.add_argument('hysds_io', type=str, location='form', help='hysds io')
+    put_parser.add_argument('job_spec', type=str, location='form', help='queue')
+    put_parser.add_argument('priority', type=int, location='form', help='RabbitMQ job priority (0-9)')
+    put_parser.add_argument('query_string', type=str, location='form', help='elasticsearch query')
+    put_parser.add_argument('kwargs', type=str, location='form', help='keyword arguments for PGE')
+    put_parser.add_argument('queue', type=str, location='form', help='RabbitMQ job queue')
+    put_parser.add_argument('tags', type=list, location='form', help='user defined tags for trigger rule')
+    put_parser.add_argument('time_limit', type=int, location='form', help='time limit for PGE job')
+    put_parser.add_argument('soft_time_limit', type=int, location='form', help='soft time limit for PGE job')
+    put_parser.add_argument('disk_usage', type=str, location='form', help='memory usage required for jon (KB, MB, GB)')
+    put_parser.add_argument('enable_dedup', type=inputs.boolean, location="form", help='enable job de-duplication')
 
     def get(self):
         # TODO: add user role and permissions
@@ -77,6 +109,7 @@ class UserRules(Resource):
             'rules': parsed_user_rules
         }
 
+    @grq_ns.expect(post_parser)
     def post(self):
         request_data = request.json or request.form
 
@@ -91,6 +124,15 @@ class UserRules(Resource):
         time_limit = request_data.get('time_limit', None)
         soft_time_limit = request_data.get('soft_time_limit', None)
         disk_usage = request_data.get('disk_usage', None)
+        enable_dedup = request_data.get('enable_dedup')
+        if enable_dedup is not None:
+            try:
+                enable_dedup = inputs.boolean(enable_dedup)
+            except ValueError as e:
+                return {
+                    'success': True,
+                    'message': str(e)
+                }, 400
 
         username = "ops"  # TODO: add user role and permissions, hard coded to "ops" for now
 
@@ -194,6 +236,8 @@ class UserRules(Resource):
 
         if disk_usage:
             new_doc['disk_usage'] = disk_usage
+        if enable_dedup is not None:
+            new_doc['enable_dedup'] = enable_dedup
 
         result = mozart_es.index_document(index=USER_RULES_INDEX, body=new_doc, refresh=True)
         return {
@@ -202,6 +246,7 @@ class UserRules(Resource):
             'result': result
         }
 
+    @grq_ns.expect(put_parser)
     def put(self):  # TODO: add user role and permissions
         request_data = request.json or request.form
         _id = request_data.get("id", None)
@@ -319,7 +364,7 @@ class UserRules(Resource):
                 update_doc['soft_time_limit'] = None
             else:
                 if isinstance(soft_time_limit, int) and 0 < soft_time_limit <= 86400 * 7:
-                    update_doc['soft_time_limit'] = time_limit
+                    update_doc['soft_time_limit'] = soft_time_limit
                 else:
                     return {
                         'success': False,
