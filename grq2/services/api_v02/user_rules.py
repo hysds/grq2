@@ -62,6 +62,7 @@ class UserRules(Resource):
     put_parser.add_argument('disk_usage', type=str, location='form', help='memory usage required for jon (KB, MB, GB)')
     put_parser.add_argument('enable_dedup', type=inputs.boolean, location="form", help='enable job de-duplication')
 
+    @grq_ns.expect(parser)
     def get(self):
         # TODO: add user role and permissions
         _id = request.args.get("id", None)
@@ -270,6 +271,15 @@ class UserRules(Resource):
         time_limit = request_data.get('time_limit', None)
         soft_time_limit = request_data.get('soft_time_limit', None)
         disk_usage = request_data.get('disk_usage', None)
+        enable_dedup = request_data.get('enable_dedup')
+        if enable_dedup is not None:
+            try:
+                enable_dedup = inputs.boolean(enable_dedup)
+            except ValueError as e:
+                return {
+                    'success': True,
+                    'message': str(e)
+                }, 400
 
         # check if job_type (hysds_io) exists in elasticsearch (only if we're updating job_type)
         if hysds_io:
@@ -373,6 +383,8 @@ class UserRules(Resource):
 
         if 'disk_usage' in request_data:
             update_doc['disk_usage'] = disk_usage
+        if 'enable_dedup' in request_data:
+            update_doc['enable_dedup'] = enable_dedup
 
         app.logger.info('new user rule: %s', json.dumps(update_doc))
         doc = {
@@ -387,15 +399,17 @@ class UserRules(Resource):
             'updated': update_doc
         }
 
+    @grq_ns.expect(parser)
     def delete(self):
         # TODO: need to add user rules and permissions
         _id = request.args.get("id", None)
         _rule_name = request.args.get("rule_name", None)
 
         if not _id and not _rule_name:
-            return {"success": False,
-                    "message": "Must specify id or rule_name in the request"
-                    }, 400
+            return {
+                "success": False,
+                "message": "Must specify id or rule_name in the request"
+            }, 400
 
         if "id" in request.args:
             _id = request.args.get('id')
