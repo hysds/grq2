@@ -202,13 +202,10 @@ class OnDemandJobs(Resource):
 class JobParams(Resource):
     """Job Params API."""
 
-    resp_model = grq_ns.model('JsonResponse', {
-        'success': fields.Boolean(required=True, description="Boolean, whether the API was successful"),
-        'message': fields.String(required=True, description="message describing success or failure")
-    })
-
     parser = grq_ns.parser()
+    parser.add_argument('job_type', type=str, required=True, help='job tag')
 
+    @grq_ns.expect(parser)
     def get(self):
         job_type = request.args.get('job_type')
         if not job_type:
@@ -243,5 +240,6 @@ class JobParams(Resource):
             'params': job_params,
             'time_limit': job_spec['_source']['time_limit'],
             'soft_time_limit': job_spec['_source']['soft_time_limit'],
-            'disk_usage': job_spec['_source']['disk_usage']
+            'disk_usage': job_spec['_source']['disk_usage'],
+            'enable_dedup': hysds_io['_source'].get('enable_dedup', True)
         }
