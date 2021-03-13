@@ -58,6 +58,9 @@
       },
       "disk_usage": {
         "type": "keyword"
+      },
+      "enable_dedup": {
+        "type": "boolean"
       }
     }
   }
