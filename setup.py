@@ -22,7 +22,7 @@ setup(
         'shapely>=1.5.15',
         'Cython>=0.15.1',
         'Cartopy>=0.13.1',
-        'flask-restx>=0.2.0',
+        'flask-restx>=0.4.0',
         'redis',
         'future>=0.17.1'
     ]
