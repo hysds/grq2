@@ -38,7 +38,10 @@ def get_grq_es(logger=None):
                 connection_class=RequestsHttpConnection,
                 use_ssl=True,
                 verify_certs=False,
-                ssl_show_warn=False
+                ssl_show_warn=False,
+                timeout=30,
+                max_retries=10,
+                retry_on_timeout=True,
             )
         else:
             GRQ_ES = ElasticsearchUtility(es_url, logger)
