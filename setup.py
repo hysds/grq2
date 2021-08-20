@@ -15,7 +15,8 @@ setup(
         # TODO: remove this pin on click once this celery issue is resolved:
         # https://github.com/celery/celery/issues/6768
         'click>=7.0,<8.0',
-        'flask-restx>=0.4.0',
+        'Flask<2.0.0',
+        'flask-restx>=0.4.0,<0.5.0',
         'elasticsearch>=7.0.0,<7.14.0',
         'shapely>=1.5.15',
         'Cython>=0.15.1',
