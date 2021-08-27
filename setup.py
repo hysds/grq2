@@ -18,7 +18,7 @@ setup(
         'Flask<2.0.0',
         'flask-restx>=0.4.0,<0.5.0',
         'elasticsearch>=7.0.0,<7.14.0',
-        'shapely>=1.5.15',
+        'shapely>=1.5.15,<1.7.0',
         'Cython>=0.15.1',
         'Cartopy>=0.13.1',
         'future>=0.17.1',
