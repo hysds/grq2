@@ -12,9 +12,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        # TODO: remove this pin on click once this celery issue is resolved:
-        # https://github.com/celery/celery/issues/6768
-        # 'click>=7.0,<8.0',  # 'click>=7.0,<8.0',  # don't think we need click here because its nto used by mozart
         'Flask>2.0.0,<3.0.0',
         'flask-restx>=0.5.1',
         'elasticsearch>=7.0.0,<7.14.0',
