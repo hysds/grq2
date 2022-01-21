@@ -12,7 +12,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'Flask>2.0.0,<3.0.0',
+        'Flask>2.0.0',
         'flask-restx>=0.5.1',
         'elasticsearch>=7.0.0,<7.14.0',
         'shapely>=1.5.15',
