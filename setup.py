@@ -6,15 +6,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='grq2',
-    version='2.0.14',
+    version='2.0.15',
     long_description='GeoRegionQuery REST API using ElasticSearch backend',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'Flask>2.0.0',
+        'Flask>=2.0.0',
         'flask-restx>=0.5.1',
-        'elasticsearch>=7.0.0,<7.14.0',
+        "elasticsearch>=7.0.0,7.14.0",
         'shapely>=1.5.15',
         'Cython>=0.15.1',
         'Cartopy>=0.13.1',
