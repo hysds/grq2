@@ -8,6 +8,7 @@ from future import standard_library
 import json
 import traceback
 
+from elasticsearch.exceptions import NotFoundError
 from shapely.geometry import shape
 
 from grq2 import app, grq_es
@@ -117,25 +118,34 @@ def update(update_json):
             end_time = update_json['endtime']
             update_json['temporal_span'] = get_ts(start_time, end_time)
 
-    result = grq_es.index_document(index=index, body=update_json, id=update_json['id'])
-    app.logger.debug("%s" % json.dumps(result, indent=2))
+    try:
+        result = grq_es.index_document(index=index, body=update_json, id=update_json['id'])
+        app.logger.debug("%s" % json.dumps(result, indent=2))
 
-    # update custom aliases (Fixing HC-23)
-    if len(aliases) > 0:
-        try:
-            actions = list()
-            for index_alias in aliases:
-                actions.append({"add": {"index": index, "alias": index_alias}})
+        # update custom aliases (Fixing HC-23)
+        if len(aliases) > 0:
+            try:
+                actions = list()
+                for index_alias in aliases:
+                    actions.append({"add": {"index": index, "alias": index_alias}})
 
-            update_alias = {"actions": actions}
-            grq_es.es.indices.update_aliases(update_alias)
-        except Exception as e:
-            app.logger.debug("Got exception trying to add aliases to index: %s\n%s\nContinuing on." %
-                             (str(e), traceback.format_exc()))
+                update_alias = {"actions": actions}
+                grq_es.es.indices.update_aliases(update_alias)
+            except Exception as e:
+                app.logger.debug("Got exception trying to add aliases to index: %s\n%s\nContinuing on." %
+                                 (str(e), traceback.format_exc()))
 
-    return {
-        'success': True,
-        'message': result,
-        'objectid': update_json['id'],
-        'index': index,
-    }
+        return {
+            'success': True,
+            'message': result,
+            'objectid': update_json['id'],
+            'index': index,
+        }
+    except NotFoundError as e:
+        return {
+            'success': False,
+            'message': "geonames index not found, skipping reverse geolocation....",
+            'index': index,
+        }
+    except Exception as e:
+        raise Exception(e)
