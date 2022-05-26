@@ -6,6 +6,7 @@ from future import standard_library
 standard_library.install_aliases()
 
 import json
+from elasticsearch.exceptions import NotFoundError
 from grq2 import app, grq_es
 
 
@@ -108,13 +109,18 @@ def get_cities(polygon, size=5, multipolygon=False):
         })
 
     index = app.config['GEONAMES_INDEX']
-    res = grq_es.search(index=index, body=query)  # query for results
-    app.logger.debug("get_cities(): %s" % json.dumps(query))
+    try:
+        res = grq_es.search(index=index, body=query)  # query for results
+        app.logger.debug("get_cities(): %s" % json.dumps(query))
 
-    results = []
-    for hit in res['hits']['hits']:
-        results.append(hit['_source'])
-    return results
+        results = []
+        for hit in res['hits']['hits']:
+            results.append(hit['_source'])
+        return results
+    except NotFoundError:
+        return None
+    except Exception as e:
+        raise Exception(e)
 
 
 def get_nearest_cities(lon, lat, size=5):
@@ -160,14 +166,20 @@ def get_nearest_cities(lon, lat, size=5):
             }
         }
     }
-    index = app.config['GEONAMES_INDEX']  # query for results
-    res = grq_es.search(index=index, body=query)
-    app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
 
-    results = []
-    for hit in res['hits']['hits']:
-        results.append(hit['_source'])
-    return results
+    index = app.config['GEONAMES_INDEX']  # query for results
+    try:
+        res = grq_es.search(index=index, body=query)
+        app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
+
+        results = []
+        for hit in res['hits']['hits']:
+            results.append(hit['_source'])
+        return results
+    except NotFoundError:
+        return None
+    except Exception as e:
+        raise Exception(e)
 
 
 def get_continents(lon, lat):
@@ -236,10 +248,15 @@ def get_continents(lon, lat):
     }
 
     index = app.config['GEONAMES_INDEX']  # query for results
-    res = grq_es.search(index=index, body=query)
-    app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
+    try:
+        res = grq_es.search(index=index, body=query)
+        app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
 
-    results = []
-    for hit in res['hits']['hits']:
-        results.append(hit['_source'])
-    return results
+        results = []
+        for hit in res['hits']['hits']:
+            results.append(hit['_source'])
+        return results
+    except NotFoundError:
+        return None
+    except Exception as e:
+        raise Exception(e)
