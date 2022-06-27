@@ -40,8 +40,6 @@ def get_es_index(prod_json):
     :return: str
     """
     version = prod_json['version']  # get version
-
-    # TODO: maybe set the set the default value to "dataset" instead of None
     dataset = prod_json.get('dataset', "dataset")  # determine index name
 
     index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, dataset)  # get default index
@@ -57,9 +55,8 @@ def get_es_index(prod_json):
 
 def reverse_geolocation(prod_json):
     """
-
-    :param prod_json:
-    :return:
+    retrieves the dataset's city, the nearest cities and continent
+    :param prod_json: Dict[any]; dataset metadata
     """
     if 'location' in prod_json:
         location = {**prod_json['location']}  # copying location to be used to create a shapely geometry object
@@ -121,8 +118,7 @@ class IndexDataset(Resource):
     @grq_ns.marshal_with(resp_model)
     @grq_ns.expect(parser, validate=True)
     def post(self):
-        # info = request.form.get('dataset_info', request.args.get('dataset_info', None))
-        datasets = request.get_json(force=True)
+        datasets = json.loads(request.json)
 
         docs_bulk = []
         for ds in datasets:
@@ -133,18 +129,22 @@ class IndexDataset(Resource):
             docs_bulk.append(ds)
 
         try:
-            response = grq_es.es.bulk(body=docs_bulk, filter_path=["_id", "errors", "items.*.error"])
-            data = response.json()
-            if data["error"] is True:
+            response = grq_es.es.bulk(body=docs_bulk)
+            if response["errors"] is True:
+                app.logger.error(response)
                 delete_docs = []
                 for doc in docs_bulk:
                     if "index" in doc:
                         delete_docs.append({"delete": doc["index"]})
-                        grq_es.es.bulk(delete_docs)
+                grq_es.es.bulk(delete_docs)
                 return {
                     "success": False,
-                    "message": data["items"]
+                    "message": response["items"]
                 }, 400
+            return {
+                "success": True,
+                "message": response
+            }
         except ElasticsearchException as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
             app.logger.error(message)
@@ -152,13 +152,3 @@ class IndexDataset(Resource):
                 'success': False,
                 'message': message
             }, 400
-
-        # try:
-        #     return update_dataset(info)
-        # except Exception as e:
-        #     message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
-        #     app.logger.error(message)
-        #     return {
-        #         'success': False,
-        #         'message': message
-        #     }, 500
