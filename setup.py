@@ -24,6 +24,7 @@ setup(
         'pymongo',
         'requests',
         'pyshp',
-        'redis'
+        'redis',
+        "werkzeug==2.1.2",  # TODO: remove this pin after fix has been made https://stackoverflow.com/a/73105878
     ]
 )
