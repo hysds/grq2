@@ -82,15 +82,20 @@ def reverse_geolocation(prod_json):
         if geo_json_type in (_POLYGON, _MULTIPOLYGON):
             mp = True if geo_json_type == _MULTIPOLYGON else False
             coords = location['coordinates'][0]
-            prod_json['city'] = get_cities(coords, multipolygon=mp)
+            cities = get_cities(coords, multipolygon=mp)
+            if cities:
+                prod_json['city'] = cities
         elif geo_json_type in (_POINT, _MULTIPOINT, _LINESTRING, _MULTILINESTRING):
-            prod_json['city'] = get_nearest_cities(lon, lat)
+            nearest_cities = get_nearest_cities(lon, lat)
+            if nearest_cities:
+                prod_json['city'] = nearest_cities
         else:
             raise TypeError('%s is not a valid GEOJson type (or un-supported): %s' % (geo_json_type, GEOJSON_TYPES))
 
         # add closest continent
         continents = get_continents(lon, lat)
-        prod_json['continent'] = continents[0]['name'] if len(continents) > 0 else None
+        if continents:
+            prod_json['continent'] = continents[0]['name'] if len(continents) > 0 else None
 
     # set temporal_span
     if prod_json.get('starttime', None) is not None and prod_json.get('endtime', None) is not None:
