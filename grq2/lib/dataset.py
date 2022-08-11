@@ -60,6 +60,7 @@ def update(update_json):
     """Update GRQ metadata and urls for a product."""
     version = update_json['version']  # get version
 
+    # TODO: maybe set the set the default value to "dataset" instead of None
     dataset = update_json.get('dataset', None)  # determine index name
     index_suffix = dataset
 
