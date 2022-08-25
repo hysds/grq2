@@ -123,17 +123,17 @@ class IndexDataset(Resource):
     @grq_ns.marshal_with(resp_model)
     @grq_ns.expect(parser, validate=True)
     def post(self):
-        datasets = json.loads(request.json)
-
-        docs_bulk = []
-        for ds in datasets:
-            _id = ds["id"]
-            index, aliases = get_es_index(ds)
-            reverse_geolocation(ds)
-            docs_bulk.append({"index": {"_index": index, "_id": _id}})
-            docs_bulk.append(ds)
-
         try:
+            datasets = json.loads(request.json)
+
+            docs_bulk = []
+            for ds in datasets:
+                _id = ds["id"]
+                index, aliases = get_es_index(ds)
+                reverse_geolocation(ds)
+                docs_bulk.append({"index": {"_index": index, "_id": _id}})
+                docs_bulk.append(ds)
+
             response = grq_es.es.bulk(body=docs_bulk)
             if response["errors"] is True:
                 app.logger.error(response)
@@ -152,6 +152,13 @@ class IndexDataset(Resource):
             }
         except ElasticsearchException as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
+            app.logger.error(message)
+            return {
+                'success': False,
+                'message': message
+            }, 400
+        except Exception as e:
+            message = "Error: {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
             app.logger.error(message)
             return {
                 'success': False,
