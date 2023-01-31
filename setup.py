@@ -6,13 +6,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='grq2',
-    version='2.0.19',
+    version='2.0.20',
     long_description='GeoRegionQuery REST API using ElasticSearch backend',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'Flask>=2.0.0',
+        'Flask>=2.2.0',
         'flask-restx>=0.5.1',
         "elasticsearch>=7.0.0,<7.14.0",
         'shapely>=1.5.15',
@@ -25,6 +25,6 @@ setup(
         'requests',
         'pyshp',
         'redis',
-        "werkzeug==2.1.2",  # TODO: remove this pin after fix has been made https://stackoverflow.com/a/73105878
+        "werkzeug>=2.2.0",  # TODO: remove this pin after fix has been made https://stackoverflow.com/a/73105878
     ]
 )
