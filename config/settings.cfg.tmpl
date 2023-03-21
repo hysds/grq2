@@ -14,6 +14,9 @@ GRQ_INDEX = "grq"
 # ElasticSearch geonames index
 GEONAMES_INDEX = "geonames"
 
+# timeout value for ElasticSearch bulk requests (defaults to 10)
+BULK_REQUEST_TIMEOUT = 30
+
 # Redis URL
 REDIS_URL = "redis://{{ MOZART_REDIS_PVT_IP }}:6379/0"
 
