@@ -123,6 +123,9 @@ class IndexDataset(Resource):
     @grq_ns.marshal_with(resp_model)
     @grq_ns.expect(parser, validate=True)
     def post(self):
+        # get bulk request timeout from config
+        bulk_request_timeout = app.config.get('BULK_REQUEST_TIMEOUT', 10)
+
         try:
             datasets = json.loads(request.json)
 
@@ -134,14 +137,14 @@ class IndexDataset(Resource):
                 docs_bulk.append({"index": {"_index": index, "_id": _id}})
                 docs_bulk.append(ds)
 
-            response = grq_es.es.bulk(body=docs_bulk)
+            response = grq_es.es.bulk(body=docs_bulk, request_timeout=bulk_request_timeout)
             if response["errors"] is True:
                 app.logger.error(response)
                 delete_docs = []
                 for doc in docs_bulk:
                     if "index" in doc:
                         delete_docs.append({"delete": doc["index"]})
-                grq_es.es.bulk(delete_docs)
+                grq_es.es.bulk(delete_docs, request_timeout=bulk_request_timeout)
                 return {
                     "success": False,
                     "message": response["items"]
