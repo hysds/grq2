@@ -6,13 +6,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='grq2',
-    version='2.0.20',
+    version='2.0.21',
     long_description='GeoRegionQuery REST API using ElasticSearch backend',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'Flask>=2.2.0',
+        'Flask<2.3.0',  # TODO: remove kluge when Flask-DebugToolbar fixes import error
         'flask-restx>=0.5.1',
         "elasticsearch>=7.0.0,<7.14.0",
         'shapely>=1.5.15',
