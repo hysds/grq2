@@ -124,13 +124,13 @@ def split_array_chunk(data):
         action_size = len(str.encode(json.dumps(action)))
         doc_size = len(str.encode(json.dumps(doc)))
 
-        if cur_byte_count + action_size + doc_size + 4 < bulk_limit:
+        if cur_byte_count + action_size + doc_size + 8 < bulk_limit:
             batch.extend([action, doc])
-            cur_byte_count = cur_byte_count + action_size + doc_size + 4
+            cur_byte_count = cur_byte_count + action_size + doc_size + 8
         else:
             main_data.append(batch)
             batch = [action, doc]
-            cur_byte_count = action_size + doc_size + 4
+            cur_byte_count = action_size + doc_size + 8
 
     main_data.append(batch)
     return main_data
