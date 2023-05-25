@@ -112,7 +112,7 @@ def split_array_chunk(data):
     :param data: List[Dict]
     :return: List[Dict]
     """
-    bulk_limit = 1e+8  # 100,000,000 bytes (100MB)
+    bulk_limit = app.config.get("BULK_LIMIT", 5e+7)
 
     main_data = []
     batch = []
@@ -155,7 +155,7 @@ class IndexDataset(Resource):
     @grq_ns.expect(parser, validate=True)
     def post(self):
         # get bulk request timeout from config
-        bulk_request_timeout = app.config.get('BULK_REQUEST_TIMEOUT', 15)
+        bulk_request_timeout = app.config.get('BULK_REQUEST_TIMEOUT', 10)
 
         try:
             datasets = json.loads(request.json)
