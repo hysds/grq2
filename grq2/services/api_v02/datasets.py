@@ -112,7 +112,7 @@ def split_array_chunk(data):
     :param data: List[Dict]
     :return: List[Dict]
     """
-    bulk_limit = app.config.get("BULK_LIMIT", 5e+7)
+    bulk_limit = app.config.get("BULK_LIMIT", 1e+8)
 
     main_data = []
     batch = []
