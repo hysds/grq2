@@ -195,7 +195,7 @@ class IndexDataset(Resource):
 
             return {
                 "success": True,
-                "message": "successfully indexed %d documents" % len(datasets),  # response
+                "message": "successfully indexed %d documents" % len(datasets),
             }
         except ElasticsearchException as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
