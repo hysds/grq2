@@ -193,6 +193,7 @@ class IndexDataset(Resource):
                     "message": error_list,
                 }, 400
 
+            app.logger.info("successfully indexed %d documents" % len(datasets))
             return {
                 "success": True,
                 "message": "successfully indexed %d documents" % len(datasets),
