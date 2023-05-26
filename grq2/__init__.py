@@ -5,6 +5,8 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
+import logging
+
 from flask import Flask, jsonify
 from flask_cors import CORS  # TODO: will remove this once we figure out the proper host for the UI
 
@@ -112,3 +114,9 @@ app.register_blueprint(api_v01_services)
 
 from grq2.services.api_v02.service import services as api_v02_services
 app.register_blueprint(api_v02_services)
+
+
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)

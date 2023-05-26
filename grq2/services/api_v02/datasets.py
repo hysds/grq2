@@ -172,6 +172,7 @@ class IndexDataset(Resource):
             error_list = []
             _delete_docs = []  # keep track of docs if they need to be rolled back
             data_chunks = split_array_chunk(docs_bulk)  # splitting the data into 100MB chunks
+            app.logger.info("data split into %d chunk(s)" % len(data_chunks))
 
             for chunk in data_chunks:
                 resp = grq_es.es.bulk(body=chunk, request_timeout=bulk_request_timeout)
