@@ -105,6 +105,37 @@ def reverse_geolocation(prod_json):
             prod_json['temporal_span'] = get_ts(start_time, end_time)
 
 
+def split_array_chunk(data):
+    """
+    Elasticsearch/Opensearch has a 100mb size limit when making API calls
+        function breaks each array into chunks
+    :param data: List[Dict]
+    :return: List[Dict]
+    """
+    bulk_limit = app.config.get("BULK_LIMIT", 1e+8)
+
+    main_data = []
+    batch = []
+    cur_byte_count = 0
+    for i in range(0, len(data), 2):
+        action = data[i]
+        doc = data[i+1]
+
+        action_size = len(str.encode(json.dumps(action)))
+        doc_size = len(str.encode(json.dumps(doc)))
+
+        if cur_byte_count + action_size + doc_size + 8 < bulk_limit:
+            batch.extend([action, doc])
+            cur_byte_count = cur_byte_count + action_size + doc_size + 8
+        else:
+            main_data.append(batch)
+            batch = [action, doc]
+            cur_byte_count = action_size + doc_size + 8
+
+    main_data.append(batch)
+    return main_data
+
+
 @grq_ns.route('/dataset/index', endpoint='dataset_index')
 @grq_ns.doc(responses={200: "Success", 500: "Execution failed"}, description="Dataset index.")
 class IndexDataset(Resource):
@@ -137,21 +168,35 @@ class IndexDataset(Resource):
                 docs_bulk.append({"index": {"_index": index, "_id": _id}})
                 docs_bulk.append(ds)
 
-            response = grq_es.es.bulk(body=docs_bulk, request_timeout=bulk_request_timeout)
-            if response["errors"] is True:
-                app.logger.error(response)
-                delete_docs = []
-                for doc in docs_bulk:
-                    if "index" in doc:
-                        delete_docs.append({"delete": doc["index"]})
-                grq_es.es.bulk(delete_docs, request_timeout=bulk_request_timeout)
+            errors = False
+            error_list = []
+            _delete_docs = []  # keep track of docs if they need to be rolled back
+            data_chunks = split_array_chunk(docs_bulk)  # splitting the data into 100MB chunks
+            app.logger.info("data split into %d chunk(s)" % len(data_chunks))
+
+            for chunk in data_chunks:
+                resp = grq_es.es.bulk(body=chunk, request_timeout=bulk_request_timeout)
+                for item in resp["items"]:
+                    doc_info = item["index"]
+                    _delete_docs.append({"delete": {"_index": doc_info["_index"], "_id": doc_info["_id"]}})
+                if resp["errors"] is True:
+                    errors = True
+                    error_list.extend(list(filter(lambda x: "error" in x["index"], resp["items"])))
+                    break
+
+            if errors is True:
+                app.logger.error("ERROR indexing documents in Elasticsearch, rolling back...")
+                app.logger.error(error_list)
+                grq_es.es.bulk(_delete_docs, request_timeout=bulk_request_timeout)
                 return {
                     "success": False,
-                    "message": response["items"]
+                    "message": error_list,
                 }, 400
+
+            app.logger.info("successfully indexed %d documents" % len(datasets))
             return {
                 "success": True,
-                "message": response
+                "message": "successfully indexed %d documents" % len(datasets),
             }
         except ElasticsearchException as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())

@@ -170,7 +170,7 @@ def get_nearest_cities(lon, lat, size=5):
     index = app.config['GEONAMES_INDEX']  # query for results
     try:
         res = grq_es.search(index=index, body=query)
-        app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
+        app.logger.debug("get_continents(): %s" % json.dumps(query))
 
         results = []
         for hit in res['hits']['hits']:
@@ -250,7 +250,7 @@ def get_continents(lon, lat):
     index = app.config['GEONAMES_INDEX']  # query for results
     try:
         res = grq_es.search(index=index, body=query)
-        app.logger.debug("get_continents(): %s" % json.dumps(query, indent=2))
+        app.logger.debug("get_continents(): %s" % json.dumps(query))
 
         results = []
         for hit in res['hits']['hits']:

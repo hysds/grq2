@@ -17,6 +17,10 @@ GEONAMES_INDEX = "geonames"
 # timeout value for ElasticSearch bulk requests (defaults to 10)
 BULK_REQUEST_TIMEOUT = 30
 
+# Elasticsearch imposes a 100mb limit on payload size when making requests
+# this breaks the data into smaller chunks before using the bulk API
+BULK_LIMIT = 1e+8  # 100,000,000 bytes (100MB)
+
 # Redis URL
 REDIS_URL = "redis://{{ MOZART_REDIS_PVT_IP }}:6379/0"
 
