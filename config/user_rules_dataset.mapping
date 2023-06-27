@@ -32,6 +32,9 @@
       "query_string": {
         "type": "text"
       },
+      "index_pattern": {
+        "type": "keyword"
+      },
       "queue": {
         "type": "text"
       },
