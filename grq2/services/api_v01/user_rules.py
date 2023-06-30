@@ -13,6 +13,7 @@ from flask import request
 from flask_restx import Resource, inputs
 
 from hysds.celery import app as celery_app
+from hysds.utils import validate_index_pattern
 from hysds_commons.action_utils import check_passthrough_query
 
 from grq2 import app, mozart_es
@@ -220,7 +221,7 @@ class UserRules(Resource):
             "tags": tags
         }
 
-        if ''.join(set(index_pattern)) == '*':
+        if not validate_index_pattern(index_pattern):
             return {
                 'success': False,
                 'message': "index pattern is too broad"
@@ -348,7 +349,7 @@ class UserRules(Resource):
                 }, 400
 
         if "index_pattern" in request_data:
-            if ''.join(set(index_pattern)) == '*':
+            if not validate_index_pattern(index_pattern):
                 return {
                     'success': False,
                     'message': "index pattern is too broad"
