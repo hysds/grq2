@@ -13,6 +13,7 @@ from flask import request
 from flask_restx import Resource, inputs
 
 from hysds.celery import app as celery_app
+from hysds.utils import validate_index_pattern
 from hysds_commons.action_utils import check_passthrough_query
 
 from grq2 import app, mozart_es
@@ -38,6 +39,7 @@ class UserRules(Resource):
     post_parser.add_argument('hysds_io', type=str, required=True, location='form', help='hysds io')
     post_parser.add_argument('job_spec', type=str, required=True, location='form', help='queue')
     post_parser.add_argument('priority', type=int, required=True, location='form', help='RabbitMQ job priority (0-9)')
+    post_parser.add_argument('index_pattern', type=str, required=True, location='form', help='ES index pattern')
     post_parser.add_argument('query_string', type=str, required=True, location='form', help='elasticsearch query')
     post_parser.add_argument('kwargs', type=str, required=True, location='form', help='keyword arguments for PGE')
     post_parser.add_argument('queue', type=str, required=True, location='form', help='RabbitMQ job queue')
@@ -53,6 +55,7 @@ class UserRules(Resource):
     put_parser.add_argument('hysds_io', type=str, location='form', help='hysds io')
     put_parser.add_argument('job_spec', type=str, location='form', help='queue')
     put_parser.add_argument('priority', type=int, location='form', help='RabbitMQ job priority (0-9)')
+    put_parser.add_argument('index_pattern', type=str, required=True, location='form', help='ES index pattern')
     put_parser.add_argument('query_string', type=str, location='form', help='elasticsearch query')
     put_parser.add_argument('kwargs', type=str, location='form', help='keyword arguments for PGE')
     put_parser.add_argument('queue', type=str, location='form', help='RabbitMQ job queue')
@@ -119,6 +122,7 @@ class UserRules(Resource):
         job_spec = request_data.get('job_spec')
         priority = int(request_data.get('priority', 0))
         query_string = request_data.get('query_string')
+        index_pattern = request_data.get('index_pattern', "").strip()
         kwargs = request_data.get('kwargs', '{}')
         queue = request_data.get('queue')
         tags = request_data.get('tags', [])
@@ -217,6 +221,15 @@ class UserRules(Resource):
             "tags": tags
         }
 
+        if not validate_index_pattern(index_pattern):
+            return {
+                'success': False,
+                'message': "index pattern is too broad"
+            }, 400
+
+        if index_pattern:
+            new_doc["index_pattern"] = index_pattern
+
         if time_limit and isinstance(time_limit, int):
             if time_limit <= 0 or time_limit > 86400 * 7:
                 return {
@@ -264,6 +277,7 @@ class UserRules(Resource):
         job_spec = request_data.get('job_spec')
         priority = request_data.get('priority')
         query_string = request_data.get('query_string')
+        index_pattern = request_data.get('index_pattern', "").strip()
         kwargs = request_data.get('kwargs')
         queue = request_data.get('queue')
         enabled = request_data.get('enabled')
@@ -333,6 +347,18 @@ class UserRules(Resource):
                     'success': False,
                     'message': 'invalid elasticsearch query JSON'
                 }, 400
+
+        if "index_pattern" in request_data:
+            if not validate_index_pattern(index_pattern):
+                return {
+                    'success': False,
+                    'message': "index pattern is too broad"
+                }, 400
+            if index_pattern:
+                update_doc["index_pattern"] = index_pattern  # noqa
+            else:
+                update_doc["index_pattern"] = None
+
         if kwargs:
             update_doc['kwargs'] = kwargs
             try:
