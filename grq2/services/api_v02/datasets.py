@@ -13,14 +13,15 @@ from flask import request
 from flask_restx import Resource, fields
 
 from shapely.geometry import shape
-from elasticsearch.exceptions import ElasticsearchException
+import elasticsearch.exceptions
+import opensearchpy.exceptions
 
 from grq2 import app, grq_es
 from .service import grq_ns
-from grq2.lib.dataset import update as update_dataset, map_geojson_type
+from grq2.lib.dataset import map_geojson_type
 
 from grq2.lib.geonames import get_cities, get_nearest_cities, get_continents
-from grq2.lib.time_utils import getTemporalSpanInDays as get_ts
+from grq2.lib.time_utils import getTemporalSpanInDays
 
 
 _POINT = 'Point'
@@ -102,7 +103,7 @@ def reverse_geolocation(prod_json):
         if isinstance(prod_json['starttime'], str) and isinstance(prod_json['endtime'], str):
             start_time = prod_json['starttime']
             end_time = prod_json['endtime']
-            prod_json['temporal_span'] = get_ts(start_time, end_time)
+            prod_json['temporal_span'] = getTemporalSpanInDays(start_time, end_time)
 
 
 def split_array_chunk(data):
@@ -198,7 +199,7 @@ class IndexDataset(Resource):
                 "success": True,
                 "message": "successfully indexed %d documents" % len(datasets),
             }
-        except ElasticsearchException as e:
+        except (elasticsearch.exceptions.ElasticsearchException, opensearchpy.exceptions.OpenSearchException) as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
             app.logger.error(message)
             return {
