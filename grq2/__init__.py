@@ -14,8 +14,8 @@ from grq2.es_connection import get_grq_es, get_mozart_es
 class ReverseProxied(object):
     """
     Wrap the application in this middleware and configure the
-    front-end server to add these headers, to let you quietly bind 
-    this to a URL other than / and to an HTTP scheme that is 
+    front-end server to add these headers, to let you quietly bind
+    this to a URL other than / and to an HTTP scheme that is
     different than what is used locally.
 
     In nginx:
@@ -93,8 +93,7 @@ app.register_error_handler(404, resource_not_found)
 grq_es = get_grq_es()
 
 # initializing connection to Mozart's Elasticsearch
-MOZART_ES_URL = app.config['MOZART_ES_URL']
-mozart_es = get_mozart_es(MOZART_ES_URL)
+mozart_es = get_mozart_es()
 
 # services blueprints
 from grq2.services.main import mod as main_module
