@@ -176,7 +176,7 @@ class IndexDataset(Resource):
             app.logger.info("data split into %d chunk(s)" % len(data_chunks))
 
             for chunk in data_chunks:
-                resp = grq_es.es.bulk(body=chunk, request_timeout=bulk_request_timeout)
+                resp = grq_es.es.bulk(body=chunk, timeout="2m")
                 for item in resp["items"]:
                     doc_info = item["index"]
                     _delete_docs.append({"delete": {"_index": doc_info["_index"], "_id": doc_info["_id"]}})
@@ -188,7 +188,7 @@ class IndexDataset(Resource):
             if errors is True:
                 app.logger.error("ERROR indexing documents in Elasticsearch, rolling back...")
                 app.logger.error(error_list)
-                grq_es.es.bulk(_delete_docs, request_timeout=bulk_request_timeout)
+                grq_es.es.bulk(_delete_docs, timeout="2m")
                 return {
                     "success": False,
                     "message": error_list,
