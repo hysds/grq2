@@ -13,10 +13,33 @@ MOZART_ES = None
 GRQ_ES = None
 
 
-def get_mozart_es(es_url, logger=None):
+def get_mozart_es(logger=None):
     global MOZART_ES
+
     if MOZART_ES is None:
-        MOZART_ES = ElasticsearchUtility(es_url, logger)
+        aws_es = app.conf.get("JOBS_AWS_ES", False)
+        es_host = app.conf["JOBS_ES_HOST"]
+        es_url = app.conf["JOBS_ES_URL"]
+        region = app.conf["AWS_REGION"]
+
+        if aws_es is True:
+            aws_auth = BotoAWSRequestsAuth(
+                aws_host=es_host, aws_region=region, aws_service="es"
+            )
+            MOZART_ES = ElasticsearchUtility(
+                es_url=es_url,
+                logger=logger,
+                http_auth=aws_auth,
+                connection_class=RequestsHttpConnection,
+                use_ssl=True,
+                verify_certs=False,
+                ssl_show_warn=False,
+                timeout=30,
+                max_retries=10,
+                retry_on_timeout=True,
+            )
+        else:
+            MOZART_ES = ElasticsearchUtility(es_url, logger)
     return MOZART_ES
 
 
