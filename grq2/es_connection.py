@@ -17,8 +17,8 @@ def get_mozart_es(logger=None):
     global MOZART_ES
 
     if MOZART_ES is None:
-        aws_es = app.conf.get("JOBS_AWS_ES", False)
-        es_host = app.conf["JOBS_ES_HOST"]
+        aws_es = app.conf.get("MOZART_AWS_ES", False)
+        es_host = app.conf["MOZART_ES_HOST"]
         es_url = app.conf["JOBS_ES_URL"]
         region = app.conf["AWS_REGION"]
 
