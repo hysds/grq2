@@ -8,6 +8,7 @@ standard_library.install_aliases()
 
 import json
 import traceback
+from datetime import datetime
 
 from flask import request
 from flask_restx import Resource, fields
@@ -165,6 +166,7 @@ class IndexDataset(Resource):
             for ds in datasets:
                 _id = ds["id"]
                 index, aliases = get_es_index(ds)
+                ds["@timestamp"] = datetime.utcnow().isoformat() + 'Z'
                 reverse_geolocation(ds)
                 docs_bulk.append({"index": {"_index": index, "_id": _id}})
                 docs_bulk.append(ds)
