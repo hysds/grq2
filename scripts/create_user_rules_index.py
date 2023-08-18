@@ -8,7 +8,8 @@ standard_library.install_aliases()
 
 import os
 import json
-from elasticsearch import RequestError
+import elasticsearch.exceptions
+import opensearchpy.exceptions
 
 from hysds.es_util import get_mozart_es
 from grq2 import app
@@ -30,7 +31,7 @@ def create_user_rules_index():
 
 try:
     create_user_rules_index()
-except RequestError as e:
+except (elasticsearch.exceptions.RequestError, opensearchpy.exceptions.RequestError) as e:
     pass
 except Exception as e:
     raise e

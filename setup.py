@@ -15,6 +15,7 @@ setup(
         'Flask<2.3.0',  # TODO: remove kluge when Flask-DebugToolbar fixes import error
         'flask-restx>=0.5.1',
         "elasticsearch>=7.0.0,<7.14.0",
+        'opensearch-py>=2.3.0,<3.0.0',
         'shapely>=1.5.15',
         'Cython>=0.15.1',
         'Cartopy>=0.13.1',
