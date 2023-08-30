@@ -14,6 +14,8 @@ from flask import request
 from flask_restx import Resource, fields
 
 from shapely.geometry import shape
+
+from opensearchpy import OpenSearch
 import elasticsearch.exceptions
 import opensearchpy.exceptions
 
@@ -157,7 +159,11 @@ class IndexDataset(Resource):
     @grq_ns.expect(parser, validate=True)
     def post(self):
         # get bulk request timeout from config
-        bulk_request_timeout = app.config.get('BULK_REQUEST_TIMEOUT', 10)
+        # bulk_request_timeout = app.config.get('BULK_REQUEST_TIMEOUT', 10)
+
+        kwargs = {"timeout": "2m"}
+        if isinstance(grq_es.es, OpenSearch):
+            kwargs["timeout"] = 120
 
         try:
             datasets = json.loads(request.json)
@@ -178,7 +184,7 @@ class IndexDataset(Resource):
             app.logger.info("data split into %d chunk(s)" % len(data_chunks))
 
             for chunk in data_chunks:
-                resp = grq_es.es.bulk(body=chunk, timeout="2m")
+                resp = grq_es.es.bulk(body=chunk, **kwargs)
                 for item in resp["items"]:
                     doc_info = item["index"]
                     _delete_docs.append({"delete": {"_index": doc_info["_index"], "_id": doc_info["_id"]}})
@@ -190,7 +196,7 @@ class IndexDataset(Resource):
             if errors is True:
                 app.logger.error("ERROR indexing documents in Elasticsearch, rolling back...")
                 app.logger.error(error_list)
-                grq_es.es.bulk(_delete_docs, timeout="2m")
+                grq_es.es.bulk(body=_delete_docs, **kwargs)
                 return {
                     "success": False,
                     "message": error_list,
