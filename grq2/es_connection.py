@@ -13,7 +13,7 @@ MOZART_ES = None
 GRQ_ES = None
 
 
-def get_mozart_es(es_url, logger=None):
+def get_mozart_es(logger=None):
     global MOZART_ES
     es_cluster_mode = app.conf['ES_CLUSTER_MODE']
 
