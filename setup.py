@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='grq2',
-    version='2.0.24',
+    version='2.0.25',
     long_description='GeoRegionQuery REST API using ElasticSearch backend',
     packages=find_packages(),
     include_package_data=True,
