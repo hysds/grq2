@@ -25,6 +25,8 @@ setup(
         'requests',
         'pyshp',
         'redis',
-        "werkzeug>=2.2.0",  # TODO: remove this pin after fix has been made https://stackoverflow.com/a/73105878
+        # TODO: remove this pin after fix has been made to resolve
+        #  https://stackoverflow.com/questions/77213053/importerror-cannot-import-name-url-quote-from-werkzeug-urls
+        "werkzeug<3.0.0",
     ]
 )
