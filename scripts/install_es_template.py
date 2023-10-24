@@ -19,7 +19,7 @@ def write_template(prefix, alias, tmpl_file):
         tmpl = Template(f.read()).render(prefix=prefix, alias=alias)
 
     # https://elasticsearch-py.readthedocs.io/en/1.3.0/api.html#elasticsearch.Elasticsearch.put_template
-    grq_es.es.indices.put_template(name=alias, body=tmpl, ignore=400)
+    grq_es.es.indices.put_template(name=alias, body=tmpl)
     print(("Successfully installed template %s" % alias))
 
 

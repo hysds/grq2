@@ -23,4 +23,4 @@ with open(path) as f:
     body = json.load(f)
 
     # create destination index
-    mozart_es.es.indices.create(HYSDS_IOS_INDEX, body, ignore=400)
+    mozart_es.es.indices.create(HYSDS_IOS_INDEX, body)

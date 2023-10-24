@@ -72,7 +72,7 @@ def create_index(index, doctype):
     # get connection and create index
     es_url = 'http://localhost:9200'
     es = Elasticsearch(hosts=[es_url])
-    es.indices.create(index, ignore=400)
+    es.indices.create(index)
 
 
 url_keys = ['urls', 'browse_urls']

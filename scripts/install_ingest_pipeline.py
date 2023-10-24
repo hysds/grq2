@@ -22,4 +22,4 @@ if __name__ == '__main__':
         pipeline_name = 'dataset_pipeline'
 
         # https://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.client.IngestClient
-        grq_es.es.ingest.put_pipeline(id=pipeline_name, body=pipeline_settings, ignore=400)
+        grq_es.es.ingest.put_pipeline(id=pipeline_name, body=pipeline_settings)
