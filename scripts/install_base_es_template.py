@@ -20,7 +20,7 @@ def write_template(tmpl_file):
         tmpl = json.load(f)
 
     # https://elasticsearch-py.readthedocs.io/en/1.3.0/api.html#elasticsearch.Elasticsearch.put_template
-    grq_es.es.indices.put_template(name="index_defaults", body=tmpl, ignore=400)
+    grq_es.es.indices.put_template(name="index_defaults", body=tmpl)
     print(f"Successfully installed template to index_defaults:\n{json.dumps(tmpl, indent=2)}")
 
 

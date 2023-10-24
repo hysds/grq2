@@ -21,4 +21,4 @@ doctype = sys.argv[2]
 # get connection and create destination index
 es_url = app.config['ES_URL']
 es = Elasticsearch(hosts=[es_url])
-es.indices.create(index=dest, ignore=400)
+es.indices.create(index=dest)
