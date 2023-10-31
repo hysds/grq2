@@ -1,12 +1,23 @@
 # ElasticSearch URL
+ES_ENGINE = "{{ GRQ_ES_ENGINE or 'elasticsearch' }}"
 AWS_ES = {{ GRQ_AWS_ES or False }}
-ES_PROTOCOL = "{{ GRQ_ES_PROTOCOL or 'http' }}"
-ES_HOST = "{{ GRQ_ES_PVT_IP }}"
-ES_PORT = {{ GRQ_ES_PORT or 9200}}
-ES_URL = "{{ GRQ_ES_PROTOCOL or 'http' }}://{{ GRQ_ES_PVT_IP }}:{{ GRQ_ES_PORT or 9200}}"
-
-# Mozart Elasticsearch URL
-MOZART_ES_URL = "http://{{ MOZART_ES_PVT_IP }}:9200"
+{%- if GRQ_ES_PVT_IP is iterable and GRQ_ES_PVT_IP is not string %}
+ES_URL = [
+    {%- for url in GRQ_ES_PVT_IP %}
+        {%- if url.startswith('https://') %}
+    "{{ url }}",
+        {%- else %}
+    "{{ 'https://'~url if GRQ_AWS_ES == true or 'es.amazonaws.com' in url else 'http://'~url~':9200' }}",
+        {%- endif %}
+    {%- endfor %}
+]
+{%- else %}
+    {%- if GRQ_ES_PVT_IP.startswith('https://') %}
+ES_URL = "{{ GRQ_ES_PVT_IP }}"
+    {%- else %}
+ES_URL = "{{ 'https://'~GRQ_ES_PVT_IP if GRQ_AWS_ES == true or 'es.amazonaws.com' in GRQ_ES_PVT_IP else 'http://'~GRQ_ES_PVT_IP~':9200' }}"
+    {%- endif %}
+{%- endif %}
 
 # alias to ElasticSearch GRQ index
 GRQ_INDEX = "grq"

@@ -7,6 +7,7 @@ from future import standard_library
 
 import json
 import traceback
+from datetime import datetime
 
 from shapely.geometry import shape
 
@@ -59,6 +60,8 @@ def map_geojson_type(geo_type):
 def update(update_json):
     """Update GRQ metadata and urls for a product."""
     version = update_json['version']  # get version
+
+    update_json["@timestamp"] = datetime.utcnow().isoformat() + 'Z'
 
     # TODO: maybe set the set the default value to "dataset" instead of None
     dataset = update_json.get('dataset', None)  # determine index name

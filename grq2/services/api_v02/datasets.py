@@ -8,19 +8,23 @@ standard_library.install_aliases()
 
 import json
 import traceback
+from datetime import datetime
 
 from flask import request
 from flask_restx import Resource, fields
 
 from shapely.geometry import shape
-from elasticsearch.exceptions import ElasticsearchException
+
+from opensearchpy import OpenSearch
+import elasticsearch.exceptions
+import opensearchpy.exceptions
 
 from grq2 import app, grq_es
 from .service import grq_ns
-from grq2.lib.dataset import update as update_dataset, map_geojson_type
+from grq2.lib.dataset import map_geojson_type
 
 from grq2.lib.geonames import get_cities, get_nearest_cities, get_continents
-from grq2.lib.time_utils import getTemporalSpanInDays as get_ts
+from grq2.lib.time_utils import getTemporalSpanInDays
 
 
 _POINT = 'Point'
@@ -102,7 +106,7 @@ def reverse_geolocation(prod_json):
         if isinstance(prod_json['starttime'], str) and isinstance(prod_json['endtime'], str):
             start_time = prod_json['starttime']
             end_time = prod_json['endtime']
-            prod_json['temporal_span'] = get_ts(start_time, end_time)
+            prod_json['temporal_span'] = getTemporalSpanInDays(start_time, end_time)
 
 
 def split_array_chunk(data):
@@ -155,7 +159,11 @@ class IndexDataset(Resource):
     @grq_ns.expect(parser, validate=True)
     def post(self):
         # get bulk request timeout from config
-        bulk_request_timeout = app.config.get('BULK_REQUEST_TIMEOUT', 10)
+        # bulk_request_timeout = app.config.get('BULK_REQUEST_TIMEOUT', 10)
+
+        kwargs = {"timeout": "2m"}
+        if isinstance(grq_es.es, OpenSearch):
+            kwargs["timeout"] = 120
 
         try:
             datasets = json.loads(request.json)
@@ -164,6 +172,7 @@ class IndexDataset(Resource):
             for ds in datasets:
                 _id = ds["id"]
                 index, aliases = get_es_index(ds)
+                ds["@timestamp"] = datetime.utcnow().isoformat() + 'Z'
                 reverse_geolocation(ds)
                 docs_bulk.append({"index": {"_index": index, "_id": _id}})
                 docs_bulk.append(ds)
@@ -175,7 +184,7 @@ class IndexDataset(Resource):
             app.logger.info("data split into %d chunk(s)" % len(data_chunks))
 
             for chunk in data_chunks:
-                resp = grq_es.es.bulk(body=chunk, request_timeout=bulk_request_timeout)
+                resp = grq_es.es.bulk(body=chunk, **kwargs)
                 for item in resp["items"]:
                     doc_info = item["index"]
                     _delete_docs.append({"delete": {"_index": doc_info["_index"], "_id": doc_info["_id"]}})
@@ -187,7 +196,7 @@ class IndexDataset(Resource):
             if errors is True:
                 app.logger.error("ERROR indexing documents in Elasticsearch, rolling back...")
                 app.logger.error(error_list)
-                grq_es.es.bulk(_delete_docs, request_timeout=bulk_request_timeout)
+                grq_es.es.bulk(body=_delete_docs, **kwargs)
                 return {
                     "success": False,
                     "message": error_list,
@@ -198,7 +207,7 @@ class IndexDataset(Resource):
                 "success": True,
                 "message": "successfully indexed %d documents" % len(datasets),
             }
-        except ElasticsearchException as e:
+        except (elasticsearch.exceptions.ElasticsearchException, opensearchpy.exceptions.OpenSearchException) as e:
             message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
             app.logger.error(message)
             return {

@@ -5,12 +5,10 @@ from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
-import json
-import requests
 import sys
-from elasticsearch import Elasticsearch
 
-from grq2 import app
+from hysds.es_util import get_grq_es
+
 from grq2.lib.utils import parse_config
 
 
@@ -19,6 +17,5 @@ dest = sys.argv[1]
 doctype = sys.argv[2]
 
 # get connection and create destination index
-es_url = app.config['ES_URL']
-es = Elasticsearch(hosts=[es_url])
-es.indices.create(index=dest, ignore=400)
+grq_es = get_grq_es()
+grq_es.es.indices.create(index=dest, ignore=400)

@@ -8,7 +8,7 @@ standard_library.install_aliases()
 from flask import Flask, jsonify
 from flask_cors import CORS  # TODO: will remove this once we figure out the proper host for the UI
 
-from grq2.es_connection import get_grq_es, get_mozart_es
+from hysds.es_util import get_grq_es, get_mozart_es
 
 
 class ReverseProxied(object):

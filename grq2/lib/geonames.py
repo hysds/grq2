@@ -6,7 +6,9 @@ from future import standard_library
 standard_library.install_aliases()
 
 import json
-from elasticsearch.exceptions import NotFoundError
+import elasticsearch.exceptions
+import opensearchpy.exceptions
+
 from grq2 import app, grq_es
 
 
@@ -100,14 +102,13 @@ def get_cities(polygon, size=5, multipolygon=False):
         query['query']['bool']['minimum_should_match'] = 1
 
     else:
-        query['query']['bool']['filter'].append({
+        query['query']['bool']['filter'].append({  # noqa
             "geo_polygon": {
                 "location": {
                     "points": polygon,
                 }
             }
         })
-
     index = app.config['GEONAMES_INDEX']
     try:
         res = grq_es.search(index=index, body=query)  # query for results
@@ -117,7 +118,7 @@ def get_cities(polygon, size=5, multipolygon=False):
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except NotFoundError:
+    except (elasticsearch.exceptions.NotFoundError, opensearchpy.exceptions.NotFoundError):
         return None
     except Exception as e:
         raise Exception(e)
@@ -176,7 +177,7 @@ def get_nearest_cities(lon, lat, size=5):
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except NotFoundError:
+    except (elasticsearch.exceptions.NotFoundError, opensearchpy.exceptions.NotFoundError):
         return None
     except Exception as e:
         raise Exception(e)
@@ -256,7 +257,7 @@ def get_continents(lon, lat):
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except NotFoundError:
+    except (elasticsearch.exceptions.NotFoundError, opensearchpy.exceptions.NotFoundError):
         return None
     except Exception as e:
-        raise Exception(e)
+        raise e
