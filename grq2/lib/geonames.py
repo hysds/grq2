@@ -120,7 +120,7 @@ def get_cities(polygon, size=5, multipolygon=False):
         return results
     except (elasticsearch.exceptions.NotFoundError,
             opensearchpy.exceptions.NotFoundError,
-            hysds_commons.search_utils.JitteredBackoffException):
+            JitteredBackoffException):
         return None
     except Exception as e:
         raise Exception(e)
@@ -181,7 +181,7 @@ def get_nearest_cities(lon, lat, size=5):
         return results
     except (elasticsearch.exceptions.NotFoundError,
             opensearchpy.exceptions.NotFoundError,
-            hysds_commons.search_utils.JitteredBackoffException):
+            JitteredBackoffException):
         return None
     except Exception as e:
         raise Exception(e)
@@ -263,7 +263,7 @@ def get_continents(lon, lat):
         return results
     except (elasticsearch.exceptions.NotFoundError,
             opensearchpy.exceptions.NotFoundError,
-            hysds_commons.search_utils.JitteredBackoffException):
+            JitteredBackoffException):
         return None
     except Exception as e:
         raise e
