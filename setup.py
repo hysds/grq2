@@ -11,23 +11,30 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
+    python_requires='>=3.12',
     install_requires=[
-        'Flask<2.3.0',  # TODO: remove kluge when Flask-DebugToolbar fixes import error
-        'flask-restx>=0.5.1',
-        "elasticsearch>=7.0.0,<7.14.0",
+        'Flask>=3.0.0,<4.0.0',
+        'flask-restx>=1.1.0,<2.0.0',
+        'elasticsearch>=8.11.0,<9.0.0',
         'opensearch-py>=2.3.0,<3.0.0',
-        'shapely>=1.5.15',
-        'Cython>=0.15.1',
-        'Cartopy>=0.13.1',
-        'future>=0.17.1',
-        'gunicorn',
-        'eventlet',
-        'pymongo',
-        'requests',
-        'pyshp',
-        'redis',
-        # TODO: remove this pin after fix has been made to resolve
-        #  https://stackoverflow.com/questions/77213053/importerror-cannot-import-name-url-quote-from-werkzeug-urls
-        "werkzeug<3.0.0",
-    ]
+        'shapely>=2.0.1',
+        'Cython>=3.0.0',
+        'Cartopy>=0.22.0',
+        'gunicorn>=21.2.0',
+        'eventlet>=0.33.3',
+        'pymongo>=4.5.0',
+        'requests>=2.31.0',
+        'pyshp>=2.3.1',
+        'redis>=5.0.0',
+        'Werkzeug>=3.0.0,<4.0.0',
+    ],
+    extras_require={
+        'dev': [
+            'pytest>=7.4.0',
+            'pytest-cov>=4.1.0',
+            'black>=23.0.0',
+            'flake8>=6.0.0',
+            'isort>=5.12.0',
+        ]
+    }
 )
