@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 
@@ -82,7 +77,7 @@ class HySDSio(Resource):
         mozart_es.index_document(index=HYSDS_IOS_INDEX, body=obj, id=_id)
         return {
             'success': True,
-            'message': "%s added to index: %s" % (_id, HYSDS_IOS_INDEX),
+            'message': "{} added to index: {}".format(_id, HYSDS_IOS_INDEX),
             'result': _id
         }
 
@@ -93,9 +88,9 @@ class HySDSio(Resource):
             return {'success': False, 'message': 'id must be supplied'}, 400
 
         mozart_es.delete_by_id(index=HYSDS_IOS_INDEX, id=_id, ignore=404)
-        app.logger.info('deleted %s from index: %s' % (_id, HYSDS_IOS_INDEX))
+        app.logger.info('deleted {} from index: {}'.format(_id, HYSDS_IOS_INDEX))
 
         return {
             'success': True,
-            'message': "removed %s from index %s" % (_id, HYSDS_IOS_INDEX)
+            'message': "removed {} from index {}".format(_id, HYSDS_IOS_INDEX)
         }

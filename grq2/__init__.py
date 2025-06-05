@@ -1,7 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
@@ -11,7 +7,7 @@ from flask_cors import CORS  # TODO: will remove this once we figure out the pro
 from hysds.es_util import get_grq_es, get_mozart_es
 
 
-class ReverseProxied(object):
+class ReverseProxied:
     """
     Wrap the application in this middleware and configure the
     front-end server to add these headers, to let you quietly bind

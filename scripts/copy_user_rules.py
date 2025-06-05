@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import open
 from future import standard_library
 standard_library.install_aliases()
 
@@ -24,15 +19,15 @@ with open(mapping_file) as f:
 
 # get connection and create destination index
 es_url = app.config['ES_URL']
-r = requests.put("%s/%s" % (es_url, dest), data=mapping)
+r = requests.put("{}/{}".format(es_url, dest), data=mapping)
 
 # add all mappings from GRQ product indexes using alias
 grq_index = app.config['GRQ_INDEX']
-r = requests.get("%s/%s/_mapping" % (es_url, grq_index))
+r = requests.get("{}/{}/_mapping".format(es_url, grq_index))
 r.raise_for_status()
 mappings = r.json()
 for idx in mappings:
-    r = requests.put("%s/%s/_mapping" % (es_url, dest), data=json.dumps(mappings[idx]['mappings']))
+    r = requests.put("{}/{}/_mapping".format(es_url, dest), data=json.dumps(mappings[idx]['mappings']))
     r.raise_for_status()
 
 # index all docs from source index to destination index
@@ -43,7 +38,7 @@ query = {
     }
 }
 
-scroll_percolator_url = '%s/%s/.percolator/_search?search_type=scan&scroll=60m&size=100' % (es_url, src)
+scroll_percolator_url = '{}/{}/.percolator/_search?search_type=scan&scroll=60m&size=100'.format(es_url, src)
 r = requests.post(scroll_percolator_url, data=json.dumps(query))
 scan_result = r.json()
 count = scan_result['hits']['total']
@@ -58,10 +53,10 @@ while True:
         break
     for hit in res['hits']['hits']:
         doc = hit['_source']
-        r = requests.post("%s/%s/.percolator/" % (es_url, dest), data=json.dumps(doc))
+        r = requests.post("{}/{}/.percolator/".format(es_url, dest), data=json.dumps(doc))
         result = r.json()
         if r.status_code != 201:
-            print(("Failed to insert rule: %s" % json.dumps(doc, indent=2)))
+            print("Failed to insert rule: %s" % json.dumps(doc, indent=2))
             continue
 
-        print(("indexed %s" % hit['_id']))
+        print("indexed %s" % hit['_id'])

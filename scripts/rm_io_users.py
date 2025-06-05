@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import input
-from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 import json
@@ -17,7 +11,7 @@ import fnmatch
 
 from grq2 import app
 
-USER_RE = re.compile("^([a-zA-Z0-9-_.@]+\s*)+$")
+USER_RE = re.compile(r"^([a-zA-Z0-9-_.@]+\s*)+$")
 es_url = app.config['ES_URL']
 
 
@@ -49,7 +43,7 @@ def get_matching_hysdsios():
         for hit in res['hits']['hits']:
             ident = hit["_id"]
             accounts = hit.get("_source", {}).get("allowed_accounts", [])
-            print("\t{0}: {1}".format(ident, json.dumps(accounts)))
+            print(f"\t{ident}: {json.dumps(accounts)}")
             users[ident] = accounts
     # Enter in valid HySDS - IO
     print("-----------")
@@ -58,10 +52,10 @@ def get_matching_hysdsios():
         pattern = eval(input("Enter in hysds-io id glob pattern (from above):"))
         hysdsios = fnmatch.filter(list(users.keys()), pattern)
         if len(hysdsios) == 0:
-            print("No matching hysds-ios for '{0}'".format(pattern))
+            print(f"No matching hysds-ios for '{pattern}'")
     print()
     print()
-    print("Selected hysds-io(s): {0}".format(json.dumps(hysdsios)))
+    print(f"Selected hysds-io(s): {json.dumps(hysdsios)}")
     print("----------")
     return (hysdsios, users)
 
@@ -71,7 +65,7 @@ def get_rm_users():
     user = ""
     while not USER_RE.match(user):
         if user != "":
-            print("Invalid username(s): '{0}'".format(user))
+            print(f"Invalid username(s): '{user}'")
         user = eval(input("Enter in space-separated user(s) to remove:"))
     user = user.split()
     return user
@@ -81,7 +75,7 @@ def rm_to_ios(users, hysdsio, existing):
     '''
     '''
     if set(existing[hysdsio]) - set(users) == set(existing[hysdsio]):
-        print("Supplied users don't have permission to run {0}, nothing to do, Skipping.".format(
+        print("Supplied users don't have permission to run {}, nothing to do, Skipping.".format(
             hysdsio))
         return
     existing[hysdsio] = list(set(existing[hysdsio]) - set(users))
@@ -90,7 +84,7 @@ def rm_to_ios(users, hysdsio, existing):
     print("------------")
     sure = ""
     while sure == "":
-        sure = eval(input("Are you sure you want to remove {0} to allowed users for '{1}' for a final user set of {2}?" .format(
+        sure = eval(input("Are you sure you want to remove {} to allowed users for '{}' for a final user set of {}?" .format(
             users, hysdsio, json.dumps(existing[hysdsio]))))
         if not sure.startswith("y") and sure != "":
             print("User showed weakness, skipping")
@@ -102,11 +96,11 @@ def rm_to_ios(users, hysdsio, existing):
         "doc_as_upsert": True
     }
     try:
-        r = requests.post('%s/%s/%s/%s/_update' % (es_url,
+        r = requests.post('{}/{}/{}/{}/_update'.format(es_url,
                                                    "hysds_ios", "hysds_io", hysdsio), data=json.dumps(doc))
         r.raise_for_status()
     except Exception as e:
-        print("[ERROR] Failed to update hysds-io. Resolve IMMEDIATELY. {0}:{1}\n{2}".format(
+        print("[ERROR] Failed to update hysds-io. Resolve IMMEDIATELY. {}:{}\n{}".format(
             type(e), str(e), traceback.format_exc()), file=sys.stderr)
         sys.exit(-1)
 

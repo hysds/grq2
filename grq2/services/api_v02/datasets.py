@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 
@@ -46,12 +41,12 @@ def get_es_index(prod_json):
     version = prod_json['version']  # get version
     dataset = prod_json.get('dataset', "dataset")  # determine index name
 
-    index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, dataset)  # get default index
+    index = '{}_{}_{}'.format(app.config['GRQ_INDEX'], version, dataset)  # get default index
 
     aliases = []
     if 'index' in prod_json:
         if 'suffix' in prod_json['index']:
-            index = '%s_%s' % (app.config['GRQ_INDEX'], prod_json['index']['suffix'])
+            index = '{}_{}'.format(app.config['GRQ_INDEX'], prod_json['index']['suffix'])
         aliases.extend(prod_json['index'].get('aliases', []))
         del prod_json['index']
     return index.lower(), aliases
@@ -94,7 +89,7 @@ def reverse_geolocation(prod_json):
             if nearest_cities:
                 prod_json['city'] = nearest_cities
         else:
-            raise TypeError('%s is not a valid GEOJson type (or un-supported): %s' % (geo_json_type, GEOJSON_TYPES))
+            raise TypeError('{} is not a valid GEOJson type (or un-supported): {}'.format(geo_json_type, GEOJSON_TYPES))
 
         # add closest continent
         continents = get_continents(lon, lat)
@@ -208,14 +203,14 @@ class IndexDataset(Resource):
                 "message": "successfully indexed %d documents" % len(datasets),
             }
         except (elasticsearch.exceptions.ElasticsearchException, opensearchpy.exceptions.OpenSearchException) as e:
-            message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
+            message = f"Failed index dataset. {type(e)}:{e}\n{traceback.format_exc()}"
             app.logger.error(message)
             return {
                 'success': False,
                 'message': message
             }, 400
         except Exception as e:
-            message = "Error: {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
+            message = f"Error: {type(e)}:{e}\n{traceback.format_exc()}"
             app.logger.error(message)
             return {
                 'success': False,

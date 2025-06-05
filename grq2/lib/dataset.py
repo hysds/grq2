@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
 from future import standard_library
 
 import json
@@ -67,13 +62,13 @@ def update(update_json):
     dataset = update_json.get('dataset', None)  # determine index name
     index_suffix = dataset
 
-    index = '%s_%s_%s' % (app.config['GRQ_INDEX'], version, index_suffix)  # get default index
+    index = '{}_{}_{}'.format(app.config['GRQ_INDEX'], version, index_suffix)  # get default index
 
     # get custom index and aliases
     aliases = []
     if 'index' in update_json:
         if 'suffix' in update_json['index']:
-            index = '%s_%s' % (app.config['GRQ_INDEX'], update_json['index']['suffix'])
+            index = '{}_{}'.format(app.config['GRQ_INDEX'], update_json['index']['suffix'])
         aliases.extend(update_json['index'].get('aliases', []))
         del update_json['index']
 
@@ -112,7 +107,7 @@ def update(update_json):
             if nearest_cities:
                 update_json['city'] = nearest_cities
         else:
-            raise TypeError('%s is not a valid GEOJson type (or un-supported): %s' % (geo_json_type, GEOJSON_TYPES))
+            raise TypeError('{} is not a valid GEOJson type (or un-supported): {}'.format(geo_json_type, GEOJSON_TYPES))
 
         # add closest continent
         continents = get_continents(lon, lat)

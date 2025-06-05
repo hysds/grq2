@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 import json
@@ -21,8 +17,8 @@ def migrate(index_name):
     dest_count = r.json()['count']
 
     if src_count != dest_count:
-        print(('ERROR: index %s (%d) does not appear to match index %s (%d)' %
-              (src, src_count, dest, dest_count)))
+        print('ERROR: index %s (%d) does not appear to match index %s (%d)' %
+              (src, src_count, dest, dest_count))
         sys.exit(1)
 
     # index all docs from source index to destination index
@@ -48,15 +44,15 @@ def migrate(index_name):
         for hit in res['hits']['hits']:
             doc = hit['_source']
             # conn.index(hit['_source'], dest, hit['_type'], hit['_id'])
-            post_request = 'http://localhost:9200/%s/%s/%s' % (
+            post_request = 'http://localhost:9200/{}/{}/{}'.format(
                 dest, hit['_type'], hit['_id'])
             r = requests.post(post_request, data=json.dumps(hit['_source']))
             if r.status_code == 200:
-                print(("INFO: indexed \"%s\" on \"%s\"" % (hit['_id'], dest)))
+                print("INFO: indexed \"{}\" on \"{}\"".format(hit['_id'], dest))
             else:
-                print(('ERROR: post request returned status code %d: %s' %
-                      (r.status_code, post_request)))
-                print((r.json()))
+                print('ERROR: post request returned status code %d: %s' %
+                      (r.status_code, post_request))
+                print(r.json())
                 sys.exit(1)
 
 

@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import map
 from future import standard_library
 standard_library.install_aliases()
 import sys
@@ -98,18 +93,18 @@ def main():
         if len(res['hits']['hits']) == 0:
             break
         for hit in res['hits']['hits']:
-            print((json.dumps(hit, indent=2)))
+            print(json.dumps(hit, indent=2))
             id = hit['_id']
             old_span = hit['fields']['temporal_span'][0]
-            print(("old temporal span: %d" % old_span))
+            print("old temporal span: %d" % old_span)
             match = SENSING_RE.search(hit['_id'])
             sensing_start, sensing_stop = sorted(["%s-%s-%sT%s:%s:%s" % match.groups()[1:7],
                                                   "%s-%s-%sT%s:%s:%s" % match.groups()[7:]])
             new_span = getTemporalSpanInDays(sensing_stop, sensing_start)
-            print(("new temporal span: %d" % new_span))
+            print("new temporal span: %d" % new_span)
 
             if new_span == old_span:
-                print(("%s already fixed." % hit['_id']))
+                print("%s already fixed." % hit['_id'])
                 continue
 
             # upsert new document
@@ -117,7 +112,7 @@ def main():
                 "doc": {"temporal_span": new_span},
                 "doc_as_upsert": True
             }
-            r = requests.post('%s/%s/%s/%s/_update' % (es_url, src,
+            r = requests.post('{}/{}/{}/{}/_update'.format(es_url, src,
                                                        hit['_type'], hit['_id']), data=json.dumps(new_doc))
             result = r.json()
             if r.status_code != 200:

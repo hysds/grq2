@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import input
 from future import standard_library
 standard_library.install_aliases()
 import json
@@ -42,8 +37,8 @@ while True:
         if yn == "y":
             sure = eval(input("Are you sure? ID: %s " % ident))
             if not sure.startswith("y") and sure != "":
-                print(("Skipping: %s" % ident))
+                print("Skipping: %s" % ident)
                 continue
-            r = requests.delete("%s/hysds_ios/hysds_io/%s" % (es_url, ident))
+            r = requests.delete("{}/hysds_ios/hysds_io/{}".format(es_url, ident))
             r.raise_for_status()
-            print(("Deleted: %s" % ident))
+            print("Deleted: %s" % ident)

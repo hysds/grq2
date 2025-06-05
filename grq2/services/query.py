@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-
 from future import standard_library
 standard_library.install_aliases()
 
@@ -31,7 +26,7 @@ def redis_setnx():
     """Return redis setnx results."""
 
     # get key and value
-    key = "%s__%s" % (app.config['GRQ_INDEX'], request.args.get('key'))
+    key = "{}__{}".format(app.config['GRQ_INDEX'], request.args.get('key'))
     value = request.args.get('value')
 
     # execute

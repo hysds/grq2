@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 
@@ -85,11 +80,11 @@ class UserRules(Resource):
                 'rule': user_rule
             }
         elif _rule_name:
-            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            result = mozart_es.search(index=USER_RULES_INDEX, q=f"rule_name:{_rule_name}", ignore=404)
             if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                     "success": False,
-                    "message": "rule {} not found".format(_rule_name)
+                    "message": f"rule {_rule_name} not found"
                 }, 404
             user_rule = result.get("hits").get("hits")[0]
             user_rule = {**user_rule, **user_rule["_source"]}
@@ -312,7 +307,7 @@ class UserRules(Resource):
                     'message': 'rule %s not found' % _id
                 }, 404
         elif _rule_name:
-            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            result = mozart_es.search(index=USER_RULES_INDEX, q=f"rule_name:{_rule_name}", ignore=404)
             if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                     'success': False,
