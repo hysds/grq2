@@ -10,8 +10,10 @@ setup(
     python_requires='>=3.12',
     install_requires=[
         'Flask>=3.0.0,<4.0.0',
-        'flask-restx>=1.1.0,<2.0.0',
-        'elasticsearch>=8.11.0,<9.0.0',
+        'flask-restx>=1.2.0',  # Updated to latest version with jsonschema fixes
+        'jsonschema>=4.20.0,<5.0.0',  # Explicitly add jsonschema with referencing support
+        'referencing>=0.30.0',  # Required for jsonschema's new referencing system
+        'elasticsearch>=7.0.0,<7.14.0',  # Must be compatible with hysds-commons
         'opensearch-py>=2.3.0,<3.0.0',
         'shapely>=2.0.1',
         'Cython>=3.0.0',

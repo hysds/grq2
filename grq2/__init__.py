@@ -75,9 +75,16 @@ def resource_not_found(e):
     }), 404
 
 
+import os
+
 app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
-app.config.from_pyfile('../settings.cfg')
+
+# Get the directory of the current file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to settings.cfg in the project root
+config_path = os.path.abspath(os.path.join(current_dir, '..', 'settings.cfg'))
+app.config.from_pyfile(config_path)
 
 # TODO: will remove this when ready for actual release, need to figure out the right host
 CORS(app)
