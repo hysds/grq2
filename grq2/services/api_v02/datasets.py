@@ -19,7 +19,7 @@ from .service import grq_ns
 from grq2.lib.dataset import map_geojson_type
 
 from grq2.lib.geonames import get_cities, get_nearest_cities, get_continents
-from grq2.lib.time_utils import getTemporalSpanInDays
+from grq2.lib.time_utils import getTemporalSpanInDays, datetime_iso_naive
 
 
 _POINT = 'Point'
@@ -167,7 +167,7 @@ class IndexDataset(Resource):
             for ds in datasets:
                 _id = ds["id"]
                 index, aliases = get_es_index(ds)
-                ds["@timestamp"] = datetime.utcnow().isoformat() + 'Z'
+                ds["@timestamp"] = datetime_iso_naive() + 'Z'
                 reverse_geolocation(ds)
                 docs_bulk.append({"index": {"_index": index, "_id": _id}})
                 docs_bulk.append(ds)

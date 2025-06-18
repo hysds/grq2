@@ -9,6 +9,7 @@ from shapely.geometry import shape
 from grq2 import app, grq_es
 from grq2.lib.geonames import get_cities, get_nearest_cities, get_continents
 from grq2.lib.time_utils import getTemporalSpanInDays as get_ts
+from grq2.lib.time_utils import datetime_iso_naive
 standard_library.install_aliases()
 
 
@@ -56,7 +57,7 @@ def update(update_json):
     """Update GRQ metadata and urls for a product."""
     version = update_json['version']  # get version
 
-    update_json["@timestamp"] = datetime.utcnow().isoformat() + 'Z'
+    update_json["@timestamp"] = datetime_iso_naive() + 'Z'
 
     # TODO: maybe set the set the default value to "dataset" instead of None
     dataset = update_json.get('dataset', None)  # determine index name
