@@ -1,8 +1,7 @@
 from future import standard_library
 standard_library.install_aliases()
 import time as _time
-from datetime import tzinfo, timedelta, datetime
-from datetime import UTC as datetime_utc
+from datetime import tzinfo, timedelta, datetime, timezone
 import re
 import time
 
@@ -242,16 +241,16 @@ def getTemporalSpanInDays(dt1, dt2):
 
 def datetime_iso_naive(datetime_value=None):
     """
-    datetime.utcnow() is being deprecated in favor of datetime.now(UTC)
+    datetime.utcnow() is being deprecated in favor of datetime.now(timezone.utc)
 
     However, there are differences:
 
-    print(datetime.now(UTC).isoformat())  # '2025-06-18T21:20:57.526708+00:00'
+    print(datetime.now(timezone.utc).isoformat())  # '2025-06-18T21:20:57.526708+00:00'
     print(datetime.utcnow().isoformat())  # '2025-06-18T21:21:08.395675'
 
     This function is intended to maintain backwards compatibility
 
     """
     if datetime_value is None:
-        datetime_value = datetime.now(datetime_utc)
+        datetime_value = datetime.now(timezone.utc)
     return datetime_value.replace(tzinfo=None).isoformat()
