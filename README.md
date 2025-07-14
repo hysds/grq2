@@ -27,12 +27,12 @@ To run in production mode
 --------------------------
 As a daemon:
 ```bash
-gunicorn -w2 -b 0.0.0.0:8878 -k eventlet --daemon -p grq2.pid grq2:app
+gunicorn -w2 -b 0.0.0.0:8878 -k gevent --daemon -p grq2.pid grq2:app
 ```
 
 In the foreground:
 ```bash
-gunicorn -w2 -b 0.0.0.0:8878 -k eventlet -p grq2.pid grq2:app
+gunicorn -w2 -b 0.0.0.0:8878 -k gevent -p grq2.pid grq2:app
 ```
 
 Swagger UI
