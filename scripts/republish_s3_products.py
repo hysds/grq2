@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 import json
@@ -58,12 +54,12 @@ while True:
     for hit in res['hits']['hits']:
         doc = hit['fields']
         prefix = "%s/" % doc['urls'][0].replace(
-            'http://%s.s3-website-%s.amazonaws.com/' % (bucket_name, region), '')
+            'http://{}.s3-website-{}.amazonaws.com/'.format(bucket_name, region), '')
         print((doc['_id'], prefix))
         localize_urls = []
         for i in bucket.list(prefix):
             #localize_urls.append({ 'url': 's3://%s/%s' % (bucket_name, i.name), 'local_path': '%s/' % os.path.basename(prefix[0:-1]) })
-            localize_urls.append({'url': 'http://%s.s3-website-%s.amazonaws.com/%s' % (
+            localize_urls.append({'url': 'http://{}.s3-website-{}.amazonaws.com/{}'.format(
                 bucket_name, region, i.name), 'local_path': '%s/' % os.path.basename(prefix[0:-1])})
         payload = {
             "job_type": "job:ingest_dataset",

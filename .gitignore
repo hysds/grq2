@@ -49,6 +49,10 @@ htmlcov/
 .tox/
 .nox/
 .coverage
+
+# Configuration files for local development
+celeryconfig.py
+settings.cfg
 .coverage.*
 .cache
 nosetests.xml

@@ -1,13 +1,8 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-
 from future import standard_library
 standard_library.install_aliases()
 
 from flask import jsonify, Blueprint, request, Response, render_template, make_response
-from redis import StrictRedis
+from redis import Redis
 
 from grq2 import app
 
@@ -31,11 +26,11 @@ def redis_setnx():
     """Return redis setnx results."""
 
     # get key and value
-    key = "%s__%s" % (app.config['GRQ_INDEX'], request.args.get('key'))
+    key = "{}__{}".format(app.config['GRQ_INDEX'], request.args.get('key'))
     value = request.args.get('value')
 
     # execute
-    red = StrictRedis.from_url(app.config['REDIS_URL'])
+    red = Redis.from_url(app.config['REDIS_URL'])
     if red.setnx(key, value):
         return jsonify({
             'status': True,

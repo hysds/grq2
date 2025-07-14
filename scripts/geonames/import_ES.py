@@ -1,13 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import open
-from builtins import dict
-from builtins import zip
-from builtins import int
-from builtins import map
 from future import standard_library
 standard_library.install_aliases()
 
@@ -228,11 +219,11 @@ def parse(es, csv_file, start_position=0):
                         row['continent_code'] = cntries[row['country_code']][7]
                         row['continent_name'] = CONTINENT_CODES[row['continent_code']]
                     if row['admin1_code'] is not None:
-                        adm1_code = '%s.%s' % (
+                        adm1_code = '{}.{}'.format(
                             row['country_code'], row['admin1_code'])
                         row['admin1_name'] = adm1.get(adm1_code, [None])[0]
                         if row['admin2_code'] is not None:
-                            adm2_code = '%s.%s' % (
+                            adm2_code = '{}.{}'.format(
                                 adm1_code, row['admin2_code'])
                             row['admin2_name'] = adm2.get(adm2_code, [None])[0]
 

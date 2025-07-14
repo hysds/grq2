@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 import json
@@ -51,7 +47,7 @@ while True:
             "doc": {"metadata": {"user_tags": user_tags}},
             "doc_as_upsert": True
         }
-        r = requests.post('%s/%s/%s/%s/_update' % (es_url, dest,
+        r = requests.post('{}/{}/{}/{}/_update'.format(es_url, dest,
                                                    doc_type, hit['_id']), data=json.dumps(new_doc))
         result = r.json()
         if r.status_code != 200:
