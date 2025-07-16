@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import open
 from future import standard_library
 standard_library.install_aliases()
 import os
@@ -20,7 +15,7 @@ def write_template(prefix, alias, tmpl_file):
 
     # https://elasticsearch-py.readthedocs.io/en/1.3.0/api.html#elasticsearch.Elasticsearch.put_template
     grq_es.es.indices.put_template(name=alias, body=tmpl, ignore=400)
-    print(("Successfully installed template %s" % alias))
+    print("Successfully installed template %s" % alias)
 
 
 if __name__ == "__main__":

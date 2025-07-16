@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import open
 from future import standard_library
 standard_library.install_aliases()
 import json
@@ -33,24 +28,24 @@ def move_s3_files(url, target_path):
             file_url = parsed_url.scheme + "://" + \
                 parsed_url.hostname + '/' + result.get('Key')
             filename = result.get('Key').split('/')[-1]
-            print(('INFO: Copying object \"%s\" to \"%s\"' %
-                  (file_url, target_path + '/' + filename)))
+            print('INFO: Copying object \"%s\" to \"%s\"' %
+                  (file_url, target_path + '/' + filename))
             copy_source = bucket + '/' + result.get('Key')
             key = target_path + '/' + filename
             r = client.copy_object(
                 Bucket=bucket, CopySource=copy_source, Key=key)
             if r['ResponseMetadata']['HTTPStatusCode'] != 200:
-                print(('ERROR: %d' % r['ResponseMetadata']['HTTPStatusCode']))
-                print(('ERROR: Problem occured copying object \"%s\"' % file_url))
-                print(('ERROR: CopySource=%s, Key=%s' % (copy_source, key)))
+                print('ERROR: %d' % r['ResponseMetadata']['HTTPStatusCode'])
+                print('ERROR: Problem occured copying object \"%s\"' % file_url)
+                print('ERROR: CopySource={}, Key={}'.format(copy_source, key))
                 sys.exit(1)
             else:
                 if 'Error' in r:
-                    print(('ERROR: Problem occured copying object \"%s\"' %
-                          file_url))
-                    print(('ERROR: CopySource=%s, Key=%s' % (copy_source, key)))
-                    print(('ERROR: %s: %s' %
-                          (r['Error']['Code'], r['Error']['Message'])))
+                    print('ERROR: Problem occured copying object \"%s\"' %
+                          file_url)
+                    print('ERROR: CopySource={}, Key={}'.format(copy_source, key))
+                    print('ERROR: %s: %s' %
+                          (r['Error']['Code'], r['Error']['Message']))
                     sys.exit(1)
                 else:
                     # Delete object here?
@@ -121,12 +116,12 @@ while (True):
                         elif 'hysds-aria-products.s3' in parsed_url.hostname:
                             new_location = parsed_url.scheme + "://" + parsed_url.hostname + '/' + path
                             if url != new_location:
-                                print(('INFO: New target path: %s' % path))
+                                print('INFO: New target path: %s' % path)
                                 move_s3_files(url, path)
                                 new_urls.append(new_location)
                             else:
-                                print((
-                                    'INFO: URL appears to already conform to correct naming convention: %s. Will not move.' % url))
+                                print(
+                                    'INFO: URL appears to already conform to correct naming convention: %s. Will not move.' % url)
                                 new_urls.append(url)
             if new_urls:
                 updated_urls[url_key] = new_urls
@@ -148,19 +143,19 @@ while (True):
 
             updated_index = updated_doc['_index'] + '_update'
             create_index(updated_index, updated_doc['_type'])
-            post_request = 'http://localhost:9200/%s/%s/%s' % (
+            post_request = 'http://localhost:9200/{}/{}/{}'.format(
                 updated_index, updated_doc['_type'], updated_doc['_id'])
             r = requests.post(
                 post_request, data=json.dumps(updated_doc['_source']))
             if r.status_code == 200 or r.status_code == 201:
-                print(('SUCCESS: Successfully posted updated document for %s in index %s' % (
-                    updated_doc['_id'], updated_index)))
+                print('SUCCESS: Successfully posted updated document for {} in index {}'.format(
+                    updated_doc['_id'], updated_index))
                 r.raise_for_status()
             else:
-                print(('ERROR: Post request returned status code %d: %s' %
-                      (r.status_code, post_request)))
-                print((r.json()))
+                print('ERROR: Post request returned status code %d: %s' %
+                      (r.status_code, post_request))
+                print(r.json())
                 sys.exit(1)
         else:
-            print(('SKIP: Skipping \"%s\" dataset from index \"%s\". No S3 URLs to update' % (
-                updated_doc['_id'], updated_doc['_index'])))
+            print('SKIP: Skipping \"{}\" dataset from index \"{}\". No S3 URLs to update'.format(
+                updated_doc['_id'], updated_doc['_index']))

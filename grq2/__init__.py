@@ -1,7 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 
@@ -11,7 +7,7 @@ from flask_cors import CORS  # TODO: will remove this once we figure out the pro
 from hysds.es_util import get_grq_es, get_mozart_es
 
 
-class ReverseProxied(object):
+class ReverseProxied:
     """
     Wrap the application in this middleware and configure the
     front-end server to add these headers, to let you quietly bind
@@ -79,9 +75,16 @@ def resource_not_found(e):
     }), 404
 
 
+import os
+
 app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
-app.config.from_pyfile('../settings.cfg')
+
+# Get the directory of the current file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to settings.cfg in the project root
+config_path = os.path.abspath(os.path.join(current_dir, '..', 'settings.cfg'))
+app.config.from_pyfile(config_path)
 
 # TODO: will remove this when ready for actual release, need to figure out the right host
 CORS(app)

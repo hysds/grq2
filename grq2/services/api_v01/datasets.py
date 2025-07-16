@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 
@@ -53,7 +48,7 @@ class IndexDataset(Resource):
         try:
             return update_dataset(info)
         except Exception as e:
-            message = "Failed index dataset. {0}:{1}\n{2}".format(type(e), e, traceback.format_exc())
+            message = f"Failed index dataset. {type(e)}:{e}\n{traceback.format_exc()}"
             app.logger.error(message)
             return {
                 'success': False,

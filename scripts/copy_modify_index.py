@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 import json
@@ -49,4 +45,4 @@ while True:
             del doc['version']
         ret = es.index(
             index=dest, doc_type=hit['_type'], id=hit['_id'], body=doc)
-        print(("indexed %s" % hit['_id']))
+        print("indexed %s" % hit['_id'])

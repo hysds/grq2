@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 
@@ -24,7 +19,7 @@ class UserTags(Resource):
         _id = request_data.get('id')
         _index = request_data.get('index')
         tag = request_data.get('tag')
-        app.logger.info('_id: %s _index: %s tag: %s' % (_id, _index, tag))
+        app.logger.info('_id: {} _index: {} tag: {}'.format(_id, _index, tag))
 
         if _id is None or _index is None or tag is None:
             return {
@@ -67,7 +62,7 @@ class UserTags(Resource):
         _id = request.args.get('id')
         _index = request.args.get('index')
         tag = request.args.get('tag')
-        app.logger.info('_id: %s _index: %s tag: %s' % (_id, _index, tag))
+        app.logger.info('_id: {} _index: {} tag: {}'.format(_id, _index, tag))
 
         if _id is None or _index is None:
             return {

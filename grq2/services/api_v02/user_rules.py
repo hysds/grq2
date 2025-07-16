@@ -1,13 +1,8 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import request
 from flask_restx import Resource, inputs
@@ -85,11 +80,11 @@ class UserRules(Resource):
                 'rule': user_rule
             }
         elif _rule_name:
-            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            result = mozart_es.search(index=USER_RULES_INDEX, q=f"rule_name:{_rule_name}", ignore=404)
             if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                     "success": False,
-                    "message": "rule {} not found".format(_rule_name)
+                    "message": f"rule {_rule_name} not found"
                 }, 404
             user_rule = result.get("hits").get("hits")[0]
             user_rule = {**user_rule, **user_rule["_source"]}
@@ -202,7 +197,7 @@ class UserRules(Resource):
         if type(tags) == str:
             tags = [tags]
 
-        now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
         new_doc = {
             "workflow": hysds_io,
             "job_spec": job_spec,
@@ -312,7 +307,7 @@ class UserRules(Resource):
                     'message': 'rule %s not found' % _id
                 }, 404
         elif _rule_name:
-            result = mozart_es.search(index=USER_RULES_INDEX, q="rule_name:{}".format(_rule_name), ignore=404)
+            result = mozart_es.search(index=USER_RULES_INDEX, q=f"rule_name:{_rule_name}", ignore=404)
             if result.get("hits", {}).get("total", {}).get("value", 0) == 0:
                 return {
                     'success': False,
@@ -381,7 +376,7 @@ class UserRules(Resource):
             if type(tags) == str:
                 tags = [tags]
             update_doc['tags'] = tags
-        update_doc['modified_time'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        update_doc['modified_time'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
         if 'time_limit' in request_data:  # if submitted in editor
             if time_limit is None:
