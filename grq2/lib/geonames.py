@@ -6,7 +6,7 @@ import elasticsearch.exceptions
 import opensearchpy.exceptions
 
 from grq2 import app, grq_es
-
+from hysds_commons.search_utils import JitteredBackoffException
 
 def get_cities(polygon, size=5, multipolygon=False):
     """
@@ -114,7 +114,9 @@ def get_cities(polygon, size=5, multipolygon=False):
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except (elasticsearch.exceptions.NotFoundError, opensearchpy.exceptions.NotFoundError):
+    except (elasticsearch.exceptions.NotFoundError,
+            opensearchpy.exceptions.NotFoundError,
+            JitteredBackoffException):
         return None
     except Exception as e:
         raise Exception(e)
@@ -173,7 +175,9 @@ def get_nearest_cities(lon, lat, size=5):
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except (elasticsearch.exceptions.NotFoundError, opensearchpy.exceptions.NotFoundError):
+    except (elasticsearch.exceptions.NotFoundError,
+            opensearchpy.exceptions.NotFoundError,
+            JitteredBackoffException):
         return None
     except Exception as e:
         raise Exception(e)
@@ -253,7 +257,9 @@ def get_continents(lon, lat):
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except (elasticsearch.exceptions.NotFoundError, opensearchpy.exceptions.NotFoundError):
+    except (elasticsearch.exceptions.NotFoundError,
+            opensearchpy.exceptions.NotFoundError,
+            JitteredBackoffException):
         return None
     except Exception as e:
         raise e
