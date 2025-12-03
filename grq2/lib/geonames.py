@@ -2,11 +2,8 @@ from future import standard_library
 standard_library.install_aliases()
 
 import json
-import elasticsearch.exceptions
-import opensearchpy.exceptions
 
 from grq2 import app, grq_es
-from hysds_commons.search_utils import JitteredBackoffException
 
 def get_cities(polygon, size=5, multipolygon=False):
     """
@@ -107,17 +104,18 @@ def get_cities(polygon, size=5, multipolygon=False):
         })
     index = app.config['GEONAMES_INDEX']
     try:
-        res = grq_es.search(index=index, body=query)  # query for results
+        # ignore 404 errors to skip retry/backoff mechanism
+        res = grq_es.search(index=index, body=query, ignore=[404])
         app.logger.debug("get_cities(): %s" % json.dumps(query))
+
+        # check if we got an error response (when index doesn't exist)
+        if 'error' in res:
+            return None
 
         results = []
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except (elasticsearch.exceptions.NotFoundError,
-            opensearchpy.exceptions.NotFoundError,
-            JitteredBackoffException):
-        return None
     except Exception as e:
         raise Exception(e)
 
@@ -168,17 +166,18 @@ def get_nearest_cities(lon, lat, size=5):
 
     index = app.config['GEONAMES_INDEX']  # query for results
     try:
-        res = grq_es.search(index=index, body=query)
-        app.logger.debug("get_continents(): %s" % json.dumps(query))
+        # ignore 404 errors to skip retry/backoff mechanism
+        res = grq_es.search(index=index, body=query, ignore=[404])
+        app.logger.debug("get_nearest_cities(): %s" % json.dumps(query))
+
+        # check if we got an error response (when index doesn't exist)
+        if 'error' in res:
+            return None
 
         results = []
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except (elasticsearch.exceptions.NotFoundError,
-            opensearchpy.exceptions.NotFoundError,
-            JitteredBackoffException):
-        return None
     except Exception as e:
         raise Exception(e)
 
@@ -250,16 +249,17 @@ def get_continents(lon, lat):
 
     index = app.config['GEONAMES_INDEX']  # query for results
     try:
-        res = grq_es.search(index=index, body=query)
+        # ignore 404 errors to skip retry/backoff mechanism
+        res = grq_es.search(index=index, body=query, ignore=[404])
         app.logger.debug("get_continents(): %s" % json.dumps(query))
+
+        # check if we got an error response (when index doesn't exist)
+        if 'error' in res:
+            return None
 
         results = []
         for hit in res['hits']['hits']:
             results.append(hit['_source'])
         return results
-    except (elasticsearch.exceptions.NotFoundError,
-            opensearchpy.exceptions.NotFoundError,
-            JitteredBackoffException):
-        return None
     except Exception as e:
         raise e
