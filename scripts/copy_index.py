@@ -58,8 +58,7 @@ def main():
             es.index(
                 index=dest,
                 id=doc_id,
-                document=doc_source,
-                doc_type=doctype
+                document=doc_source
             )
             total_docs += 1
             
