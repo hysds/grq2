@@ -154,7 +154,7 @@ def create_geonames_mapping(es):
     mapping = {
         "mappings": MAPPING
     }
-    es.indices.create(INDEX, mapping, ignore=400)
+    es.indices.create(index=INDEX, body=mapping, ignore=400)
     print('%s index created!!' % INDEX)
 
 
