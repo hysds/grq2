@@ -1,5 +1,6 @@
-from future import standard_library
-standard_library.install_aliases()
+from importlib.metadata import version
+
+__version__ = version("hysds-grq2")
 
 from flask import Flask, jsonify
 from flask_cors import CORS  # TODO: will remove this once we figure out the proper host for the UI

@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hysds-grq2"
+dynamic = ["version"]
+description = "GeoRegionQuery REST API using ElasticSearch backend"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.12"
+authors = [
+    {name = "HySDS", email = "hysds-help@jpl.nasa.gov"}
+]
+keywords = ["hysds", "grq", "geoquery", "elasticsearch", "datasets"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Unix",
+    "Operating System :: MacOS :: MacOS X",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    # HySDS sibling packages (undeclared in original setup.py - now added)
+    "hysds-core~=7.0",
+    "hysds-commons~=7.0",
+    
+    # Core dependencies - matching original setup.py order and pins exactly
+    "Flask<2.3.0",
+    "flask-restx>=0.5.1",
+    "elasticsearch>=7.0.0,<7.14.0",
+    "opensearch-py>=2.3.0,<3.0.0",
+    "shapely>=1.5.15",
+    "Cython>=0.15.1",
+    "Cartopy>=0.13.1",
+    "gunicorn",
+    "eventlet",
+    "pymongo",
+    "requests",
+    "pyshp",
+    "redis",
+    "werkzeug<3.0.0",
+    # Note: 'future>=0.17.1' removed - not needed on Python 3.12+
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/hysds/grq2"
+Repository = "https://github.com/hysds/grq2"
+Issues = "https://github.com/hysds/grq2/issues"
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = {version_scheme = "no-guess-dev"}
+
+[tool.hatch.build.targets.wheel]
+packages = ["grq2"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/grq2",
+    "/scripts",
+    "README.md",
+    "LICENSE",
+]
