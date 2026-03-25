@@ -33,7 +33,7 @@ dependencies = [
     "hysds-commons>=7.0,<8.0",
     
     # Core dependencies - matching original setup.py order and pins exactly
-    "Flask<2.3.0",
+    "Flask>=2.2,<3.0",
     "flask-restx>=0.5.1",
     "elasticsearch>=7.0.0,<7.14.0",
     "opensearch-py>=2.3.0,<3.0.0",
