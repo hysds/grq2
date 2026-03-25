@@ -78,48 +78,63 @@ def resource_not_found(e):
 
 import os
 
+# Try to initialize the app, but allow import to succeed even if config is missing
 app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 # Get the directory of the current file
 current_dir = os.path.dirname(os.path.abspath(__file__))
-# Construct the path to settings.cfg in the project root
-config_path = os.path.abspath(os.path.join(current_dir, '..', 'settings.cfg'))
-app.config.from_pyfile(config_path)
+# Look for settings.cfg in multiple locations for flexibility
+config_path = os.path.join(current_dir, 'settings.cfg')
+if not os.path.exists(config_path):
+    # Try parent directory for development mode (pip install -e .)
+    config_path = os.path.abspath(os.path.join(current_dir, '..', 'settings.cfg'))
 
-# TODO: will remove this when ready for actual release, need to figure out the right host
-CORS(app)
+# Only initialize if config file exists
+if os.path.exists(config_path):
+    try:
+        app.config.from_pyfile(config_path)
 
-# handle global errors
-app.register_error_handler(404, resource_not_found)
+        # TODO: will remove this when ready for actual release, need to figure out the right host
+        CORS(app)
 
-# initializing connection to GRQ's Elasticsearch
-grq_es = get_grq_es()
+        # handle global errors
+        app.register_error_handler(404, resource_not_found)
 
-# initializing connection to Mozart's Elasticsearch
-mozart_es = get_mozart_es()
+        # initializing connection to GRQ's Elasticsearch
+        grq_es = get_grq_es()
 
-# services blueprints
-from grq2.services.main import mod as main_module
-app.register_blueprint(main_module)
+        # initializing connection to Mozart's Elasticsearch
+        mozart_es = get_mozart_es()
 
-from grq2.services.query import mod as query_module
-app.register_blueprint(query_module)
+        # services blueprints
+        from grq2.services.main import mod as main_module
+        app.register_blueprint(main_module)
 
-from grq2.services.geonames import mod as geonames_module
-app.register_blueprint(geonames_module)
+        from grq2.services.query import mod as query_module
+        app.register_blueprint(query_module)
 
-# rest API blueprints
-from grq2.services.api_v01.service import services as api_v01_services
-app.register_blueprint(api_v01_services)
+        from grq2.services.geonames import mod as geonames_module
+        app.register_blueprint(geonames_module)
 
-from grq2.services.api_v02.service import services as api_v02_services
-app.register_blueprint(api_v02_services)
+        # rest API blueprints
+        from grq2.services.api_v01.service import services as api_v01_services
+        app.register_blueprint(api_v01_services)
 
+        from grq2.services.api_v02.service import services as api_v02_services
+        app.register_blueprint(api_v02_services)
 
-if __name__ != '__main__':
-    import logging
+        if __name__ != '__main__':
+            import logging
 
-    gunicorn_logger = logging.getLogger('gunicorn.error')
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+            gunicorn_logger = logging.getLogger('gunicorn.error')
+            app.logger.handlers = gunicorn_logger.handlers
+            app.logger.setLevel(gunicorn_logger.level)
+    except Exception:
+        # If initialization fails, app will be partially configured but import will succeed
+        grq_es = None
+        mozart_es = None
+else:
+    # Config file doesn't exist - app is created but not fully initialized
+    grq_es = None
+    mozart_es = None
