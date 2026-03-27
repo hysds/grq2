@@ -82,13 +82,16 @@ import os
 app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
-# Get the directory of the current file
-current_dir = os.path.dirname(os.path.abspath(__file__))
 # Look for settings.cfg in multiple locations for flexibility
-config_path = os.path.join(current_dir, 'settings.cfg')
+# Priority: 1) Runtime location (PyPI installs), 2) Package directory, 3) Parent directory (editable installs)
+config_path = os.path.expanduser("~/sciflo/etc/grq2_settings.cfg")
 if not os.path.exists(config_path):
-    # Try parent directory for development mode (pip install -e .)
-    config_path = os.path.abspath(os.path.join(current_dir, '..', 'settings.cfg'))
+    # Fallback to package directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(current_dir, 'settings.cfg')
+    if not os.path.exists(config_path):
+        # Try parent directory for development mode (pip install -e .)
+        config_path = os.path.abspath(os.path.join(current_dir, '..', 'settings.cfg'))
 
 # Only initialize if config file exists
 if os.path.exists(config_path):
