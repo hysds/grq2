@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-from future import standard_library
-standard_library.install_aliases()
-
 import os
 import json
 import elasticsearch.exceptions
@@ -16,7 +13,9 @@ USER_RULES_INDEX = app.config['USER_RULES_INDEX']
 
 def create_user_rules_index():
     """Create user rules index applying percolator mapping."""
-    mapping_file = os.path.join(app.root_path, '..', 'config', 'user_rules_dataset.mapping')
+    current_directory = os.path.dirname(__file__)
+    mapping_file = os.path.join(current_directory, '..', 'config', 'user_rules_dataset.mapping')
+    mapping_file = os.path.abspath(mapping_file)
     mapping_file = os.path.normpath(mapping_file)
 
     with open(mapping_file) as f:

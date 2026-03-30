@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-from future import standard_library
-standard_library.install_aliases()
-
 import os
 import json
 
@@ -13,7 +10,10 @@ mozart_es = get_mozart_es()
 HYSDS_IOS_INDEX = app.config['HYSDS_IOS_INDEX']
 
 # get doc type mapping
-path = os.path.join(app.root_path, '..', 'config', 'hysds_ios.mapping')
+current_directory = os.path.dirname(__file__)
+path = os.path.join(current_directory, '..', 'config', 'hysds_ios.mapping')
+path = os.path.abspath(path)
+path = os.path.normpath(path)
 with open(path) as f:
     body = json.load(f)
 
