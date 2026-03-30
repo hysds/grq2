@@ -79,6 +79,7 @@ packages = ["grq2"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/grq2",
+    "/config",
     "/scripts",
     "README.md",
     "LICENSE",
