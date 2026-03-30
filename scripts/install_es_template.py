@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-from future import standard_library
-standard_library.install_aliases()
 import os
 from jinja2 import Template
 
-from grq2 import grq_es
+from hysds.es_util import get_grq_es
 
 
 def write_template(prefix, alias, tmpl_file):
     """Write template to ES."""
+
+    # Initialize ES connection (after config file exists)
+    grq_es = get_grq_es()
 
     with open(tmpl_file) as f:
         tmpl = Template(f.read()).render(prefix=prefix, alias=alias)
