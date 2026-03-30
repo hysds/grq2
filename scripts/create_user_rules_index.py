@@ -21,7 +21,7 @@ def create_user_rules_index():
     with open(mapping_file) as f:
         mapping = json.load(f)
 
-    mozart_es.es.indices.create(USER_RULES_INDEX, mapping)
+    mozart_es.es.indices.create(USER_RULES_INDEX, mapping, ignore=400)
 
 
 try:
