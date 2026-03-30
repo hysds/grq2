@@ -1,15 +1,16 @@
 #!/usr/bin/env python
-from future import standard_library
-standard_library.install_aliases()
 import os
 import sys
 import json
 
-from grq2 import grq_es
+from hysds.es_util import get_grq_es
 
 
 def write_template(tmpl_file):
     """Write template to ES."""
+
+    # Initialize ES connection (after config file exists)
+    grq_es = get_grq_es()
 
     with open(tmpl_file) as f:
         tmpl = json.load(f)
