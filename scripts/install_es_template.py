@@ -23,8 +23,12 @@ if __name__ == "__main__":
     prefix = "grq"
     alias = "grq"
 
-    current_file = os.path.dirname(__file__)
-    tmpl_file = os.path.abspath(os.path.join(current_file, '..', 'config', 'es_template.json'))
-    tmpl_file = os.path.normpath(tmpl_file)
+    etc_tmpl = os.path.expanduser("~/sciflo/etc/es_template.json")
+    if os.path.exists(etc_tmpl):
+        tmpl_file = etc_tmpl
+    else:
+        current_file = os.path.dirname(__file__)
+        tmpl_file = os.path.abspath(os.path.join(current_file, '..', 'config', 'es_template.json'))
+        tmpl_file = os.path.normpath(tmpl_file)
 
     write_template(prefix, alias, tmpl_file)
