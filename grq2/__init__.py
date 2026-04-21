@@ -133,8 +133,11 @@ if os.path.exists(config_path):
             gunicorn_logger = logging.getLogger('gunicorn.error')
             app.logger.handlers = gunicorn_logger.handlers
             app.logger.setLevel(gunicorn_logger.level)
-    except Exception:
+    except Exception as e:
         # If initialization fails, app will be partially configured but import will succeed
+        import logging
+        logging.basicConfig(level=logging.ERROR)
+        logging.error(f"Failed to initialize grq2: {e}", exc_info=True)
         grq_es = None
         mozart_es = None
 else:
