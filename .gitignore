@@ -23,6 +23,8 @@ eggs/
 .eggs/
 lib/
 lib64/
+# Exception: allow grq2/lib source code directory
+!grq2/lib/
 parts/
 sdist/
 var/
