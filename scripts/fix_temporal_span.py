@@ -112,8 +112,8 @@ def main():
                 "doc": {"temporal_span": new_span},
                 "doc_as_upsert": True
             }
-            r = requests.post('{}/{}/{}/{}/_update'.format(es_url, src,
-                                                       hit['_type'], hit['_id']), data=json.dumps(new_doc))
+            r = requests.post('{}/{}/_doc/{}/_update'.format(es_url, src,
+                                                       hit['_id']), data=json.dumps(new_doc))
             result = r.json()
             if r.status_code != 200:
                 app.logger.debug("Failed to update user_tags for %s. Got status code %d:\n%s" %

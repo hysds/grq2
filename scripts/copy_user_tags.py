@@ -13,7 +13,6 @@ from grq2.lib.utils import parse_config
 # get source and destination index
 src = sys.argv[1]
 dest = sys.argv[2]
-doc_type = sys.argv[3]
 
 # get url
 es_url = app.config['ES_URL']

@@ -143,8 +143,8 @@ while (True):
 
             updated_index = updated_doc['_index'] + '_update'
             create_index(updated_index, updated_doc['_type'])
-            post_request = 'http://localhost:9200/{}/{}/{}'.format(
-                updated_index, updated_doc['_type'], updated_doc['_id'])
+            post_request = 'http://localhost:9200/{}/_doc/{}'.format(
+                updated_index, updated_doc['_id'])
             r = requests.post(
                 post_request, data=json.dumps(updated_doc['_source']))
             if r.status_code == 200 or r.status_code == 201:
