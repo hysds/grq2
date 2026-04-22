@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import json
+import sysconfig
 import elasticsearch.exceptions
 import opensearchpy.exceptions
 
@@ -11,12 +12,29 @@ mozart_es = get_mozart_es()
 USER_RULES_INDEX = app.config['USER_RULES_INDEX']
 
 
+def get_package_path(subdir, filename):
+    """Get path to package resource for both PyPI and editable installs."""
+    # Try PyPI shared-data location first
+    pypi_path = os.path.join(sysconfig.get_path('data'), 'share', 'grq2', subdir, filename)
+    if os.path.exists(pypi_path):
+        return pypi_path
+    
+    # Fallback to editable install location (relative to script)
+    current_directory = os.path.dirname(__file__)
+    editable_path = os.path.join(current_directory, '..', subdir, filename)
+    editable_path = os.path.abspath(editable_path)
+    editable_path = os.path.normpath(editable_path)
+    
+    if os.path.exists(editable_path):
+        return editable_path
+    
+    # Return PyPI path even if it doesn't exist (for error messages)
+    return pypi_path
+
+
 def create_user_rules_index():
     """Create user rules index applying percolator mapping."""
-    current_directory = os.path.dirname(__file__)
-    mapping_file = os.path.join(current_directory, '..', 'config', 'user_rules_dataset.mapping')
-    mapping_file = os.path.abspath(mapping_file)
-    mapping_file = os.path.normpath(mapping_file)
+    mapping_file = get_package_path('config', 'user_rules_dataset.mapping')
 
     with open(mapping_file) as f:
         mapping = json.load(f)
