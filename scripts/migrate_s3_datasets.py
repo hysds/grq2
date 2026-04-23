@@ -44,8 +44,8 @@ def migrate(index_name):
         for hit in res['hits']['hits']:
             doc = hit['_source']
             # conn.index(hit['_source'], dest, hit['_type'], hit['_id'])
-            post_request = 'http://localhost:9200/{}/{}/{}'.format(
-                dest, hit['_type'], hit['_id'])
+            post_request = 'http://localhost:9200/{}/_doc/{}'.format(
+                dest, hit['_id'])
             r = requests.post(post_request, data=json.dumps(hit['_source']))
             if r.status_code == 200:
                 print("INFO: indexed \"{}\" on \"{}\"".format(hit['_id'], dest))

@@ -67,7 +67,7 @@ def create_index(index, doctype):
     # get connection and create index
     es_url = 'http://localhost:9200'
     es = Elasticsearch(hosts=[es_url])
-    es.indices.create(index, ignore=400)
+    es.indices.create(index=index, ignore=400)
 
 
 url_keys = ['urls', 'browse_urls']
@@ -143,8 +143,8 @@ while (True):
 
             updated_index = updated_doc['_index'] + '_update'
             create_index(updated_index, updated_doc['_type'])
-            post_request = 'http://localhost:9200/{}/{}/{}'.format(
-                updated_index, updated_doc['_type'], updated_doc['_id'])
+            post_request = 'http://localhost:9200/{}/_doc/{}'.format(
+                updated_index, updated_doc['_id'])
             r = requests.post(
                 post_request, data=json.dumps(updated_doc['_source']))
             if r.status_code == 200 or r.status_code == 201:

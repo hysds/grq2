@@ -13,7 +13,6 @@ from grq2.lib.utils import parse_config
 # get source and destination index
 src = sys.argv[1]
 dest = sys.argv[2]
-doctype = sys.argv[3]
 
 # get connection and create destination index
 es_url = app.config['ES_URL']
@@ -58,8 +57,7 @@ def main():
             es.index(
                 index=dest,
                 id=doc_id,
-                document=doc_source,
-                doc_type=doctype
+                document=doc_source
             )
             total_docs += 1
             

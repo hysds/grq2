@@ -51,5 +51,5 @@ while True:
             "(12 H2O pressure layers, 1 degree, 1 degree)",
         ]
         ret = es.index(
-            index=dest, doc_type=hit['_type'], id=hit['_id'], body=doc)
+            index=dest, id=hit['_id'], body=doc)
         print("indexed %s" % hit['_id'])
