@@ -133,7 +133,9 @@ def update(update_json):
                 actions.append({"add": {"index": index, "alias": index_alias}})
 
             update_alias = {"actions": actions}
-            grq_es.es.indices.update_aliases(update_alias)
+            # opensearch-py 3.x makes the client methods keyword-only, so the
+            # body must be passed by name; accepted by 2.x as well.
+            grq_es.es.indices.update_aliases(body=update_alias)
         except Exception as e:
             app.logger.debug("Got exception trying to add aliases to index: %s\n%s\nContinuing on." %
                              (str(e), traceback.format_exc()))
